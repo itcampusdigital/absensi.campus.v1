@@ -63,6 +63,7 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
+            // 'model' => Ajifatur\FaturHelper\Models\User::class,
         ],
 
         // 'users' => [

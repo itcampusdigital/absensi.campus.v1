@@ -8,9 +8,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class User extends \Ajifatur\FaturHelper\Models\User
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    // use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -18,7 +18,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'username', 'email', 'password', 'birthdate', 'gender', 'phone_number', 'role', 'status', 'last_visit',
+        'name', 'role_id', 'group_id', 'office_id', 'position_id', 'username', 'email', 'password', 'birthdate', 'gender', 'phone_number', 'address', 'latest_education', 'identity_number', 'start_date', 'end_date', 'status', 'last_visit',
     ];
 
     /**
@@ -69,5 +69,37 @@ class User extends Authenticatable
     public function indicators()
     {
         return $this->hasMany(\App\Models\UserIndicator::class);
+    }
+
+    /**
+     * Get the late funds for the user.
+     */
+    public function late_funds()
+    {
+        return $this->hasMany(\App\Models\UserLateFund::class);
+    }
+
+    /**
+     * Get the debt funds for the user.
+     */
+    public function debt_funds()
+    {
+        return $this->hasMany(\App\Models\UserDebtFund::class);
+    }
+
+    /**
+     * Get the certifications for the user.
+     */
+    public function certifications()
+    {
+        return $this->hasMany(\App\Models\UserCertification::class);
+    }
+
+    /**
+     * The offices that belong to the manager.
+     */
+    public function managed_offices()
+    {
+        return $this->belongsToMany(Office::class, 'user__office', 'user_id', 'office_id');
     }
 }

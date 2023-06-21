@@ -20,21 +20,30 @@ class OfficeController extends Controller
     {
         if($request->ajax()) {
             // Get offices by the group
-            $offices = Office::where('group_id','=',$request->query('group'))->get();
+            $offices = Office::where('group_id','=',$request->query('group'))->orderBy('is_main','desc')->orderBy('name','asc')->get();
 
             // Return
             return response()->json($offices);
         }
 
+        // Check the access
+        has_access(method(__METHOD__), Auth::user()->role_id);
+
         // Get offices
-        if(Auth::user()->role == role('super-admin'))
-            $offices = Office::has('group')->get();
-        elseif(Auth::user()->role == role('admin') || Auth::user()->role == role('manager'))
-            $offices = Office::has('group')->where('group_id','=',Auth::user()->group_id)->get();
+        if(Auth::user()->role_id == role('super-admin')) {
+            $group = Group::find($request->query('group'));
+            $offices = $group ? Office::has('group')->where('group_id','=',$group->id)->orderBy('is_main','desc')->orderBy('name','asc')->get() : Office::has('group')->orderBy('group_id','asc')->orderBy('is_main','desc')->orderBy('name','asc')->get();
+        }
+        elseif(Auth::user()->role_id == role('admin') || Auth::user()->role_id == role('manager'))
+            $offices = Office::has('group')->where('group_id','=',Auth::user()->group_id)->orderBy('is_main','desc')->orderBy('name','asc')->get();
+
+        // Get groups
+        $groups = Group::orderBy('name','asc')->get();
 
         // View
         return view('admin/office/index', [
-            'offices' => $offices
+            'offices' => $offices,
+            'groups' => $groups
         ]);
     }
 
@@ -45,8 +54,11 @@ class OfficeController extends Controller
      */
     public function create()
     {
+        // Check the access
+        has_access(method(__METHOD__), Auth::user()->role_id);
+
         // Get groups
-        $groups = Group::all();
+        $groups = Group::orderBy('name','asc')->get();
 
         // View
         return view('admin/office/create', [
@@ -65,19 +77,21 @@ class OfficeController extends Controller
         // Validation
         $validator = Validator::make($request->all(), [
             'name' => 'required|max:255',
-            'group_id' => Auth::user()->role == role('super-admin') ? 'required' : '',
+            'group_id' => Auth::user()->role_id == role('super-admin') ? 'required' : '',
+            'is_main' => 'required'
         ]);
         
         // Check errors
-        if($validator->fails()){
+        if($validator->fails()) {
             // Back to form page with validation error messages
             return redirect()->back()->withErrors($validator->errors())->withInput();
         }
-        else{
+        else {
             // Save the office
             $office = new Office;
-            $office->group_id = Auth::user()->role == role('super-admin') ? $request->group_id : Auth::user()->group_id;
+            $office->group_id = Auth::user()->role_id == role('super-admin') ? $request->group_id : Auth::user()->group_id;
             $office->name = $request->name;
+            $office->is_main = $request->is_main;
             $office->save();
 
             // Redirect
@@ -93,6 +107,9 @@ class OfficeController extends Controller
      */
     public function detail($id)
     {
+        // Check the access
+        has_access(method(__METHOD__), Auth::user()->role_id);
+
         // Get the office
         $office = Office::findOrFail($id);
 
@@ -110,11 +127,14 @@ class OfficeController extends Controller
      */
     public function edit($id)
     {
+        // Check the access
+        has_access(method(__METHOD__), Auth::user()->role_id);
+
         // Get the office
         $office = Office::findOrFail($id);
 
         // Get groups
-        $groups = Group::all();
+        $groups = Group::orderBy('name','asc')->get();
 
         // View
         return view('admin/office/edit', [
@@ -134,19 +154,21 @@ class OfficeController extends Controller
         // Validation
         $validator = Validator::make($request->all(), [
             'name' => 'required|max:255',
-            'group_id' => Auth::user()->role == role('super-admin') ? 'required' : '',
+            'group_id' => Auth::user()->role_id == role('super-admin') ? 'required' : '',
+            'is_main' => 'required'
         ]);
         
         // Check errors
-        if($validator->fails()){
+        if($validator->fails()) {
             // Back to form page with validation error messages
             return redirect()->back()->withErrors($validator->errors())->withInput();
         }
-        else{
+        else {
             // Update the office
             $office = Office::find($request->id);
-            $office->group_id = Auth::user()->role == role('super-admin') ? $request->group_id : Auth::user()->group_id;
+            $office->group_id = Auth::user()->role_id == role('super-admin') ? $request->group_id : Auth::user()->group_id;
             $office->name = $request->name;
+            $office->is_main = $request->is_main;
             $office->save();
 
             // Redirect
@@ -162,6 +184,9 @@ class OfficeController extends Controller
      */
     public function delete(Request $request)
     {
+        // Check the access
+        has_access(method(__METHOD__), Auth::user()->role_id);
+        
         // Get the office
         $office = Office::findOrFail($request->id);
 

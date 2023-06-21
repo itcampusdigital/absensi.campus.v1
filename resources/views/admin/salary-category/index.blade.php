@@ -1,90 +1,108 @@
-@extends('template/main')
+@extends('faturhelper::layouts/admin/main')
 
-@section('title', 'Kelola Kategori Gaji')
+@section('title', 'Kelola Kriteria Penggajian')
 
 @section('content')
 
-<main class="app-content">
-    <div class="app-title">
-        <div>
-            <h1><i class="fa fa-money"></i> Kelola Kategori Gaji</h1>
-        </div>
-        <ul class="app-breadcrumb breadcrumb">
-            <li class="breadcrumb-item"><i class="fa fa-home fa-lg"></i></li>
-            <li class="breadcrumb-item"><a href="#">Penggajian</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('admin.salary-category.index') }}">Kategori</a></li>
-            <li class="breadcrumb-item">Kelola Kategori</li>
-        </ul>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="tile">
-                <div class="tile-title-w-btn">
-                    <div></div>
-                    <div class="btn-group">
-                        <a class="btn btn-sm btn-primary" href="{{ route('admin.salary-category.create') }}"><i class="fa fa-lg fa-plus"></i> Tambah Data</a>
-                    </div>
+<div class="d-sm-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-2 mb-sm-0">Kelola Kriteria Penggajian</h1>
+    <a href="{{ route('admin.salary-category.create') }}" class="btn btn-sm btn-primary"><i class="bi-plus me-1"></i> Tambah Kriteria</a>
+</div>
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            @if(Auth::user()->role_id == role('super-admin'))
+            <div class="card-header d-sm-flex justify-content-end align-items-center">
+                <div></div>
+                <div class="ms-sm-2 ms-0">
+                    <select name="group" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Perusahaan">
+                        <option value="0">Semua Perusahaan</option>
+                        @foreach($groups as $group)
+                        <option value="{{ $group->id }}" {{ Request::query('group') == $group->id ? 'selected' : '' }}>{{ $group->name }}</option>
+                        @endforeach
+                    </select>
                 </div>
-                <div class="tile-body">
-                    @if(Session::get('message') != null)
-                    <div class="alert alert-dismissible alert-success">
-                        <button class="close" type="button" data-dismiss="alert">×</button>{{ Session::get('message') }}
-                    </div>
-                    @endif
-                    <div class="table-responsive">
-                        <table class="table table-sm table-hover table-bordered" id="table">
-                            <thead>
-                                <tr>
-                                    <th width="20"></th>
-                                    <th>Kategori</th>
-                                    <th width="100">Tipe</th>
-                                    <th width="80">Indikator</th>
-                                    <th width="150">Jabatan</th>
-                                    <th width="150">Grup</th>
-                                    <th width="40">Opsi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($salary_categories as $category)
-                                    <tr>
-                                        <td align="center"><input type="checkbox"></td>
-                                        <td>{{ $category->name }}</td>
-                                        <td>
-                                            @if($category->type_id == 1) Manual
-                                            @elseif($category->type_id == 2) Masa Kerja (Bulan)
-                                            @elseif($category->type_id == 3) Kehadiran per Bulan
-                                            @endif
-                                        </td>
-                                        <td>{{ number_format($category->indicators()->count(),0,',',',') }}</td>
-                                        <td>
-                                            @if($category->position)
-                                                <a href="{{ route('admin.position.detail', ['id' => $category->position->id]) }}">{{ $category->position->name }}</a>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if($category->group)
-                                                <a href="{{ route('admin.group.detail', ['id' => $category->group->id]) }}">{{ $category->group->name }}</a>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <div class="btn-group">
-                                                <a href="{{ route('admin.salary-category.set', ['id' => $category->id]) }}" class="btn btn-info btn-sm" title="Atur Indikator"><i class="fa fa-cog"></i></a>
-                                                <a href="{{ route('admin.salary-category.edit', ['id' => $category->id]) }}" class="btn btn-warning btn-sm" title="Edit"><i class="fa fa-edit"></i></a>
-                                                <a href="#" class="btn btn-danger btn-sm btn-delete" data-id="{{ $category->id }}" title="Hapus"><i class="fa fa-trash"></i></a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+            </div>
+            <hr class="my-0">
+            @endif
+            <div class="card-body">
+                @if(Session::get('message'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <div class="alert-message">{{ Session::get('message') }}</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                @endif
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered" id="datatable">
+                        <thead class="bg-light">
+                            <tr>
+                                <th width="20"><input type="checkbox" class="form-check-input checkbox-all"></th>
+                                <th width="150">Jabatan</th>
+                                <th>Kategori</th>
+                                <th width="150">Tipe</th>
+                                <th width="80">Indikator</th>
+                                <th width="80">Dikalikan dengan Kehadiran</th>
+                                @if(Auth::user()->role_id == role('super-admin') && Request::query('group') == null)
+                                <th width="150">Perusahaan</th>
+                                @endif
+                                <th width="40">Opsi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($salary_categories as $category)
+                            <tr>
+                                <td align="center"><input type="checkbox" class="form-check-input checkbox-one"></td>
+                                <td>
+                                    @if($category->position)
+                                        <a href="{{ route('admin.position.detail', ['id' => $category->position->id]) }}">{{ $category->position->name }}</a>
+                                    @endif
+                                </td>
+                                <td>{{ $category->name }}</td>
+                                <td>
+                                    @if($category->type_id == 1) Manual
+                                    @elseif($category->type_id == 2) Masa Kerja (Bulan)
+                                    @elseif($category->type_id == 3) Sertifikasi
+                                    @endif
+                                    @if($category->type_id == 3 && $category->certification)
+                                        <br>
+                                        <span class="small text-muted">{{ $category->certification->name }}</span>
+                                    @endif
+                                </td>
+                                <td>{{ number_format($category->indicators()->count(),0,',',',') }}</td>
+                                <td>
+                                    @if($category->multiplied_by_attendances == 0)
+                                        Tidak
+                                    @elseif($category->multiplied_by_attendances == 99)
+                                        Ya, Dengan Semua Kehadiran
+                                    @else
+                                        {{ \App\Models\WorkHourCategory::find($category->multiplied_by_attendances)->name ?? '' }}
+                                    @endif
+                                </td>
+                                @if(Auth::user()->role_id == role('super-admin') && Request::query('group') == null)
+                                <td>
+                                    @if($category->group)
+                                        <a href="{{ route('admin.group.detail', ['id' => $category->group->id]) }}">{{ $category->group->name }}</a>
+                                    @endif
+                                </td>
+                                @endif
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{{ route('admin.salary-category.set', ['id' => $category->id]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Atur Indikator"><i class="bi-wrench"></i></a>
+                                        <a href="{{ route('admin.salary-category.edit', ['id' => $category->id]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a>
+                                        <a href="#" class="btn btn-sm btn-danger btn-delete" data-id="{{ $category->id }}" data-bs-toggle="tooltip" title="Hapus"><i class="bi-trash"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
-</main>
+</div>
 
-<form id="form-delete" class="d-none" method="post" action="{{ route('admin.salary-category.delete') }}">
+<form class="form-delete d-none" method="post" action="{{ route('admin.salary-category.delete') }}">
     @csrf
     <input type="hidden" name="id">
 </form>
@@ -93,21 +111,21 @@
 
 @section('js')
 
-@include('template/js/datatable')
-
 <script type="text/javascript">
-	// DataTable
-	DataTable("#table");
+    // DataTable
+    Spandiv.DataTable("#datatable", {
+        pageLength: -1,
+        rowsGroup: [1]
+    });
 
     // Button Delete
-    $(document).on("click", ".btn-delete", function(e){
-        e.preventDefault();
-        var id = $(this).data("id");
-        var ask = confirm("Anda yakin ingin menghapus data ini?");
-        if(ask){
-            $("#form-delete input[name=id]").val(id);
-            $("#form-delete").submit();
-        }
+    Spandiv.ButtonDelete(".btn-delete", ".form-delete");
+
+    // Change the Group
+    $(document).on("change", ".card-header select[name=group]", function() {
+        var group = $(this).val();
+        if(group === "0") window.location.href = Spandiv.URL("{{ route('admin.salary-category.index') }}");
+        else window.location.href = Spandiv.URL("{{ route('admin.salary-category.index') }}", {group: group});
     });
 </script>
 

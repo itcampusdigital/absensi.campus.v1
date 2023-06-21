@@ -14,19 +14,30 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Admin
-Route::group(['middleware' => ['admin']], function(){
-    // Logout
-	Route::post('/admin/logout', 'LoginController@logout')->name('admin.logout');
+Route::group(['middleware' => ['admin']], function() {
+	// Summary Attendance
+	Route::get('/admin/summary/attendance', 'SummaryAttendanceController@index')->name('admin.summary.attendance.index');
+	Route::get('/admin/summary/attendance/detail/{id}', 'SummaryAttendanceController@detail')->name('admin.summary.attendance.detail');
+	Route::get('/admin/summary/monitor-attendance', 'SummaryAttendanceController@monitor')->name('admin.summary.attendance.monitor');
 
-	// Dashboard
-	Route::get('/admin', 'DashboardController@index')->name('admin.dashboard');
+	// Summary Salary
+	Route::get('/admin/summary/salary', 'SummarySalaryController@index')->name('admin.summary.salary.index');
+	Route::get('/admin/summary/salary/export', 'SummarySalaryController@export')->name('admin.summary.salary.export');
+	Route::post('/admin/summary/salary/update/indicator', 'SummarySalaryController@updateIndicator')->name('admin.summary.salary.update.indicator');
+	Route::post('/admin/summary/salary/update/late-fund', 'SummarySalaryController@updateLateFund')->name('admin.summary.salary.update.late-fund');
+	Route::post('/admin/summary/salary/update/debt-fund', 'SummarySalaryController@updateDebtFund')->name('admin.summary.salary.update.debt-fund');
+
+	// Summary Office
+	Route::get('/admin/summary/office', 'SummaryOfficeController@index')->name('admin.summary.office.index');
+
+	// Summary Certification
+	Route::get('/admin/summary/certification', 'SummaryCertificationController@index')->name('admin.summary.certification.index');
+	Route::post('/admin/summary/certification/update', 'SummaryCertificationController@update')->name('admin.summary.certification.update');
 
     // Attendance
 	Route::get('/admin/attendance', 'AttendanceController@index')->name('admin.attendance.index');
-	Route::get('/admin/attendance/summary', 'AttendanceController@summary')->name('admin.attendance.summary');
 	Route::get('/admin/attendance/create', 'AttendanceController@create')->name('admin.attendance.create');
 	Route::post('/admin/attendance/store', 'AttendanceController@store')->name('admin.attendance.store');
-	Route::get('/admin/attendance/detail/{id}', 'AttendanceController@detail')->name('admin.attendance.detail');
 	Route::get('/admin/attendance/edit/{id}', 'AttendanceController@edit')->name('admin.attendance.edit');
 	Route::post('/admin/attendance/update', 'AttendanceController@update')->name('admin.attendance.update');
 	Route::post('/admin/attendance/delete', 'AttendanceController@delete')->name('admin.attendance.delete');
@@ -39,6 +50,14 @@ Route::group(['middleware' => ['admin']], function(){
 	Route::post('/admin/absent/update', 'AbsentController@update')->name('admin.absent.update');
 	Route::post('/admin/absent/delete', 'AbsentController@delete')->name('admin.absent.delete');
 
+    // Leave
+	Route::get('/admin/leave', 'LeaveController@index')->name('admin.leave.index');
+	Route::get('/admin/leave/create', 'LeaveController@create')->name('admin.leave.create');
+	Route::post('/admin/leave/store', 'LeaveController@store')->name('admin.leave.store');
+	Route::get('/admin/leave/edit/{id}', 'LeaveController@edit')->name('admin.leave.edit');
+	Route::post('/admin/leave/update', 'LeaveController@update')->name('admin.leave.update');
+	Route::post('/admin/leave/delete', 'LeaveController@delete')->name('admin.leave.delete');
+
 	// User
 	Route::get('/admin/user', 'UserController@index')->name('admin.user.index');
 	Route::get('/admin/user/create', 'UserController@create')->name('admin.user.create');
@@ -46,9 +65,9 @@ Route::group(['middleware' => ['admin']], function(){
 	Route::get('/admin/user/detail/{id}', 'UserController@detail')->name('admin.user.detail');
 	Route::get('/admin/user/edit/{id}', 'UserController@edit')->name('admin.user.edit');
 	Route::post('/admin/user/update', 'UserController@update')->name('admin.user.update');
-	Route::get('/admin/user/edit-indicator/{id}', 'UserController@editIndicator')->name('admin.user.edit-indicator');
-	Route::post('/admin/user/update-indicator', 'UserController@updateIndicator')->name('admin.user.update-indicator');
 	Route::post('/admin/user/delete', 'UserController@delete')->name('admin.user.delete');
+	Route::get('/admin/user/edit-certification/{id}', 'UserController@editCertification')->name('admin.user.edit-certification');
+	Route::post('/admin/user/update-certification', 'UserController@updateCertification')->name('admin.user.update-certification');
 
 	// Group
 	Route::get('/admin/group', 'GroupController@index')->name('admin.group.index');
@@ -85,6 +104,14 @@ Route::group(['middleware' => ['admin']], function(){
 	Route::post('/admin/work-hour/update', 'WorkHourController@update')->name('admin.work-hour.update');
 	Route::post('/admin/work-hour/delete', 'WorkHourController@delete')->name('admin.work-hour.delete');
 
+	// Certification
+	Route::get('/admin/certification', 'CertificationController@index')->name('admin.certification.index');
+	Route::get('/admin/certification/create', 'CertificationController@create')->name('admin.certification.create');
+	Route::post('/admin/certification/store', 'CertificationController@store')->name('admin.certification.store');
+	Route::get('/admin/certification/edit/{id}', 'CertificationController@edit')->name('admin.certification.edit');
+	Route::post('/admin/certification/update', 'CertificationController@update')->name('admin.certification.update');
+	Route::post('/admin/certification/delete', 'CertificationController@delete')->name('admin.certification.delete');
+
 	// Salary Category
 	Route::get('/admin/salary-category', 'SalaryCategoryController@index')->name('admin.salary-category.index');
 	Route::get('/admin/salary-category/create', 'SalaryCategoryController@create')->name('admin.salary-category.create');
@@ -94,47 +121,16 @@ Route::group(['middleware' => ['admin']], function(){
 	Route::get('/admin/salary-category/set/{id}', 'SalaryCategoryController@set')->name('admin.salary-category.set');
 	Route::post('/admin/salary-category/update-indicator', 'SalaryCategoryController@updateIndicator')->name('admin.salary-category.update-indicator');
 	Route::post('/admin/salary-category/delete', 'SalaryCategoryController@delete')->name('admin.salary-category.delete');
-
-	// // Salary Indicator
-	// Route::get('/admin/salary-indicator', 'SalaryIndicatorController@index')->name('admin.salary-indicator.index');
-	// Route::get('/admin/salary-indicator/create', 'SalaryIndicatorController@create')->name('admin.salary-indicator.create');
-	// Route::post('/admin/salary-indicator/store', 'SalaryIndicatorController@store')->name('admin.salary-indicator.store');
-	// Route::get('/admin/salary-indicator/edit/{id}', 'SalaryIndicatorController@edit')->name('admin.salary-indicator.edit');
-	// Route::post('/admin/salary-indicator/update', 'SalaryIndicatorController@update')->name('admin.salary-indicator.update');
-	// Route::post('/admin/salary-indicator/delete', 'SalaryIndicatorController@delete')->name('admin.salary-indicator.delete');
-});
-
-// Member
-Route::group(['middleware' => ['member']], function(){
-    // Logout
-	Route::post('/member/logout', 'LoginController@logout')->name('member.logout');
-
-	// Dashboard
-    Route::get('/member', 'DashboardController@index')->name('member.dashboard');
-
-	// Attendance
-	Route::get('/member/attendance/detail', 'AttendanceController@detail')->name('member.attendance.detail');
-	Route::post('/member/attendance/entry', 'AttendanceController@entry')->name('member.attendance.entry');
-	Route::post('/member/attendance/exit', 'AttendanceController@exit')->name('member.attendance.exit');
 });
 
 // Guest
-Route::group(['middleware' => ['guest']], function(){
+Route::group(['middleware' => ['guest']], function() {
     // Home
     Route::get('/', function () {
-		// $routes = collect(Route::getRoutes())->map(function($route) {
-		// 	return $route->uri();
-		// });
-
-		// echo "<pre>";
-		// var_dump($routes);
-		// echo "</pre>";
-		// return;
-
         return redirect()->route('auth.login');
     });
-
-    // Login
-    Route::get('/login', 'LoginController@show')->name('auth.login');
-    Route::post('/login', 'LoginController@authenticate')->name('auth.post-login');
 });
+
+// FaturHelper Routes
+\Ajifatur\Helpers\RouteExt::auth();
+\Ajifatur\Helpers\RouteExt::admin();

@@ -10,6 +10,8 @@ use App\Models\Office;
 
 class GroupController extends Controller
 {
+    public $tabs = ['office', 'position', 'admin', 'manager', 'member'];
+
     /**
      * Display a listing of the resource.
      *
@@ -25,14 +27,15 @@ class GroupController extends Controller
             // Return
             return response()->json($offices);
         }
+        
+        // Check the access
+        has_access(method(__METHOD__), Auth::user()->role_id);
 
         // Get groups
-        if(Auth::user()->role == role('super-admin'))
+        if(Auth::user()->role_id == role('super-admin'))
             $groups = Group::all();
-        elseif(Auth::user()->role == role('admin'))
+        elseif(Auth::user()->role_id == role('admin'))
             $groups = Group::where('id','=',Auth::user()->group_id)->get();
-        elseif(Auth::user()->role == role('manager'))
-            abort(403);
 
         // View
         return view('admin/group/index', [
@@ -47,6 +50,9 @@ class GroupController extends Controller
      */
     public function create()
     {
+        // Check the access
+        has_access(method(__METHOD__), Auth::user()->role_id);
+
         // View
         return view('admin/group/create');
     }
@@ -62,23 +68,28 @@ class GroupController extends Controller
         // Validation
         $validator = Validator::make($request->all(), [
             'name' => 'required|max:255',
+            'period_start' => 'required',
+            'period_end' => 'required'
         ]);
         
         // Check errors
-        if($validator->fails()){
+        if($validator->fails()) {
             // Back to form page with validation error messages
             return redirect()->back()->withErrors($validator->errors())->withInput();
         }
-        else{
+        else {
             // Save the group
             $group = new Group;
             $group->name = $request->name;
+            $group->period_start = $request->period_start;
+            $group->period_end = $request->period_end;
             $group->save();
 
             // Save the Head Office
             $office = new Office;
             $office->group_id = $group->id;
             $office->name = 'Head Office';
+            $office->is_main = 1;
             $office->save();
 
             // Redirect
@@ -89,17 +100,23 @@ class GroupController extends Controller
     /**
      * Display the specified resource.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function detail($id)
+    public function detail(Request $request, $id)
     {
+        // Redirect
+        if(!in_array($request->query('tab'), $this->tabs)) {
+            return redirect()->route('admin.group.detail', ['id' => $id, 'tab' => $this->tabs[0]]);
+        }
+
         // Get the group
         $group = Group::findOrFail($id);
 
         // View
         return view('admin/group/detail', [
-            'group' => $group,
+            'group' => $group
         ]);
     }
 
@@ -111,6 +128,9 @@ class GroupController extends Controller
      */
     public function edit($id)
     {
+        // Check the access
+        has_access(method(__METHOD__), Auth::user()->role_id);
+
         // Get the group
         $group = Group::findOrFail($id);
 
@@ -131,17 +151,21 @@ class GroupController extends Controller
         // Validation
         $validator = Validator::make($request->all(), [
             'name' => 'required|max:255',
+            'period_start' => 'required',
+            'period_end' => 'required'
         ]);
         
         // Check errors
-        if($validator->fails()){
+        if($validator->fails()) {
             // Back to form page with validation error messages
             return redirect()->back()->withErrors($validator->errors())->withInput();
         }
-        else{
+        else {
             // Update the group
             $group = Group::find($request->id);
             $group->name = $request->name;
+            $group->period_start = $request->period_start;
+            $group->period_end = $request->period_end;
             $group->save();
 
             // Redirect
@@ -156,7 +180,10 @@ class GroupController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function delete(Request $request)
-    {        
+    {
+        // Check the access
+        has_access(method(__METHOD__), Auth::user()->role_id);
+
         // Get the group
         $group = Group::find($request->id);
 

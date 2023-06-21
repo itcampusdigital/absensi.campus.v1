@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\WorkHour;
 use App\Models\Group;
 use App\Models\User;
+use App\Models\WorkHourCategory;
 
 class WorkHourController extends Controller
 {
@@ -29,15 +30,24 @@ class WorkHourController extends Controller
             }
         }
 
+        // Check the access
+        has_access(method(__METHOD__), Auth::user()->role_id);
+
         // Get work hours
-        if(Auth::user()->role == role('super-admin'))
-            $work_hours = WorkHour::all();
-        elseif(Auth::user()->role == role('admin') || Auth::user()->role == role('manager'))
-            $work_hours = WorkHour::where('group_id','=',Auth::user()->group_id)->get();
+        if(Auth::user()->role_id == role('super-admin')) {
+            $group = Group::find($request->query('group'));
+            $work_hours = $group ? WorkHour::has('group')->where('group_id','=',$group->id)->get() : WorkHour::has('group')->orderBy('group_id','asc')->get();
+        }
+        elseif(Auth::user()->role_id == role('admin') || Auth::user()->role_id == role('manager'))
+            $work_hours = WorkHour::has('group')->where('group_id','=',Auth::user()->group_id)->get();
+
+        // Get groups
+        $groups = Group::orderBy('name','asc')->get();
 
         // View
         return view('admin/work-hour/index', [
-            'work_hours' => $work_hours
+            'work_hours' => $work_hours,
+            'groups' => $groups
         ]);
     }
 
@@ -48,12 +58,19 @@ class WorkHourController extends Controller
      */
     public function create()
     {
+        // Check the access
+        has_access(method(__METHOD__), Auth::user()->role_id);
+
         // Get groups
-        $groups = Group::all();
+        $groups = Group::orderBy('name','asc')->get();
+
+        // Get categories
+        $categories = WorkHourCategory::orderBy('name','asc')->get();
 
         // View
         return view('admin/work-hour/create', [
-            'groups' => $groups
+            'groups' => $groups,
+            'categories' => $categories
         ]);
     }
 
@@ -68,26 +85,27 @@ class WorkHourController extends Controller
         // Validation
         $validator = Validator::make($request->all(), [
             'name' => 'required|max:255',
-            'group_id' => Auth::user()->role == role('super-admin') ? 'required' : '',
-            // 'category' => 'required',
+            'group_id' => Auth::user()->role_id == role('super-admin') ? 'required' : '',
             'office_id' => 'required',
             'position_id' => 'required',
+            'category_id' => 'required',
             'quota' => 'required|numeric',
             'start_at' => 'required',
             'end_at' => 'required',
         ]);
         
         // Check errors
-        if($validator->fails()){
+        if($validator->fails()) {
             // Back to form page with validation error messages
             return redirect()->back()->withErrors($validator->errors())->withInput();
         }
-        else{
+        else {
             // Save the work_hour
             $work_hour = new WorkHour;
-            $work_hour->group_id = Auth::user()->role == role('super-admin') ? $request->group_id : Auth::user()->group_id;
+            $work_hour->group_id = Auth::user()->role_id == role('super-admin') ? $request->group_id : Auth::user()->group_id;
             $work_hour->office_id = $request->office_id;
             $work_hour->position_id = $request->position_id;
+            $work_hour->category_id = $request->category_id;
             $work_hour->name = $request->name;
             $work_hour->category = 0;
             $work_hour->quota = $request->quota;
@@ -108,16 +126,23 @@ class WorkHourController extends Controller
      */
     public function edit($id)
     {
+        // Check the access
+        has_access(method(__METHOD__), Auth::user()->role_id);
+
         // Get the work hour
         $work_hour = WorkHour::findOrFail($id);
 
         // Get groups
-        $groups = Group::all();
+        $groups = Group::orderBy('name','asc')->get();
+
+        // Get categories
+        $categories = WorkHourCategory::orderBy('name','asc')->get();
 
         // View
         return view('admin/work-hour/edit', [
             'work_hour' => $work_hour,
             'groups' => $groups,
+            'categories' => $categories,
         ]);
     }
 
@@ -132,26 +157,26 @@ class WorkHourController extends Controller
         // Validation
         $validator = Validator::make($request->all(), [
             'name' => 'required|max:255',
-            // 'category' => 'required',
             'office_id' => 'required',
             'position_id' => 'required',
+            'category_id' => 'required',
             'quota' => 'required|numeric',
             'start_at' => 'required',
             'end_at' => 'required',
         ]);
         
         // Check errors
-        if($validator->fails()){
+        if($validator->fails()) {
             // Back to form page with validation error messages
             return redirect()->back()->withErrors($validator->errors())->withInput();
         }
-        else{
+        else {
             // Update the work hour
             $work_hour = WorkHour::find($request->id);
             $work_hour->name = $request->name;
-            // $work_hour->category = $request->category;
             $work_hour->office_id = $request->office_id;
             $work_hour->position_id = $request->position_id;
+            $work_hour->category_id = $request->category_id;
             $work_hour->quota = $request->quota;
             $work_hour->start_at = $request->start_at.':00';
             $work_hour->end_at = $request->end_at.':00';
@@ -170,6 +195,9 @@ class WorkHourController extends Controller
      */
     public function delete(Request $request)
     {
+        // Check the access
+        has_access(method(__METHOD__), Auth::user()->role_id);
+        
         // Get the work hour
         $work_hour = WorkHour::findOrFail($request->id);
 
