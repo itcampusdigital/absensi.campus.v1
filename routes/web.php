@@ -35,12 +35,12 @@ Route::group(['middleware' => ['admin']], function() {
 	Route::post('/admin/summary/certification/update', 'SummaryCertificationController@update')->name('admin.summary.certification.update');
 
     // Attendance
-	Route::get('/admin/attendance', 'AttendanceController@index')->name('admin.attendance.index');
-	Route::get('/admin/attendance/create', 'AttendanceController@create')->name('admin.attendance.create');
-	Route::post('/admin/attendance/store', 'AttendanceController@store')->name('admin.attendance.store');
-	Route::get('/admin/attendance/edit/{id}', 'AttendanceController@edit')->name('admin.attendance.edit');
-	Route::post('/admin/attendance/update', 'AttendanceController@update')->name('admin.attendance.update');
-	Route::post('/admin/attendance/delete', 'AttendanceController@delete')->name('admin.attendance.delete');
+	Route::get('/admin/attendances', 'AttendanceController@index')->name('admin.attendance.index');
+	Route::get('/admin/attendances/create', 'AttendanceController@create')->name('admin.attendance.create');
+	Route::post('/admin/attendances/store', 'AttendanceController@store')->name('admin.attendance.store');
+	Route::get('/admin/attendances/edit/{id}', 'AttendanceController@edit')->name('admin.attendance.edit');
+	Route::post('/admin/attendances/update', 'AttendanceController@update')->name('admin.attendance.update');
+	Route::post('/admin/attendances/delete', 'AttendanceController@delete')->name('admin.attendance.delete');
 
     // Absent
 	Route::get('/admin/absent', 'AbsentController@index')->name('admin.absent.index');

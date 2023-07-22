@@ -50,7 +50,7 @@ class AttendanceController extends Controller
             $groups = Group::orderBy('name','asc')->get();
 
             // View
-            return view('admin/attendance/index', [
+            return view('admin/attendances/index', [
                 'attendances' => $attendances,
                 'groups' => $groups,
             ]);
@@ -73,7 +73,7 @@ class AttendanceController extends Controller
                 })->get();
 
             // View
-            return view('admin/attendance/index', [
+            return view('admin/attendances/index', [
                 'attendances' => $attendances,
             ]);
         }
@@ -100,7 +100,7 @@ class AttendanceController extends Controller
                 abort(403);
 
             // View
-            return view('admin/attendance/index', [
+            return view('admin/attendances/index', [
                 'attendances' => $attendances,
             ]);
         }
@@ -120,7 +120,7 @@ class AttendanceController extends Controller
         $groups = Group::orderBy('name','asc')->get();
 
         // View
-        return view('admin/attendance/create', [
+        return view('admin/attendances/create', [
             'groups' => $groups
         ]);
     }
@@ -217,7 +217,7 @@ class AttendanceController extends Controller
         $work_hours = WorkHour::where('office_id','=',$attendance->user->office_id)->where('position_id','=',$attendance->user->position_id)->get();
 
         // View
-        return view('admin/attendance/edit', [
+        return view('admin/attendances/edit', [
             'attendance' => $attendance,
             'groups' => $groups,
             'work_hours' => $work_hours,
