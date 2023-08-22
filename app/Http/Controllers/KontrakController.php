@@ -28,10 +28,7 @@ class KontrakController extends Controller
         has_access(method(__METHOD__), Auth::user()->role_id);
         $user_selected = User::with('kontrak')->find($request->id);
 
-        // If manager, sync offices
-        if($user_selected->role_id == role('manager')) {
-            $user_selected->managed_offices()->sync($request->offices);
-        }
+        
 
         // Get the role
         $role = Role::find($user_selected->role_id);
