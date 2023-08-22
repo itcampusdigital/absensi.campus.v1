@@ -1,0 +1,21 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Kontrak extends Model
+{
+    use HasFactory;
+
+    protected $table = 'kontrak';
+    protected $primary_key = 'id_kontrak';
+    protected $fillable = ['user_id', 'start_date_kontrak','masa'];
+
+    public $timestamps = false;
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+}

@@ -98,7 +98,7 @@
                                     <th width="150">Kantor</th>
                                 @endif
                                 @if(Request::query('role') == 'member')
-                                    <th width="80">Tanggal Kontrak</th>
+                                    <th width="80">Tanggal Bergabung</th>
                                     <th width="150">Kantor</th>
                                     <th width="150">Jabatan</th>
                                 @endif

@@ -39,6 +39,10 @@ class User extends \Ajifatur\FaturHelper\Models\User
         'email_verified_at' => 'datetime',
     ];
     
+    public function kontrak()
+    {
+        return $this->hasOne(Kontrak::class);
+    }
     /**
      * Get the group that owns the user.
      */

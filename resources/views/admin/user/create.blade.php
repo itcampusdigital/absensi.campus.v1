@@ -177,7 +177,7 @@
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <label class="col-lg-2 col-md-3 col-form-label">Mulai Bekerja <span class="text-danger">*</span></label>
+                        <label class="col-lg-2 col-md-3 col-form-label">Tanggal Bergabung <span class="text-danger">*</span></label>
                         <div class="col-lg-10 col-md-9">
                             <div class="input-group input-group-sm">
                                 <input type="text" name="start_date" class="form-control form-control-sm {{ $errors->has('start_date') ? 'border-danger' : '' }}" value="{{ old('start_date') }}" autocomplete="off">
@@ -185,6 +185,29 @@
                             </div>
                             @if($errors->has('start_date'))
                             <div class="small text-danger">{{ $errors->first('start_date') }}</div>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-lg-2 col-md-3 col-form-label">Mulai Kontrak</label>
+                        <div class="col-lg-10 col-md-9">
+                            <div class="input-group input-group-sm">
+                                <input placeholder="Tanggal Mulai Kontrak Kerja" type="text" name="start_date_kontrak" class="form-control form-control-sm {{ $errors->has('start_date_kontrak') ? 'border-danger' : '' }}" value="{{ old('start_date_kontrak') }}" autocomplete="off">
+                                <span class="input-group-text"><i class="bi-calendar2"></i></span>
+                            </div>
+                            @if($errors->has('start_date_kontrak'))
+                            <div class="small text-danger">{{ $errors->first('start_date_kontrak') }}</div>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-lg-2 col-md-3 col-form-label">Masa Kontrak</label>
+                        <div class="col-lg-10 col-md-9">
+                            <div class="input-group input-group-sm">
+                                <input placeholder="Lama masa kontrak" type="text" name="masa" class="form-control form-control-sm {{ $errors->has('masa') ? 'border-danger' : '' }}" value="{{ old('masa') }}" autocomplete="off">
+                            </div>
+                            @if($errors->has('masa'))
+                            <div class="small text-danger">{{ $errors->first('masa') }}</div>
                             @endif
                         </div>
                     </div>
@@ -276,6 +299,7 @@
     // Datepicker
     Spandiv.DatePicker("input[name=birthdate]");
     Spandiv.DatePicker("input[name=start_date]");
+    Spandiv.DatePicker("input[name=start_date_kontrak]");
     Spandiv.DatePicker("input[name=end_date]");
 
     // Select2

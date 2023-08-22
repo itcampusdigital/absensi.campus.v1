@@ -3,23 +3,25 @@
 namespace App\Http\Controllers;
 
 use Auth;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
-use Ajifatur\Helpers\Date;
-use Ajifatur\Helpers\DateTimeExt;
-use Ajifatur\Helpers\Salary;
-use App\Models\User;
 use App\Models\Role;
+use App\Models\User;
 use App\Models\Group;
 use App\Models\Office;
-use App\Models\SalaryCategory;
-use App\Models\UserIndicator;
+use App\Models\Kontrak;
+use Ajifatur\Helpers\Date;
 use App\Models\Attendance;
-use App\Models\WorkHourCategory;
+use Ajifatur\Helpers\Salary;
+use Illuminate\Http\Request;
 use App\Models\Certification;
+use App\Models\UserIndicator;
+use App\Models\SalaryCategory;
+use Illuminate\Validation\Rule;
+use App\Models\WorkHourCategory;
+use Ajifatur\Helpers\DateTimeExt;
 use App\Models\UserCertification;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -200,6 +202,19 @@ class UserController extends Controller
             $user->last_visit = null;
             $user->save();
 
+            //kontrak user baru
+            $new_kontrak = new Kontrak;
+            $d = strval($request->masa);
+            $change_start_kontrak = DateTimeExt::change($request->start_date_kontrak);
+
+            $new_kontrak->user_id =  $user->id;
+            $new_kontrak->start_date_kontrak =  $change_start_kontrak;
+            $new_kontrak->masa = $request->masa;
+            $new_kontrak->end_date_kontrak = date('Y-m-d', strtotime( $change_start_kontrak.'+'.$d.' month'));
+            $new_kontrak->save();
+
+            
+
             // If manager, attach offices
             if($user->role_id == role('manager')) {
                 $user->managed_offices()->attach($request->offices);
@@ -229,10 +244,14 @@ class UserController extends Controller
             $user = User::findOrFail($id);
         }
         elseif(Auth::user()->role_id == role('admin')) {
-            $user = User::where('group_id','=',Auth::user()->group_id)->findOrFail($id);
+            $user = User::with('kontrak')
+            ->whereHas('kontrak', function($query){
+                return $query->where('user_id','$id');
+            })
+            ->where('group_id','=',Auth::user()->group_id)->findOrFail($id);
         }
         elseif(Auth::user()->role_id == role('manager')) {
-            $user = User::where('group_id','=',Auth::user()->group_id)->whereIn('office_id',Auth::user()->managed_offices()->pluck('office_id')->toArray())->findOrFail($id);
+            $user = User::with('kontrak')->where('group_id','=',Auth::user()->group_id)->whereIn('office_id',Auth::user()->managed_offices()->pluck('office_id')->toArray())->findOrFail($id);
         }
 
         // View
@@ -262,7 +281,7 @@ class UserController extends Controller
         elseif(Auth::user()->role_id == role('manager')) {
             $user = User::where('group_id','=',Auth::user()->group_id)->whereIn('office_id',Auth::user()->managed_offices()->pluck('office_id')->toArray())->findOrFail($id);
         }
-
+        
         // Get roles
         $roles = Role::where('code','!=','super-admin')->orderBy('num_order','asc')->get();
 
@@ -327,6 +346,37 @@ class UserController extends Controller
             $user->username = $request->username;
             $user->password = $request->password != '' ? bcrypt($request->password) : $user->password;
             $user->save();
+
+            //kontrak
+            if($user->kontrak == null){
+                $d = strval($request->masa);
+
+                $kontrak = new Kontrak;
+                $kontrak->user_id = $request->id;
+                $kontrak->masa = $request->masa;
+                $kontrak->start_date_kontrak = $request->start_date_kontrak != null ? $request->start_date_kontrak : null;
+                
+                $kontrak->end_date_kontrak = date('Y-m-d', strtotime($request->start_date_kontrak.'+'.$d.' month'));
+                $kontrak->save();
+            }
+            else{
+                // $Date = "2023-08-22";
+                $d = strval($request->masa);
+                $request->start_date_kontrak = DateTimeExt::change($request->start_date_kontrak);
+                
+                $end_date= date('Y-m-d', strtotime($request->start_date_kontrak.'+'.$d.' month'));
+                // $user->kontrak->masa = $request->masa;
+                // $user->kontrak->start_date_kontrak = DateTimeExt::change($request->start_date_kontrak);
+                // $user->kontrak->save();
+                DB::table('kontrak')->where('user_id',$user->kontrak->user_id)
+                            ->update(['masa'=> $request->masa]);
+                DB::table('kontrak')->where('user_id',$user->kontrak->user_id)
+                            ->update(['start_date_kontrak'=> $request->start_date_kontrak]);
+                DB::table('kontrak')->where('user_id',$user->kontrak->user_id)
+                            ->update(['end_date_kontrak'=> $end_date]);
+                              
+                
+            }
 
             // If manager, sync offices
             if($user->role_id == role('manager')) {

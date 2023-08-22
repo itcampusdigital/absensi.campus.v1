@@ -27,6 +27,11 @@ Route::group(['middleware' => ['admin']], function() {
 	Route::post('/admin/summary/salary/update/late-fund', 'SummarySalaryController@updateLateFund')->name('admin.summary.salary.update.late-fund');
 	Route::post('/admin/summary/salary/update/debt-fund', 'SummarySalaryController@updateDebtFund')->name('admin.summary.salary.update.debt-fund');
 
+	//kontrak
+	Route::get('/admin/kontrak/index', 'KontrakController@index')->name('admin.kontrak.index');
+	Route::get('/admin/kontrak/edit', 'KontrakController@edit')->name('admin.kontrak.edit');
+	Route::post('/admin/kontrak/update', 'KontrakController@update')->name('admin.kontrak.update');
+
 	// Summary Office
 	Route::get('/admin/summary/office', 'SummaryOfficeController@index')->name('admin.summary.office.index');
 
