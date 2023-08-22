@@ -115,7 +115,7 @@
 @endsection
 
 @section('js')
-    {{-- <script type="text/javascript">
+    <script type="text/javascript">
     // DataTable
     Spandiv.DataTable("#datatable");
     
@@ -147,6 +147,6 @@
         else
             $("#form-filter").find("button[type=submit]").attr("disabled","disabled");
     });
-</script> --}}
+</script>
 
 @endsection
