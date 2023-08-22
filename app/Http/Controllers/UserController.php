@@ -209,6 +209,7 @@ class UserController extends Controller
 
             $new_kontrak->user_id =  $user->id;
             $new_kontrak->start_date_kontrak =  $change_start_kontrak;
+            
             $new_kontrak->masa = $request->masa;
             $new_kontrak->end_date_kontrak = date('Y-m-d', strtotime( $change_start_kontrak.'+'.$d.' month'));
             $new_kontrak->save();
@@ -354,7 +355,8 @@ class UserController extends Controller
                 $kontrak = new Kontrak;
                 $kontrak->user_id = $request->id;
                 $kontrak->masa = $request->masa;
-                $kontrak->start_date_kontrak = $request->start_date_kontrak != null ? $request->start_date_kontrak : null;
+                $request->start_date_kontrak = $request->start_date_kontrak != null ? $request->start_date_kontrak : null;
+                $kontrak->start_date_kontrak = DateTimeExt::change($request->start_date_kontrak);
                 
                 $kontrak->end_date_kontrak = date('Y-m-d', strtotime($request->start_date_kontrak.'+'.$d.' month'));
                 $kontrak->save();

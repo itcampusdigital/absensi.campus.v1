@@ -332,7 +332,7 @@
         Spandiv.DatePicker("input[name=birthdate]");
         Spandiv.DatePicker("input[name=start_date]");
         Spandiv.DatePicker("input[name=start_date_kontrak]");
-        Spandiv.DatePicker("input[name=end_date]");
+       
 
         // Select2
         Spandiv.Select2("#offices");
