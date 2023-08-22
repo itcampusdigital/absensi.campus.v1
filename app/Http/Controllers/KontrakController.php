@@ -30,12 +30,9 @@ class KontrakController extends Controller
 
         
 
-        // Get the role
-        $role = Role::find($user_selected->role_id);
-
         return view('admin.kontrak.edit', [
             'user_select' => $user_selected,
-            'role' => $role->code
+  
         ]);
     }
     public function update(Request $request)
