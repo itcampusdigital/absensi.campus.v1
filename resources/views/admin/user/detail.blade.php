@@ -1,6 +1,6 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', 'Detail ' . role($user->role_id) . ': ' . $user->name)
+@section('title', 'Detail '. $user->name)
 
 @section('content')
 

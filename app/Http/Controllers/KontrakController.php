@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Role;
 use App\Models\User;
 use App\Models\Kontrak;
 use Illuminate\Http\Request;
@@ -26,6 +27,14 @@ class KontrakController extends Controller
     {
         has_access(method(__METHOD__), Auth::user()->role_id);
         $user_selected = User::with('kontrak')->find($request->id);
+
+        // If manager, sync offices
+        if($user_selected->role_id == role('manager')) {
+            $user_selected->managed_offices()->sync($request->offices);
+        }
+
+        // Get the role
+        $role = Role::find($user_selected->role_id);
 
         return view('admin.kontrak.edit', [
             'user_select' => $user_selected,
