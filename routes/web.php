@@ -28,6 +28,7 @@ Route::group(['middleware' => ['admin']], function() {
 	Route::post('/admin/summary/salary/update/debt-fund', 'SummarySalaryController@updateDebtFund')->name('admin.summary.salary.update.debt-fund');
 
 	//kontrak
+	Route::get('/admin/kontrak/getData', 'KontrakController@getKontrak')->name('admin.kontrak.getKontrak');
 	Route::get('/admin/kontrak/index', 'KontrakController@index')->name('admin.kontrak.index');
 	Route::get('/admin/kontrak/edit/{id}', 'KontrakController@edit')->name('admin.kontrak.edit');
 	Route::post('/admin/kontrak/update', 'KontrakController@update')->name('admin.kontrak.update');

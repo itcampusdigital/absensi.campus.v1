@@ -8,17 +8,11 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header d-sm-flex justify-content-center align-items-center">
-                    {{-- <form id="form-filter" class="d-lg-flex" method="get" action="">
-                    <div class="mb-lg-0 mb-2">
-                        <select name="year" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Periode Tahun">
-                            @for ($i = 2023; $i >= 2020; $i--)
-                            <option value="{{ $i }}" {{ $year == $i ? 'selected' : '' }}>{{ $i }}</option>
-                            @endfor
-                        </select>
-                    </div>
+                    <form id="form-filter" class="d-lg-flex" method="get" action="">
+
                     @if (Auth::user()->role_id == role('super-admin'))
                     <div class="ms-lg-2 ms-0 mb-lg-0 mb-2">
-                        <select name="group" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Perusahaan">
+                        <select id="group" name="group" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Perusahaan">
                             <option value="0">--Pilih Perusahaan--</option>
                             @foreach ($groups as $group)
                             <option value="{{ $group->id }}" {{ Request::query('group') == $group->id ? 'selected' : '' }}>{{ $group->name }}</option>
@@ -27,7 +21,7 @@
                     </div>
                     @endif
                     <div class="ms-lg-2 ms-0 mb-lg-0 mb-2">
-                        <select name="office" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Kantor">
+                        <select id="office" name="office" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Kantor">
                             <option value="0" disabled selected>--Pilih Kantor--</option>
                             @if (Auth::user()->role_id == role('super-admin'))
                                 @if (Request::query('group') != 0)
@@ -49,7 +43,7 @@
                     <div class="ms-lg-2 ms-0">
                         <button type="submit" class="btn btn-sm btn-info" {{ Request::query('office') != null ? '' : 'disabled' }}><i class="bi-filter-square me-1"></i> Filter</button>
                     </div>
-                </form> --}}
+                </form>
                 </div>
                 <hr class="my-0">
                 {{-- @if (Request::query('office') != null) --}}
@@ -65,7 +59,7 @@
                             <thead class="bg-light">
                                 <tr>
                                     <th width="20"><input type="checkbox" class="form-check-input checkbox-all"></th>
-                                    <th width="250">NIK</th>
+                                    <th width="200">Kantor</th>
                                     <th>Nama</th>
                                     <th width="150">Tanggal Bergabung</th>
                                     <th width="150">Tanggal Kontrak</th>
@@ -75,30 +69,6 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($users as $user_kontrak)
-                                    <tr >
-                                        <td><input type="checkbox" class="form-check-input"></td>
-                                        <td>{{ $user_kontrak->user->identity_number }}</td>
-                                        <td>{{ $user_kontrak->user->name }}</td>
-                                        <td style="text-align: center">{{ date('d/m/Y', strtotime($user_kontrak->user->start_date)) }}</td>
-                                        @if($user_kontrak != null)
-                                            <td style="text-align: center">{{ date('d/m/Y', strtotime($user_kontrak->start_date_kontrak)) }}</td>
-                                        @else
-                                            <td> </td>
-                                        @endif
-                                        <td style="text-align: center">{{ $user_kontrak->masa }}</td>
-                                        @if($user_kontrak->end_date_kontrak != null)
-                                            <td style="text-align: center">{{ date('d/m/Y', strtotime($user_kontrak->end_date_kontrak)) }}</td>
-                                        @else
-                                            <td> </td>
-                                        @endif
-                                        
-                                        <td style="text-align: center">
-                                            <a href="{{ route('admin.kontrak.edit', $user_kontrak->user_id) }}" type="button" class="btn btn-sm btn-warning"><i
-                                                    class="bi-pencil"></i></a>
-                                        </td>
-                                    </tr>
-                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -117,7 +87,36 @@
 @section('js')
     <script type="text/javascript">
     // DataTable
-    Spandiv.DataTable("#datatable");
+    // Spandiv.DataTable("#datatable");
+    $(document).ready(function(){
+        $('#datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                'url' : '{{ route('admin.kontrak.getKontrak') }}',
+                'data' : function(d){
+                    d.office_select = $('#office').val();
+                }
+
+            },
+            order: [6,'desc'],
+            columns: [
+                {data: 'checkbox', name: 'checkbox', className: 'text-center', orderable: false},
+                {data: 'user.office_id', name: 'user.office_id'},
+                {data: 'user.name', name: 'user.name'},
+                {data: 'user.start_date', className: 'text-center', name: 'user.start_date'},
+                {data: 'start_date_kontrak', className: 'text-center', name: 'start_date_kontrak'},
+                {data: 'masa', name: 'masa'},
+                {data: 'end_date_kontrak', className: 'text-center', name: 'end_date_kontrak'},
+                {data: 'action', name: 'action', className: 'text-center', orderable: false},
+            ]
+        });
+
+        $('#office').change(function(){
+            reloadTable('#datatable');
+        });
+    })
+
     
     // Button Delete
     Spandiv.ButtonDelete(".btn-delete", ".form-delete");
