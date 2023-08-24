@@ -92,7 +92,8 @@
                                     <span>{{ date('d/m/Y', strtotime($user->end_date)) }}</span>
                                 </li>
                             @endif
-                            @if ($user->kontrak->start_date_kontrak != null)
+                            
+                            @if (!empty($user->kontrak->start_date_kontrak))
                                 <li class="list-group-item d-flex justify-content-between p-1">
                                     <span class="font-weight-bold">Awal Kontrak Kerja:</span>
                                     <span>{{ date('d/m/Y', strtotime($user->kontrak->start_date_kontrak)) }}</span>
@@ -101,7 +102,7 @@
 
                             <li class="list-group-item d-flex justify-content-between p-1">
                                 <span class="font-weight-bold">Masa Kontrak:</span>
-                                @if ($user->kontrak->masa != null)
+                                @if (!empty($user->kontrak->masa))
                                     <span>{{ $user->kontrak->masa }} Bulan </span>
                                 @endif
                             </li>

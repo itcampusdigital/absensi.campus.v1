@@ -32,6 +32,7 @@ Route::group(['middleware' => ['admin']], function() {
 	Route::get('/admin/kontrak/index', 'KontrakController@index')->name('admin.kontrak.index');
 	Route::get('/admin/kontrak/edit/{id}', 'KontrakController@edit')->name('admin.kontrak.edit');
 	Route::post('/admin/kontrak/update', 'KontrakController@update')->name('admin.kontrak.update');
+	Route::post('/admin/kontrak/destroy', 'KontrakController@destroy')->name('admin.kontrak.destroy');
 
 	// Summary Office
 	Route::get('/admin/summary/office', 'SummaryOfficeController@index')->name('admin.summary.office.index');

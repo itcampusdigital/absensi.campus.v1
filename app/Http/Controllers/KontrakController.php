@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Group;
@@ -54,16 +55,30 @@ class KontrakController extends Controller
                 })
                 ->editColumn('end_date_kontrak', function($query){
                     $conv_format = date('Y/m/d',strtotime($query->end_date_kontrak));
+
+                    $selisih = Carbon::parse(date('Y/m/d', time()))->diffInDays(Carbon::parse($conv_format),false);
                     $te = '<span style=display:none>'.$conv_format.'</span>'.date('d/m/Y', strtotime($query->end_date_kontrak));
-                    return $te;
+                    $small_days = '<span class="bg-warning badge">'.$selisih.' Hari</span>';
+                    if($selisih > 0){
+                        $div = '<div class="mt-2">'.$te.'<br>'.$small_days.'</div>';
+                        return $div;
+                    }else{
+                        $badge = '<span class="bg-danger badge">Tidak Aktif</span>';
+                        $div = '<div class="mt-2">'.$te.'<br>'.$badge.'</div>';
+                        return $div;
+                    }
+                    
+                    
                 })
                 ->addColumn('action',function($query){
+                    $delete = '<a href="'. route('admin.kontrak.destroy').'" data-id="'.$query->id.'" type="button" class="btn-delete btn btn-sm btn-danger"><i
+                    class="bi-trash"></i></a>';
                     $link = '<a href="'. route('admin.kontrak.edit', $query->user_id).'" type="button" class="btn btn-sm btn-warning"><i
                     class="bi-pencil"></i></a>';
 
-                    // $div = '<div style="text-align:center">'.$link.'</div>';
+                    $div = '<div>'.$link.' '.$delete.'</div>';
 
-                    return $link;
+                    return $div;
                 })
                 ->rawColumns(['start_date_kontrak','end_date_kontrak','user.start_date','action','checkbox','masa'])
                 ->make(true);
@@ -115,5 +130,19 @@ class KontrakController extends Controller
             ->update(['end_date_kontrak' => $end_date]);
 
        return redirect()->route('admin.kontrak.index')->with(['message' => 'Berhasil mengupdate data.']);
+    }
+
+    public function destroy(Request $request)
+    {
+        // Check the access
+        has_access(method(__METHOD__), Auth::user()->role_id);
+
+        //find data
+        $find_kontrak = Kontrak::find($request->id);
+
+        $find_kontrak->delete();
+
+        return redirect()->route('admin.kontrak.index')->with(['message' => 'Berhasil menghapus data.']);
+
     }
 }

@@ -204,7 +204,7 @@
                         <label class="col-lg-2 col-md-3 col-form-label">Masa Kontrak</label>
                         <div class="col-lg-10 col-md-9">
                             <div class="input-group input-group-sm">
-                                <input placeholder="Lama masa kontrak" type="text" name="masa" class="form-control form-control-sm {{ $errors->has('masa') ? 'border-danger' : '' }}" value="{{ old('masa') }}" autocomplete="off">
+                                <input placeholder="Lama masa kontrak" type="number" name="masa" class="form-control form-control-sm {{ $errors->has('masa') ? 'border-danger' : '' }}" value="{{ old('masa') }}" autocomplete="off">
                             </div>
                             @if($errors->has('masa'))
                             <div class="small text-danger">{{ $errors->first('masa') }}</div>

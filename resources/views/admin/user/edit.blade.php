@@ -213,10 +213,10 @@
                                 <div class="col-lg-10 col-md-9">
                                     <div class="input-group input-group-sm">
                                         @if (empty($user->kontrak->masa))
-                                            <input type="text" name="masa" value="{{ null }}"
+                                            <input type="number" name="masa" value="{{ null }}"
                                                 class="form-control form-control-sm" autocomplete="off">
                                         @else
-                                            <input type="text" name="masa" value="{{ $user->kontrak->masa }}"
+                                            <input type="number" name="masa" value="{{ $user->kontrak->masa }}"
                                                 class="form-control form-control-sm" autocomplete="off">
                                         @endif
                                     </div>

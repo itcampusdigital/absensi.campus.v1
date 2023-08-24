@@ -40,6 +40,14 @@
                             @endif
                         </select>
                     </div>
+                    {{-- <div class="ms-lg-2 ms-0 mb-lg-0 mb-2">
+                        <select id="hari" name="hari" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Hari">
+                            <option value="0" disabled selected>--Pilih Hari--</option>
+                            <option value="1">Dibawah 20 hari</option>
+                            <option value="2">21-30 Hari</option>
+                            <option value="3">Diatas 30 hari</option>
+                        </select>
+                    </div> --}}
                     <div class="ms-lg-2 ms-0">
                         <button type="submit" class="btn btn-sm btn-info" {{ Request::query('office') != null ? '' : 'disabled' }}><i class="bi-filter-square me-1"></i> Filter</button>
                     </div>
@@ -77,7 +85,7 @@
             </div>
         </div>
     </div>
-    <form class="form-delete d-none" method="post" action="#">
+    <form class="form-delete d-none" method="post" action="{{ route('admin.kontrak.destroy') }}">
         @csrf
         <input type="hidden" name="id">
     </form>
@@ -96,6 +104,7 @@
                 'url' : '{{ route('admin.kontrak.getKontrak') }}',
                 'data' : function(d){
                     d.office_select = $('#office').val();
+                    d.hari_select = $('#hari').val();
                 }
 
             },
