@@ -1,6 +1,6 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', 'Kelola Cuti')
+@section('title', 'Kelola Masa Kontrak')
 
 @section('content')
 
@@ -108,7 +108,7 @@
                 }
 
             },
-            order: [6,'desc'],
+            order: [6,'asc'],
             columns: [
                 {data: 'checkbox', name: 'checkbox', className: 'text-center', orderable: false},
                 {data: 'user.office_id', name: 'user.office_id'},

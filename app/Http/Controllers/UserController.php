@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Group;
 use App\Models\Office;
 use App\Models\Kontrak;
+use App\Models\Position;
 use Ajifatur\Helpers\Date;
 use App\Models\Attendance;
 use Ajifatur\Helpers\Salary;
@@ -258,6 +259,7 @@ class UserController extends Controller
         // View
         return view('admin/user/detail', [
             'user' => $user,
+
         ]);
     }
 
