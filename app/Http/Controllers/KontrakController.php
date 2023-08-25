@@ -23,13 +23,16 @@ class KontrakController extends Controller
         if($office_select){
             $user = Kontrak::with('user')
                     ->whereHas('user', function($query) use ($office_select){
-                        return $query->where('office_id',$office_select);
+                        return $query->where('office_id',$office_select)->whereNull('end_date');
+                        
                     });
 
         }     
         else{
             $user = Kontrak::with('user')
-                    ->has('user');
+                    ->whereHas('user', function($query){
+                        return $query->whereNull('end_date');
+                    });
                     ;
         }
 
