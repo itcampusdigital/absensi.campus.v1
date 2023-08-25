@@ -28,7 +28,9 @@ class KontrakController extends Controller
 
         }     
         else{
-            $user = Kontrak::with('user');
+            $user = Kontrak::with('user')
+                    ->has('user');
+                    ;
         }
 
         return DataTables::of($user)
