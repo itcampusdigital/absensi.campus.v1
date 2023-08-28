@@ -42,7 +42,7 @@ class KontrakController extends Controller
                     return $query->user->office->name;
                 })
                 ->editColumn('user.name', function($query){
-                    return $query->user->name;
+                    return '<a href="'.route('admin.user.detail', ['id' => $query->user->id]).'">'.$query->user->name.'</a>';
                 })
                 ->editColumn('user.start_date', function($query){
                     $conv_format = date('Y/m/d',strtotime($query->user->start_date));
@@ -85,7 +85,7 @@ class KontrakController extends Controller
 
                     return $div;
                 })
-                ->rawColumns(['start_date_kontrak','end_date_kontrak','user.start_date','action','checkbox','masa'])
+                ->rawColumns(['user.name','start_date_kontrak','end_date_kontrak','user.start_date','action','checkbox','masa'])
                 ->make(true);
     }
 
