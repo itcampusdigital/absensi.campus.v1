@@ -12,6 +12,7 @@ use Yajra\DataTables\DataTables;
 use Ajifatur\Helpers\DateTimeExt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class KontrakController extends Controller
 {
@@ -108,8 +109,7 @@ class KontrakController extends Controller
     {
         has_access(method(__METHOD__), Auth::user()->role_id);
         $user_selected = User::with('kontrak')->find($request->id);
-
-        
+       
 
         return view('admin.kontrak.edit', [
             'user_select' => $user_selected,
@@ -118,23 +118,34 @@ class KontrakController extends Controller
     }
     public function update(Request $request)
     {
-        $user = User::find($request->id);
-        $d = strval($request->masa);
-        $request->start_date_kontrak = DateTimeExt::change($request->start_date_kontrak);
+        
+        $validator = Validator::make($request->all(),[
+            'masa' => 'required|numeric',
+            'start_date_kontrak' => 'required',
+        ]);
 
-        $end_date = date('Y-m-d', strtotime($request->start_date_kontrak . '+' . $d . ' month'));
-
-        DB::table('kontrak')
+        if($validator->fails()){
+            return redirect()->back()->withErrors($validator->errors())->withInput();
+        }
+        else{
+            $user = User::find($request->id);
+            $d = strval($request->masa);
+            $request->start_date_kontrak = DateTimeExt::change($request->start_date_kontrak);
+    
+            $end_date = date('Y-m-d', strtotime($request->start_date_kontrak . '+' . $d . ' month'));
+            
+            DB::table('kontrak')
             ->where('user_id', $user->kontrak->user_id)
             ->update(['masa' => $request->masa]);
-        DB::table('kontrak')
+            DB::table('kontrak')
             ->where('user_id', $user->kontrak->user_id)
             ->update(['start_date_kontrak' => $request->start_date_kontrak]);
-        DB::table('kontrak')
+            DB::table('kontrak')
             ->where('user_id', $user->kontrak->user_id)
             ->update(['end_date_kontrak' => $end_date]);
-
-       return redirect()->route('admin.kontrak.index')->with(['message' => 'Berhasil mengupdate data.']);
+            
+            return redirect()->route('admin.kontrak.index')->with(['message' => 'Berhasil mengupdate data.']);
+        }
     }
 
     public function destroy(Request $request)

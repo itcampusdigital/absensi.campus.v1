@@ -409,10 +409,13 @@ class UserController extends Controller
 
         // Get the user
         $user = User::find($request->id);
-
+        $kontrak = Kontrak::find($request->id);
         // Delete the user
         $user->delete();
 
+        if($kontrak != null){
+            $kontrak->delete();
+        }
         // Get the role
         $role = Role::find($user->role_id);
 
