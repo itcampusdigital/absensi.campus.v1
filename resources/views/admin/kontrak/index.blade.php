@@ -66,9 +66,9 @@
                         <table class="table table-sm table-hover table-bordered" id="datatable">
                             <thead class="bg-light">
                                 <tr>
-                                    <th width="20"><input type="checkbox" class="form-check-input checkbox-all"></th>
-                                    <th width="200">Kantor</th>
+                                    {{-- <th width="20"><input type="checkbox" class="form-check-input checkbox-all"></th> --}}
                                     <th>Nama</th>
+                                    <th width="200">Kantor</th>
                                     <th width="150">Tanggal Bergabung</th>
                                     <th width="150">Tanggal Kontrak</th>
                                     <th width="150">Masa Kontrak</th>
@@ -110,9 +110,9 @@
             },
             order: [6,'asc'],
             columns: [
-                {data: 'checkbox', name: 'checkbox', className: 'text-center', orderable: false},
-                {data: 'user.office_id', name: 'user.office_id'},
+                // {data: 'checkbox', name: 'checkbox', className: 'text-center', orderable: false},
                 {data: 'user.name', name: 'user.name'},
+                {data: 'user.office_id', name: 'user.office_id'},
                 {data: 'user.start_date', className: 'text-center', name: 'user.start_date'},
                 {data: 'start_date_kontrak', className: 'text-center', name: 'start_date_kontrak'},
                 {data: 'masa', name: 'masa'},

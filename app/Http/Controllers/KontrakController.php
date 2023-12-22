@@ -18,8 +18,7 @@ class KontrakController extends Controller
 {
     public function getKontrak(Request $request)
     {
-        $group_id = $request->group;
-        $office_id = $request->office;
+        
         $office_select = $request->office_select;
         if($office_select){
             $user = Kontrak::with('user')
@@ -34,11 +33,11 @@ class KontrakController extends Controller
                     ->whereHas('user', function($query){
                         return $query->whereNull('end_date');
                     });
-                    ;
+                    
         }
 
         return DataTables::of($user)
-                ->addColumn('checkbox', '<input type="checkbox" class="form-check-input checkbox-one">')
+                // ->addColumn('checkbox', '<input type="checkbox" class="form-check-input checkbox-one">')
                 ->editColumn('user.office_id', function($query){
                     return $query->user->office->name;
                 })
@@ -86,7 +85,7 @@ class KontrakController extends Controller
 
                     return $div;
                 })
-                ->rawColumns(['user.name','start_date_kontrak','end_date_kontrak','user.start_date','action','checkbox','masa'])
+                ->rawColumns(['user.office_id','user.name','start_date_kontrak','end_date_kontrak','user.start_date','action','masa'])
                 ->make(true);
     }
 
@@ -103,6 +102,15 @@ class KontrakController extends Controller
             // 'users' => $user,
             'groups' => $groups
         ]);
+    }
+
+    public function store(Request $request){
+       
+        $cuti = User::with(['kontrak'])->find($request->user_id);
+        $cuti->kontrak->cuti = $request->cuti_tahunan;
+        $cuti->kontrak->save();
+
+        return redirect()->route('admin.leave.cuti')->with(['message' => 'Berhasil mengupdate data.']);
     }
 
     public function edit(Request $request)

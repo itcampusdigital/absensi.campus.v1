@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 use Auth;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Ajifatur\Helpers\DateTimeExt;
-use App\Models\Leave;
-use App\Models\Group;
+use Carbon\Carbon;
 use App\Models\User;
+use App\Models\Group;
+use App\Models\Leave;
+use Illuminate\Http\Request;
+use Ajifatur\Helpers\DateTimeExt;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Validator;
 
 class LeaveController extends Controller
 {
@@ -57,8 +58,11 @@ class LeaveController extends Controller
             // Get leaves
             $group = Auth::user()->group_id;
             $office = $request->query('office');
-            $leaves = Leave::has('user')->whereHas('user', function (Builder $query) use ($user, $group, $office) {
-                return $query->where('group_id','=',$group)->where('office_id','=',$office)->whereIn('office_id',$user->managed_offices()->pluck('office_id')->toArray());
+            $leaves = Leave::has('user')
+                    ->whereHas('user', function (Builder $query) use ($user, $group, $office) {
+                        return $query->where('group_id','=',$group)
+                        ->where('office_id','=',$office)
+                        ->whereIn('office_id',$user->managed_offices()->pluck('office_id')->toArray());
             })->whereYear('date',$year)->orderBy('date','desc')->get();
         }
 
@@ -220,5 +224,59 @@ class LeaveController extends Controller
 
         // Redirect
         return redirect()->route('admin.leave.index')->with(['message' => 'Berhasil menghapus data.']);
+    }
+
+    public function cuti(Request $request){
+        has_access(method(__METHOD__), Auth::user()->role_id);
+
+        
+        $year = $request->query('year') ?: date('Y');
+        $groups = Group::orderBy('name','asc')->get();
+
+        if(Auth::user()->role_id == role('super-admin')){
+            $group = Group::find($request->query('group'));
+     
+                $office = $request->query('office');
+                $cuti = User::with(['leave','kontrak'])
+                    ->has('kontrak')
+                    // ->where('group_id',$group)
+                    ->where('office_id',$office)
+                    ->where('end_date','=',null)
+                    ->get();
+            
+        }
+
+        elseif(Auth::user()->role_id == role('admin')){
+
+            $group = Auth::user()->group_id;
+            $office = $request->query('office');
+            $cuti = User::with(['leave','kontrak'])
+            ->has('kontrak')
+            ->where('group_id',$group)
+            ->where('office_id',$office)
+            ->where('end_date','=',null)
+            ->get();
+        }
+
+        
+        foreach($cuti as $key=>$user_cuti){
+            if($user_cuti->kontrak->cuti == null){
+                $user_cuti->kontrak->cuti = 0;
+            }
+            $conv_format = date('Y/m/d',strtotime($user_cuti->start_date));
+            $cuti[$key]->selisih = Carbon::parse($conv_format)->diffInDays(Carbon::parse(date('Y/m/d', time())),false);
+
+            $cuti[$key]->cuti_tahunan = Leave::where('user_id','=',$user_cuti->id)->whereYear('date',$year)->count();
+            $cuti[$key]->sisa_cuti = $user_cuti->kontrak->cuti -  $cuti[$key]->cuti_tahunan;
+        }
+
+        //jumlah cuti   
+
+        return view('admin/leave/cuti', [
+            'cuti' => $cuti,
+            'year' => $year,
+            'groups' => $groups,
+            
+        ]);
     }
 }

@@ -33,6 +33,7 @@ Route::group(['middleware' => ['admin']], function() {
 	Route::get('/admin/kontrak/edit/{id}', 'KontrakController@edit')->name('admin.kontrak.edit');
 	Route::post('/admin/kontrak/update', 'KontrakController@update')->name('admin.kontrak.update');
 	Route::post('/admin/kontrak/destroy', 'KontrakController@destroy')->name('admin.kontrak.destroy');
+	Route::post('/admin/kontrak/store', 'KontrakController@store')->name('admin.kontrak.store');
 
 	// Summary Office
 	Route::get('/admin/summary/office', 'SummaryOfficeController@index')->name('admin.summary.office.index');
@@ -65,6 +66,9 @@ Route::group(['middleware' => ['admin']], function() {
 	Route::post('/admin/leave/update', 'LeaveController@update')->name('admin.leave.update');
 	Route::post('/admin/leave/delete', 'LeaveController@delete')->name('admin.leave.delete');
 
+	// leave - cuti
+	Route::get('/admin/leave/cuti', 'LeaveController@cuti')->name('admin.leave.cuti');
+
 	// User
 	Route::get('/admin/user', 'UserController@index')->name('admin.user.index');
 	Route::get('/admin/user/create', 'UserController@create')->name('admin.user.create');
@@ -75,6 +79,7 @@ Route::group(['middleware' => ['admin']], function() {
 	Route::post('/admin/user/delete', 'UserController@delete')->name('admin.user.delete');
 	Route::get('/admin/user/edit-certification/{id}', 'UserController@editCertification')->name('admin.user.edit-certification');
 	Route::post('/admin/user/update-certification', 'UserController@updateCertification')->name('admin.user.update-certification');
+
 
 	// Group
 	Route::get('/admin/group', 'GroupController@index')->name('admin.group.index');

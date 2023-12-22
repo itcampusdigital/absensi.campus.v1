@@ -10,7 +10,7 @@ class Kontrak extends Model
     use HasFactory;
 
     protected $table = 'kontrak';
-    protected $fillable = ['user_id', 'start_date_kontrak','masa'];
+    protected $fillable = ['user_id', 'start_date_kontrak','masa','cuti'];
 
     public $timestamps = false;
     public function user()
