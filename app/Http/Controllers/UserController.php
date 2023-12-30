@@ -11,6 +11,7 @@ use App\Models\Kontrak;
 use App\Models\Position;
 use Ajifatur\Helpers\Date;
 use App\Models\Attendance;
+use App\Exports\ExportUser;
 use Ajifatur\Helpers\Salary;
 use Illuminate\Http\Request;
 use App\Models\Certification;
@@ -22,6 +23,7 @@ use Ajifatur\Helpers\DateTimeExt;
 use App\Models\UserCertification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
@@ -238,6 +240,7 @@ class UserController extends Controller
      */
     public function detail($id)
     {
+        
         // Check the access
         has_access(method(__METHOD__), Auth::user()->role_id);
 
@@ -246,11 +249,12 @@ class UserController extends Controller
             $user = User::findOrFail($id);
         }
         elseif(Auth::user()->role_id == role('admin')) {
-            $user = User::with('kontrak')
-            ->whereHas('kontrak', function($query){
-                return $query->where('user_id','$id');
-            })
-            ->where('group_id','=',Auth::user()->group_id)->findOrFail($id);
+            // $user = User::with('kontrak')
+            // ->whereHas('kontrak', function($query) use ($id) {
+            //     return $query->where('user_id',$id);
+            // })
+            // ->where('group_id','=',Auth::user()->group_id)->findOrFail($id);
+            $user = User::findOrFail($id);
         }
         elseif(Auth::user()->role_id == role('manager')) {
             $user = User::with('kontrak')->where('group_id','=',Auth::user()->group_id)->whereIn('office_id',Auth::user()->managed_offices()->pluck('office_id')->toArray())->findOrFail($id);
@@ -342,6 +346,12 @@ class UserController extends Controller
             $user->address = $request->role_id == role('member') ? $request->address : '';
             $user->start_date = $request->role_id == role('member') ? DateTimeExt::change($request->start_date) : null;
             $user->end_date = $request->end_date != '' ? DateTimeExt::change($request->end_date) : null;
+            if($user->end_date != null){
+                $user->status = 0;
+            }
+            else{
+                $user->status = 1;
+            }
             $user->phone_number = $request->role_id == role('member') ? $request->phone_number : '';
             $user->latest_education = $request->latest_education;
             $user->identity_number = $request->role_id == role('member') ? $request->identity_number : '';
@@ -484,5 +494,50 @@ class UserController extends Controller
 
         // Redirect
         return redirect()->route('admin.user.edit-certification', ['id' => $user->id])->with(['message' => 'Berhasil mengupdate data.']);
+    }
+
+    public function exportKaryawan(Request $request){
+ 
+        $position_id = $request->position_id;
+        $office_id = $request->office_id;
+        $statusSign = $request->status == 1 ? '=' : '!=';
+
+        if($position_id){
+            $userExport = User::with(['office', 'position'])
+                        ->whereHas('position', function($query) use ($position_id){
+                            return $query->where('position_id','=', $position_id);
+                        })
+                        ->where('role_id',3)
+                        ->where('end_date',$statusSign,null)
+                        ->get();
+        }
+        elseif($office_id){
+            $userExport = User::with(['office', 'position'])
+                        ->whereHas('office', function($query) use ($office_id){
+                            return $query->where('office_id','=', $office_id);
+                        })
+                        ->where('role_id',3)
+                        ->where('end_date',$statusSign,null)
+                        ->get();
+        }
+        elseif($position_id && $office_id){
+            $userExport = User::with(['office', 'position'])
+                        ->whereHas('office', function($query) use ($office_id){
+                            return $query->where('office_id','=', $office_id);
+                        })
+                        ->whereHas('position', function($query) use ($position_id){
+                            return $query->where('position_id','=', $position_id);
+                        })
+                        ->where('role_id',3)
+                        ->where('end_date',$statusSign,null)
+                        ->get();
+        }
+        else{
+            $userExport = User::with(['office', 'position'])
+                        ->where('role_id',3)
+                        ->where('end_date',$statusSign,null)
+                        ->get();
+        }
+        return Excel::download(new ExportUser($userExport), 'users.xlsx');
     }
 }

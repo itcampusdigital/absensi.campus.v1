@@ -80,6 +80,9 @@ Route::group(['middleware' => ['admin']], function() {
 	Route::get('/admin/user/edit-certification/{id}', 'UserController@editCertification')->name('admin.user.edit-certification');
 	Route::post('/admin/user/update-certification', 'UserController@updateCertification')->name('admin.user.update-certification');
 
+	//user-export
+	Route::get('/admin/user/export', 'UserController@exportKaryawan')->name('admin.user.export');
+
 
 	// Group
 	Route::get('/admin/group', 'GroupController@index')->name('admin.group.index');

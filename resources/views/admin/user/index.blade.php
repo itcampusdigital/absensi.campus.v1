@@ -20,7 +20,7 @@
                     <input type="hidden" name="role" value="{{ Request::query('role') }}">
                     @if(Auth::user()->role_id == role('super-admin'))
                     <div class="mb-lg-0 mb-2">
-                        <select name="group" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Perusahaan">
+                        <select id="group" name="group" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Perusahaan">
                             <option value="0">Semua Perusahaan</option>
                             @foreach($groups as $group)
                             <option value="{{ $group->id }}" {{ Request::query('group') == $group->id ? 'selected' : '' }}>{{ $group->name }}</option>
@@ -29,7 +29,7 @@
                     </div>
                     @endif
                     <div class="ms-lg-2 ms-0 mb-lg-0 mb-2">
-                        <select name="office" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Kantor">
+                        <select name="office" id="office" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Kantor">
                             <option value="0" selected>Semua Kantor</option>
                             @if(Auth::user()->role_id == role('super-admin'))
                                 @if(Request::query('group') != 0)
@@ -49,7 +49,7 @@
                         </select>
                     </div>
                     <div class="ms-lg-2 ms-0 mb-lg-0 mb-2">
-                        <select name="position" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Jabatan">
+                        <select name="position" id="position" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Jabatan">
                             <option value="0" selected>Semua Jabatan</option>
                             @if(Auth::user()->role_id == role('super-admin'))
                                 @if(Request::query('group') != 0)
@@ -65,7 +65,7 @@
                         </select>
                     </div>
                     <div class="ms-lg-2 ms-0 mb-lg-0 mb-2">
-                        <select name="status" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Status">
+                        <select name="status" id="status" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Status">
                             <option value="1" {{ $status == '1' ? 'selected' : '' }}>Aktif</option>
                             <option value="0" {{ $status == '0' ? 'selected' : '' }}>Tidak Aktif</option>
                         </select>
@@ -73,6 +73,12 @@
                     <div class="ms-lg-2 ms-0">
                         <button type="submit" class="btn btn-sm btn-info"><i class="bi-filter-square me-1"></i> Filter</button>
                     </div>
+                    @if(Auth::user()->role_id == role('super-admin') || Auth::user()->role_id == role('admin'))
+                    <div class="ms-lg-2 ms-0 buttonExport">
+                        {{-- <a type="button" id="exportExcel" href="{{ route('admin.user.export', ['role_id' => 3]) }}" class="btn btn-sm btn-success"><i class="bi-filter-square me-1"></i> Export Excel</a> --}}
+                        <a type="button" id="exportExcel" href="javascript:void(0)" class="btn btn-sm btn-success"><i class="bi-filter-square me-1"></i> Export Excel</a>
+                    </div>
+                    @endif
                 </form>
             </div>
             <hr class="my-0">
@@ -140,7 +146,9 @@
                                             <span class="d-none">{{ $user->end_date == null ? 1 : 0 }} {{ $user->start_date }}</span>
                                             @if($user->end_date == null)
                                                 {{ date('d/m/Y', strtotime($user->start_date)) }}
+                                                <span class="badge bg-success">Aktif</span>
                                             @else
+                                                {{ date('d/m/Y', strtotime($user->start_date)) }}
                                                 <span class="badge bg-danger">Tidak Aktif</span>
                                             @endif
                                         </td>
@@ -212,6 +220,26 @@
     
     // Button Delete
     Spandiv.ButtonDelete(".btn-delete", ".form-delete");
+
+    $('#exportExcel').click(function(){
+        position_id = $('#position').val();
+        office_id = $('#office').val();
+        status = $('#status').val();
+       
+        if(position_id == null){
+            window.location = "{{ route('admin.user.export') }}?office_id=" + office_id + "&status=" + status;
+        }
+        else if(office_id == null){
+            window.location = "{{ route('admin.user.export') }}?position_id=" + position_id + "&status=" + status;
+        }
+        else if(office_id == null && position_id == null){
+            window.location = "{{ route('admin.user.export') }}?status=" + status;
+        }
+        else{
+            window.location = "{{ route('admin.user.export') }}?position_id=" + position_id + "&office_id=" + office_id + "&status=" + status;
+        }
+        
+    })
 
     // Change Group
     $(document).on("change", "select[name=group]", function() {
