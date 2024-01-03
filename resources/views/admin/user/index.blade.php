@@ -181,16 +181,16 @@
                                     <td align="center">
                                         <div class="btn-group">
                                             @if(Request::query('role') == 'member')
-                                            <a href="{{ route('admin.user.edit-certification', ['id' => $user->id]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Edit Sertifikasi"><i class="bi-star"></i></a>
+                                                <a href="{{ route('admin.user.edit-certification', ['id' => $user->id]) }}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Edit Sertifikasi"><i class="bi-star"></i></a>
                                             @endif
                                             @if(has_access('UserController::edit', Auth::user()->role_id, false))
-                                            <a href="{{ route('admin.user.edit', ['id' => $user->id]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a>
+                                                <a href="{{ route('admin.user.edit', ['id' => $user->id]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a>
                                             @endif
                                             @if(Auth::user()->role_id == role('super-admin'))
-                                            <a href="#" class="btn btn-sm btn-danger {{ $user->id > 1 ? 'btn-delete' : '' }}" data-id="{{ $user->id }}" style="{{ $user->id > 1 ? '' : 'cursor: not-allowed' }}" data-bs-toggle="tooltip" title="{{ $user->id <= 1 ? $user->id == Auth::user()->id ? 'Tidak dapat menghapus akun sendiri' : 'Akun ini tidak boleh dihapus' : 'Hapus' }}"><i class="bi-trash"></i></a>
+                                                <a href="#" class="btn btn-sm btn-danger {{ $user->id > 1 ? 'btn-delete' : '' }}" data-id="{{ $user->id }}" style="{{ $user->id > 1 ? '' : 'cursor: not-allowed' }}" data-bs-toggle="tooltip" title="{{ $user->id <= 1 ? $user->id == Auth::user()->id ? 'Tidak dapat menghapus akun sendiri' : 'Akun ini tidak boleh dihapus' : 'Hapus' }}"><i class="bi-trash"></i></a>
                                             @elseif(Auth::user()->role_id == role('admin') || Auth::user()->role_id == role('manager'))
                                                 @if(has_access('UserController::delete', Auth::user()->role_id, false))
-                                                <a href="#" class="btn btn-sm btn-danger {{ $user->id != Auth::user()->id ? 'btn-delete' : '' }}" data-id="{{ $user->id }}" style="{{ $user->id != Auth::user()->id ? '' : 'cursor: not-allowed' }}" data-bs-toggle="tooltip" title="{{ $user->id == Auth::user()->id ? 'Tidak dapat menghapus akun sendiri' : 'Hapus' }}"><i class="bi-trash"></i></a>
+                                                <a  href="#" class="btn btn-sm btn-danger {{ $user->id != Auth::user()->id ? 'btn-delete' : '' }}" data-id="{{ $user->id }}" style="{{ $user->id != Auth::user()->id ? '' : 'cursor: not-allowed' }}" data-bs-toggle="tooltip" title="{{ $user->id == Auth::user()->id ? 'Tidak dapat menghapus akun sendiri' : 'Hapus' }}"><i class="bi-trash"></i></a>
                                                 @endif
                                             @endif
                                         </div>
@@ -225,18 +225,39 @@
         position_id = $('#position').val();
         office_id = $('#office').val();
         status = $('#status').val();
-       
-        if(position_id == null){
-            window.location = "{{ route('admin.user.export') }}?office_id=" + office_id + "&status=" + status;
+        group = $('#group').val();
+        pos = '{{ Auth::user()->role_id }}';
+
+        if(pos == 2){
+            if(position_id == null){
+                window.location = "{{ route('admin.user.export') }}?office_id=" + office_id + "&status=" + status;
+            }
+            else if(office_id == null){
+                window.location = "{{ route('admin.user.export') }}?position_id=" + position_id + "&status=" + status;
+            }
+            else if(office_id == null && position_id == null){
+                window.location = "{{ route('admin.user.export') }}?status=" + status;
+            }
+            else{
+                window.location = "{{ route('admin.user.export') }}?position_id=" + position_id + "&office_id=" + office_id + "&status=" + status;
+            }
         }
-        else if(office_id == null){
-            window.location = "{{ route('admin.user.export') }}?position_id=" + position_id + "&status=" + status;
-        }
-        else if(office_id == null && position_id == null){
-            window.location = "{{ route('admin.user.export') }}?status=" + status;
-        }
-        else{
-            window.location = "{{ route('admin.user.export') }}?position_id=" + position_id + "&office_id=" + office_id + "&status=" + status;
+        else if(pos == 1){
+            if(position_id == null){
+                window.location = "{{ route('admin.user.export') }}?office_id=" + office_id + "&status=" + status;
+            }
+            else if(group == null){
+                window.location = "{{ route('admin.user.export') }}?&status=" + status;
+            }
+            else if(office_id == null){
+                window.location = "{{ route('admin.user.export') }}?position_id=" + position_id + "&status=" + status;
+            }
+            else if(office_id == null && position_id == null){
+                window.location = "{{ route('admin.user.export') }}?status=" + status;
+            }
+            else{
+                window.location = "{{ route('admin.user.export') }}?group_id=" + group + "&position_id=" + position_id + "&office_id=" + office_id + "&status=" + status;
+            }
         }
         
     })
