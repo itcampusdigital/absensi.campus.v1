@@ -20,6 +20,8 @@ Route::group(['middleware' => ['admin']], function() {
 	Route::get('/admin/summary/attendance/detail/{id}', 'SummaryAttendanceController@detail')->name('admin.summary.attendance.detail');
 	Route::get('/admin/summary/monitor-attendance', 'SummaryAttendanceController@monitor')->name('admin.summary.attendance.monitor');
 
+	Route::get('/admin/summary/attendances/export', 'SummaryAttendanceController@exportSummaryAttendance')->name('admin.summary.attendance.export');
+
 	// Summary Salary
 	Route::get('/admin/summary/salary', 'SummarySalaryController@index')->name('admin.summary.salary.index');
 	Route::get('/admin/summary/salary/export', 'SummarySalaryController@export')->name('admin.summary.salary.export');
@@ -49,6 +51,9 @@ Route::group(['middleware' => ['admin']], function() {
 	Route::get('/admin/attendances/edit/{id}', 'AttendanceController@edit')->name('admin.attendance.edit');
 	Route::post('/admin/attendances/update', 'AttendanceController@update')->name('admin.attendance.update');
 	Route::post('/admin/attendances/delete', 'AttendanceController@delete')->name('admin.attendance.delete');
+
+	Route::get('/admin/attendances/export', 'AttendanceController@exportAttendance')->name('admin.attendance.export');
+
 
     // Absent
 	Route::get('/admin/absent', 'AbsentController@index')->name('admin.absent.index');

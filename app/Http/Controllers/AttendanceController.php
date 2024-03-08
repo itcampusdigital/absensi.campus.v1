@@ -3,16 +3,19 @@
 namespace App\Http\Controllers;
 
 use Auth;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Ajifatur\Helpers\DateTimeExt;
-use App\Models\Attendance;
-use App\Models\Absent;
-use App\Models\Leave;
 use App\Models\User;
 use App\Models\Group;
+use App\Models\Leave;
+use App\Models\Absent;
+use App\Models\Position;
 use App\Models\WorkHour;
+use App\Models\Attendance;
+use Illuminate\Http\Request;
+use Ajifatur\Helpers\DateTimeExt;
+use App\Exports\AttendanceExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Validator;
 
 class AttendanceController extends Controller
 {
@@ -27,21 +30,32 @@ class AttendanceController extends Controller
         // Check the access
         has_access(method(__METHOD__), Auth::user()->role_id);
 
+        // dd($request->all());
+
         if(Auth::user()->role_id == role('super-admin')) {
             // Set params
             $group = $request->query('group') != null ? $request->query('group') : 0;
             $office = $request->query('office') != null ? $request->query('office') : 0;
+            $position = $request->query('position') != null ? $request->query('position') : 0;
             $t1 = $request->query('t1') != null ? DateTimeExt::change($request->query('t1')) : date('Y-m-d');
             $t2 = $request->query('t2') != null ? DateTimeExt::change($request->query('t2')) : date('Y-m-d');
-
+      
             // Get attendances
-            if($group != 0 && $office != 0)
+            if($group != 0 && $office != 0 && $position != 0)
+            {
+                $attendances = Attendance::whereDate('date','>=',$t1)->whereDate('date','<=',$t2)->whereHas('user', function (Builder $query) use ($group, $office, $position) {
+                    return $query->where('group_id','=',$group)->where('office_id','=',$office)->where('position_id','=', $position);
+                })->get();
+                
+            }
+            elseif($group != 0 && $office != 0 && $position == 0)
                 $attendances = Attendance::whereDate('date','>=',$t1)->whereDate('date','<=',$t2)->whereHas('user', function (Builder $query) use ($group, $office) {
                     return $query->where('group_id','=',$group)->where('office_id','=',$office);
                 })->get();
-            elseif($group != 0 && $office == 0)
-                $attendances = Attendance::whereDate('date','>=',$t1)->whereDate('date','<=',$t2)->whereHas('user', function (Builder $query) use ($group) {
-                    return $query->where('group_id','=',$group);
+
+            elseif($group != 0 && $office == 0 && $position != 0)
+                $attendances = Attendance::whereDate('date','>=',$t1)->whereDate('date','<=',$t2)->whereHas('user', function (Builder $query) use ($group, $position) {
+                    return $query->where('group_id','=',$group)->where('position_id','=', $position);
                 })->get();
             else
                 $attendances = Attendance::whereDate('date','>=',$t1)->whereDate('date','<=',$t2)->orderBy('date','asc')->orderBy('start_at','asc')->get();
@@ -58,14 +72,21 @@ class AttendanceController extends Controller
         elseif(Auth::user()->role_id == role('admin')) {
             // Set params
             $group = Auth::user()->group_id;
+
+
+            $position = $request->query('position') != null ? $request->query('position') : 0;
             $office = $request->query('office') != null ? $request->query('office') : 0;
             $t1 = $request->query('t1') != null ? DateTimeExt::change($request->query('t1')) : date('Y-m-d');
             $t2 = $request->query('t2') != null ? DateTimeExt::change($request->query('t2')) : date('Y-m-d');
 
             // Get attendances
-            if($office != 0)
-                $attendances = Attendance::whereDate('date','>=',$t1)->whereDate('date','<=',$t2)->whereHas('user', function (Builder $query) use ($group, $office) {
-                    return $query->where('group_id','=',$group)->where('office_id','=',$office);
+            if($office != 0 && $position != 0)
+                $attendances = Attendance::whereDate('date','>=',$t1)->whereDate('date','<=',$t2)->whereHas('user', function (Builder $query) use ($group, $office,$position) {
+                    return $query->where('group_id','=',$group)->where('office_id','=',$office)->where('position_id','=', $position);
+                })->get();
+            else if($office == 0 && $position != 0)
+                $attendances = Attendance::whereDate('date','>=',$t1)->whereDate('date','<=',$t2)->whereHas('user', function (Builder $query) use ($group, $office,$position) {
+                    return $query->where('group_id','=',$group)->where('position_id','=', $position);
                 })->get();
             else
                 $attendances = Attendance::whereDate('date','>=',$t1)->whereDate('date','<=',$t2)->whereHas('user', function (Builder $query) use ($group) {
@@ -309,5 +330,34 @@ class AttendanceController extends Controller
 
         // Redirect
         return redirect()->route('admin.attendance.index')->with(['message' => 'Berhasil menghapus data.']);
+    }
+
+    public function exportAttendance(Request $request)
+    {
+        $position = $request->position_id;
+        $office = $request->office_id;
+        $group = $request->group_id;
+        $t1 = $request->query('t1') != null ? DateTimeExt::change($request->query('t1')) : date('Y-m-d');
+        $t2 = $request->query('t2') != null ? DateTimeExt::change($request->query('t2')) : date('Y-m-d');
+
+        if($office != 0 && $position != 0){
+            $attendances = Attendance::whereDate('date','>=',$t1)->whereDate('date','<=',$t2)->whereHas('user', function($query) use ($position,$group,$office){
+                return $query->where('group_id','=',$group)->where('office_id','=',$office)->where('position_id','=',$position);
+            })->get();
+        }
+        else if($office == 0 && $position != 0)
+        {
+            $attendances = Attendance::whereDate('date','>=',$t1)->whereDate('date','<=',$t2)->whereHas('user', function($query) use ($position,$group,$office){
+                return $query->where('group_id','=',$group)->where('position_id','=',$position);
+            })->get();
+        }
+        else{
+            $attendances = Attendance::whereDate('date','>=',$t1)->whereDate('date','<=',$t2)->whereHas('user', function (Builder $query) use ($group) {
+                return $query->where('group_id','=',$group);
+            })->get();
+        }
+            
+        return Excel::download(new AttendanceExport($attendances), 'Absensi.xlsx');
+
     }
 }

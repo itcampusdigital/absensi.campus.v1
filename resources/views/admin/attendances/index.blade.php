@@ -15,7 +15,7 @@
                 <form id="form-filter" class="d-lg-flex" method="get" action="">
                     @if(Auth::user()->role_id == role('super-admin'))
                     <div class="mb-lg-0 mb-2">
-                        <select name="group" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Perusahaan">
+                        <select name="group" id="group" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Perusahaan">
                             <option value="0">Semua Perusahaan</option>
                             @foreach($groups as $group)
                             <option value="{{ $group->id }}" {{ Request::query('group') == $group->id ? 'selected' : '' }}>{{ $group->name }}</option>
@@ -24,7 +24,7 @@
                     </div>
                     @endif
                     <div class="ms-lg-2 ms-0 mb-lg-0 mb-2">
-                        <select name="office" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Kantor">
+                        <select name="office" id="office" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Kantor">
                             <option value="0">Semua Kantor</option>
                             @if(Auth::user()->role_id == role('super-admin'))
                                 @if(Request::query('group') != 0)
@@ -44,6 +44,23 @@
                         </select>
                     </div>
                     <div class="ms-lg-2 ms-0 mb-lg-0 mb-2">
+                            <select name="position" id="position" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Jabatan">
+                                <option value="0">--Pilih Jabatan--</option>
+                                @if(Auth::user()->role_id == role('super-admin') )
+                                    @if(Request::query('group') != 0)
+                                        @foreach(\App\Models\Group::find(Request::query('group'))->positions()->orderBy('name','asc')->get() as $position)
+                                        <option value="{{ $position->id }}" {{ Request::query('position') == $position->id ? 'selected' : '' }}>{{ $position->name }}</option>
+                                        @endforeach
+                                    @endif
+                                @elseif(Auth::user()->role_id == role('admin') || Auth::user()->role_id == role('manager'))
+                                    @foreach(\App\Models\Group::find(Auth::user()->group_id)->positions()->orderBy('name','asc')->get() as $position)
+                                    <option value="{{ $position->id }}" {{ Request::query('position') == $position->id ? 'selected' : '' }}>{{ $position->name }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                    </div>
+
+                    <div class="ms-lg-2 ms-0 mb-lg-0 mb-2">
                         <input type="text" id="t1" name="t1" class="form-control form-control-sm input-tanggal" value="{{ Request::query('t1') != null ? Request::query('t1') : date('d/m/Y') }}" autocomplete="off" data-bs-toggle="tooltip" title="Dari Tanggal">
                     </div>
                     <div class="ms-lg-2 ms-0 mb-lg-0 mb-2">
@@ -51,6 +68,7 @@
                     </div>
                     <div class="ms-lg-2 ms-0">
                         <button type="submit" class="btn btn-sm btn-info"><i class="bi-filter-square me-1"></i> Filter</button>
+                        <a type="button" id="exportExcel" class="btn btn-sm btn-success"><i class="bi-filter-square me-1"></i> Export Excel</a>
                     </div>
                 </form>
             </div>
@@ -73,7 +91,6 @@
                                 <th>Absen Masuk</th>
                                 <th>Absen Keluar</th>
                                 <th width="100">IP Address</th>
-								<th width="100">Mac Address</th>
                                 <th width="40">Opsi</th>
                             </tr>
                         </thead>
@@ -136,9 +153,7 @@
                                 <td>
                                     {{ $attendance->ip_address }}
                                 </td>
-								<td>
-                                    {{ $attendance->mac_address }}
-                                </td>
+
                                 <td>
                                     <div class="btn-group">
                                         <a href="{{ route('admin.attendance.edit', ['id' => $attendance->id]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a>
@@ -174,6 +189,7 @@
     // Button Delete
     Spandiv.ButtonDelete(".btn-delete", ".form-delete");
 
+    
     // Change Group
     $(document).on("change", "select[name=group]", function() {
         var group = $(this).val();
@@ -189,6 +205,19 @@
                 $("select[name=office]").html(html).removeAttr("disabled");
             }
         });
+        $.ajax({
+            type: 'get',
+            url: "{{ route('api.position.index') }}",
+            data: {group: group},
+            success: function(result){
+                var html = '<option value="0" disabled selected>--Pilih Jabatan--</option>';
+                $(result).each(function(key,value){
+                    html += '<option value="' + value.id + '">' + value.name + '</option>';
+                });
+                $("select[name=position]").html(html);
+            }
+        });
+        $("select[name=position]").html(html).removeAttr("disabled");
     });
 
     // Change Date
@@ -196,6 +225,23 @@
         var t1 = $("input[name=t1]").val();
         var t2 = $("input[name=t2]").val();
         (t1 != '' && t2 != '') ? $("#form-filter button[type=submit]").removeAttr("disabled") : $("#form-filter button[type=submit]").attr("disabled","disabled");
+    });
+
+    $('#exportExcel').click(function(){
+        pos = '{{ Auth::user()->role_id }}';
+        group_cek = '{{ Auth::user()->group_id }}';
+        group_id = $('#group').val() != null ? $('#group').val() : null;
+        position_id = $('#position').val() != null ? $('#position').val() : null;
+        office_id = $('#office').val() != null ? $('#office').val() : null;
+        t1 = $('#t1').val();
+        t2 = $('#t2').val();
+
+        if(pos == 1){
+            window.location = "{{ route('admin.attendance.export') }}?position_id=" + position_id + "&office_id=" + office_id + "&group_id=" + group_id + "&t1=" + t1 + "&t2=" + t2;
+        }
+        else{
+            window.location = "{{ route('admin.attendance.export') }}?position_id=" + position_id + "&office_id=" + office_id + "&group_id=" + group_cek + "&t1=" + t1 + "&t2=" + t2;
+        }
     });
 </script>
 

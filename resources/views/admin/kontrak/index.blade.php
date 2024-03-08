@@ -108,7 +108,7 @@
                 }
 
             },
-            order: [6,'asc'],
+            // order: [6,'asc'],
             columns: [
                 // {data: 'checkbox', name: 'checkbox', className: 'text-center', orderable: false},
                 {data: 'user.name', name: 'user.name'},

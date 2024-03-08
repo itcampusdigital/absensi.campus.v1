@@ -39,14 +39,18 @@ class KontrakController extends Controller
         return DataTables::of($user)
                 // ->addColumn('checkbox', '<input type="checkbox" class="form-check-input checkbox-one">')
                 ->editColumn('user.office_id', function($query){
-                    return $query->user->office->name;
+                    return $query->user->office != null ? $query->user->office->name : '';
                 })
                 ->editColumn('user.name', function($query){
+                    $id = $query->user != null ? $query->user->id : '';
+                    $name = $query->user != null ? $query->user->name : '';
                     return '<a href="'.route('admin.user.detail', ['id' => $query->user->id]).'">'.$query->user->name.'</a>';
                 })
                 ->editColumn('user.start_date', function($query){
-                    $conv_format = date('Y/m/d',strtotime($query->user->start_date));
-                    $tb = '<span style=display:none>'.$conv_format.'</span>'.date('d/m/Y', strtotime($query->user->start_date));
+                    $start_date = $query->user != null ? $query->user->start_date : '';
+
+                    $conv_format = date('Y/m/d',strtotime($start_date));
+                    $tb = '<span style=display:none>'.$conv_format.'</span>'.date('d/m/Y', strtotime($start_date));
                     return $tb;
                 })
                 ->editColumn('start_date_kontrak', function($query){
@@ -86,6 +90,7 @@ class KontrakController extends Controller
                     return $div;
                 })
                 ->rawColumns(['user.office_id','user.name','start_date_kontrak','end_date_kontrak','user.start_date','action','masa'])
+                // ->rawColumns(['user.name','user.office_id'])
                 ->make(true);
     }
 

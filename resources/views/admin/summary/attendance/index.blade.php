@@ -15,7 +15,7 @@
                 <form id="form-filter" class="d-lg-flex" method="get" action="">
                     @if(Auth::user()->role_id == role('super-admin'))
                     <div class="mb-lg-0 mb-2">
-                        <select name="group" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Perusahaan">
+                        <select name="group" id="group" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Perusahaan">
                             <option value="0">Semua Perusahaan</option>
                             @foreach($groups as $group)
                             <option value="{{ $group->id }}" {{ Request::query('group') == $group->id ? 'selected' : '' }}>{{ $group->name }}</option>
@@ -24,7 +24,7 @@
                     </div>
                     @endif
                     <div class="ms-lg-2 ms-0 mb-lg-0 mb-2">
-                        <select name="office" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Kantor">
+                        <select name="office" id="office" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Kantor">
                             <option value="0">Semua Kantor</option>
                             @if(Auth::user()->role_id == role('super-admin'))
                                 @if(Request::query('group') != 0)
@@ -43,8 +43,24 @@
                             @endif
                         </select>
                     </div>
+                    <div class="ms-lg-2 ms-0 mb-lg-0 mb-2">
+                        <select name="position" id="position" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Jabatan">
+                            <option value="0">--Pilih Jabatan--</option>
+                            @if(Auth::user()->role_id == role('super-admin') )
+                                @if(Request::query('group') != 0)
+                                    @foreach(\App\Models\Group::find(Request::query('group'))->positions()->orderBy('name','asc')->get() as $position)
+                                    <option value="{{ $position->id }}" {{ Request::query('position') == $position->id ? 'selected' : '' }}>{{ $position->name }}</option>
+                                    @endforeach
+                                @endif
+                            @elseif(Auth::user()->role_id == role('admin') || Auth::user()->role_id == role('manager'))
+                                @foreach(\App\Models\Group::find(Auth::user()->group_id)->positions()->orderBy('name','asc')->get() as $position)
+                                <option value="{{ $position->id }}" {{ Request::query('position') == $position->id ? 'selected' : '' }}>{{ $position->name }}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                </div>
 					<div class="ms-lg-2 ms-0 mb-lg-0 mb-2">
-                        <select name="status" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Status">
+                        <select name="status" id="status" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Status">
                             <option value="1" {{ $status == '1' ? 'selected' : '' }}>Aktif</option>
                             <option value="0" {{ $status == '0' ? 'selected' : '' }}>Tidak Aktif</option>
                         </select>
@@ -57,6 +73,7 @@
                     </div>
                     <div class="ms-lg-2 ms-0">
                         <button type="submit" class="btn btn-sm btn-info"><i class="bi-filter-square me-1"></i> Filter</button>
+                        <a type="button" id="exportExcel" class="btn btn-sm btn-success"><i class="bi-filter-square me-1"></i> Export Excel</a>
                     </div>
                 </form>
             </div>
@@ -74,7 +91,7 @@
                             <tr>
                                 <th>Karyawan</th>
                                 <th width="150" class="{{ Request::query('office') != '' && Request::query('office') != 0 ? 'd-none' : '' }}">Kantor</th>
-                                <th width="150">Jam Kerja</th>
+                                <th width="150">Posisi Jabatan</th>
                                 <th width="60">Hadir</th>
                                 <th width="60">Terlambat</th>
                                 <th width="60">Sakit</th>
@@ -167,6 +184,24 @@
         var t1 = $("input[name=t1]").val();
         var t2 = $("input[name=t2]").val();
         (t1 != '' && t2 != '') ? $("#form-filter button[type=submit]").removeAttr("disabled") : $("#form-filter button[type=submit]").attr("disabled","disabled");
+    });
+
+    $('#exportExcel').click(function(){
+        pos = '{{ Auth::user()->role_id }}';
+        group_cek = '{{ Auth::user()->group_id }}';
+        group_id = $('#group').val() != null ? $('#group').val() : null;
+        position_id = $('#position').val() != null ? $('#position').val() : null;
+        office_id = $('#office').val() != null ? $('#office').val() : null;
+        status = $('#status').val();
+        t1 = $('#t1').val();
+        t2 = $('#t2').val();
+
+        if(pos == 1){
+            window.location = "{{ route('admin.summary.attendance.export') }}?position_id=" + position_id + "&office_id=" + office_id + "&status=" + status + "&group_id=" + group_id + "&t1=" + t1 + "&t2=" + t2;
+        }
+        else{
+            window.location = "{{ route('admin.summary.attendance.export') }}?position_id=" + position_id + "&office_id=" + office_id + "&status=" + status + "&group_id=" + group_cek + "&t1=" + t1 + "&t2=" + t2;
+        }
     });
 </script>
 
