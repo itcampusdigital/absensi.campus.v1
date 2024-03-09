@@ -13,14 +13,14 @@
             <div class="card-header d-sm-flex justify-content-center align-items-center">
                 <form id="form-filter" class="d-lg-flex" method="get" action="">
                     <div class="mb-lg-0 mb-2">
-                        <select name="month" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Periode Bulan">
+                        <select name="month" id="month" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Periode Bulan">
                             @for($i=1; $i<=12; $i++)
                             <option value="{{ $i }}" {{ $month == $i ? 'selected' : '' }}>{{ \Ajifatur\Helpers\DateTimeExt::month($i) }}</option>
                             @endfor
                         </select>
                     </div>
                     <div class="ms-lg-2 ms-0 mb-lg-0 mb-2">
-                        <select name="year" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Periode Tahun">
+                        <select name="year" id="year" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Periode Tahun">
                             @for($i=date("Y"); $i>=2020; $i--)
                             <option value="{{ $i }}" {{ $year == $i ? 'selected' : '' }}>{{ $i }}</option>
                             @endfor
@@ -37,7 +37,7 @@
                     </div>
                     @endif
                     <div class="ms-lg-2 ms-0 mb-lg-0 mb-2">
-                        <select name="office" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Kantor">
+                        <select name="office" id="office" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Kantor">
                             <option value="0" disabled selected>--Pilih Kantor--</option>
                             @if(Auth::user()->role_id == role('super-admin'))
                                 @if(Request::query('group') != 0)
@@ -57,7 +57,7 @@
                         </select>
                     </div>
                     <div class="ms-lg-2 ms-0 mb-lg-0 mb-2">
-                        <select name="position" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Jabatan">
+                        <select name="position" id="position" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Jabatan">
                             <option value="0" disabled selected>--Pilih Jabatan--</option>
                             @if(Auth::user()->role_id == role('super-admin'))
                                 @if(Request::query('group') != 0)
@@ -74,6 +74,7 @@
                     </div>
                     <div class="ms-lg-2 ms-0">
                         <button type="submit" class="btn btn-sm btn-info" {{ Request::query('office') != null && Request::query('position') != null ? '' : 'disabled' }}><i class="bi-filter-square me-1"></i> Filter</button>
+                        <a type="button" id="exportExcel" class="btn btn-sm btn-success"><i class="bi-filter-square me-1"></i> Export Excel</a>
                     </div>
                 </form>
             </div>
@@ -197,6 +198,23 @@
             $("#form-filter").find("button[type=submit]").removeAttr("disabled");
         else
             $("#form-filter").find("button[type=submit]").attr("disabled","disabled");
+    });
+
+    $('#exportExcel').click(function(){
+        pos = '{{ Auth::user()->role_id }}';
+        group_cek = '{{ Auth::user()->group_id }}';
+        group_id = $('#group').val() != null ? $('#group').val() : null;
+        position_id = $('#position').val() != null ? $('#position').val() : null;
+        office_id = $('#office').val() != null ? $('#office').val() : null;
+        year = $('#year').val();
+        month = $('#month').val();
+
+        if(pos == 1){
+            window.location = "{{ route('admin.summary.attendance.monitor.export') }}?position_id=" + position_id + "&office_id=" + office_id + "&group_id=" + group_id + "&year=" + year + "&month=" + month;
+        }
+        else{
+            window.location = "{{ route('admin.summary.attendance.monitor.export') }}?position_id=" + position_id + "&office_id=" + office_id + "&group_id=" + group_id + "&year=" + year + "&month=" + month;
+        }
     });
 </script>
 

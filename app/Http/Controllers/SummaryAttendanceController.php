@@ -355,4 +355,56 @@ class SummaryAttendanceController extends Controller
         return Excel::download(new SummaryAttendanceExport($users), 'Rangkuman Absensi.xlsx');
            
     }
+
+    public function ExportMonitorAttendance(Request $request)
+    {
+        $position_id = $request->position_id;  
+        $office_id = $request->office_id;  
+        $group_id = $request->group_id;  
+        $year = $request->year;  
+        $month = $request->month;  
+        $month = $request->query('month') ?: date('m');
+        $year = $request->query('year') ?: date('Y');
+
+        // Get groups
+        $groups = Group::orderBy('name','asc')->get();
+
+        // Get work hours and group
+        if(Auth::user()->role_id == role('super-admin')) {
+            $work_hours = WorkHour::where('group_id','=',$request->query('group'))->where('office_id','=',$request->query('office'))->where('position_id','=',$request->query('position'))->orderBy('name','asc')->get();
+            $group = Group::find($request->query('group'));
+        }
+        elseif(Auth::user()->role_id == role('admin')) {
+            $work_hours = WorkHour::where('group_id','=',Auth::user()->group_id)->where('office_id','=',$office_id)->where('position_id','=',$position_id)->orderBy('name','asc')->get();
+            $group = Group::find(Auth::user()->group_id);
+        }
+        elseif(Auth::user()->role_id == role('manager')) {
+            $work_hours = WorkHour::where('group_id','=',Auth::user()->group_id)->where('office_id','=',$office_id)->whereIn('office_id',Auth::user()->managed_offices()->pluck('office_id')->toArray())->where('position_id','=',$position_id)->orderBy('name','asc')->get();
+            $group = Group::find(Auth::user()->group_id);
+        }
+
+        $cek = Attendance::where('workhour_id','=',$work_hours[0]->id)->get();
+        // foreach($cek as $attend) {
+        //     $cek['year'] = date('Y', strtotime($attend->date));;
+        // }
+        for($i=0;$i<count($cek);$i++){
+            $cek[$i]->year = date('Y', strtotime($cek[$i]->date));
+            $cek[$i]->month = date('M', strtotime($cek[$i]->date));
+        }
+        // $y = date('Y', strtotime($cek[622]->date));
+        $cek_year = $cek->where('year','=', 2023);
+        dd($cek_year[550]);
+        // Jan, Feb, Mar, Apr, May, Jun. Jul, Aug, Sep, Oct, Nov, Dec
+    }
+
+    // public static convert_month($month){
+    //     if($month = "Jan") return 1;
+    //     else if($month = "Feb") return 2;
+    //     else if($month = "Mar") return 3;
+    //     else if($month = "Apr") return 4;
+    //     else if($month = "Feb") return 5;
+    //     else if($month = "Feb") return 6;
+    //     else if($month = "Feb") return 7;
+    //     else if($month = "Feb") return 8;
+    // }
 }
