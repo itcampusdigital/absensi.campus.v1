@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Auth;
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Group;
 use App\Models\Leave;
@@ -10,6 +11,7 @@ use App\Models\Absent;
 use App\Models\WorkHour;
 use App\Models\Attendance;
 use Illuminate\Http\Request;
+use App\Exports\MonitorExport;
 use Ajifatur\Helpers\DateTimeExt;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\SummaryAttendanceExport;
@@ -382,29 +384,39 @@ class SummaryAttendanceController extends Controller
             $work_hours = WorkHour::where('group_id','=',Auth::user()->group_id)->where('office_id','=',$office_id)->whereIn('office_id',Auth::user()->managed_offices()->pluck('office_id')->toArray())->where('position_id','=',$position_id)->orderBy('name','asc')->get();
             $group = Group::find(Auth::user()->group_id);
         }
+  
+        $prev_month = $request->month-1 < 10 ? '0'.$request->month-1 : $request->month-1;
+        $now_month = $request->month < 10 ? '0'.$request->month : $request->month;
+        $from = $prev_month == 00 ? ($request->year-1).'-12-24' : $request->year.'-'.$prev_month.'-24';
+        $to = $request->year.'-'.$now_month.'-23';
+        
+        $monitoring = Attendance::select('id','date','start_at','entry_at','user_id','workhour_id','office_id')->where('workhour_id','=',$work_hours[0]->id)
+                            ->whereBetween('date',[$from, $to])                
+                            ->get();
 
-        $cek = Attendance::where('workhour_id','=',$work_hours[0]->id)->get();
-        // foreach($cek as $attend) {
-        //     $cek['year'] = date('Y', strtotime($attend->date));;
-        // }
-        for($i=0;$i<count($cek);$i++){
-            $cek[$i]->year = date('Y', strtotime($cek[$i]->date));
-            $cek[$i]->month = date('M', strtotime($cek[$i]->date));
+
+        for($i=0;$i<count($monitoring);$i++){
+            $monitoring[$i]->late_time = Carbon::parse(date('H:i:s', strtotime($monitoring[$i]->entry_at)))->diffInMinutes($monitoring[$i]->start_at) > 0 ? Carbon::parse(date('H:i:s', strtotime($monitoring[$i]->entry_at)))->diffInMinutes($monitoring[$i]->start_at) : 0;
         }
-        // $y = date('Y', strtotime($cek[622]->date));
-        $cek_year = $cek->where('year','=', 2023);
-        dd($cek_year[550]);
-        // Jan, Feb, Mar, Apr, May, Jun. Jul, Aug, Sep, Oct, Nov, Dec
+
+        // dd($monitoring);
+        return Excel::download(new MonitorExport($monitoring), 'Monitor Absensi.xlsx');
+
+        
     }
 
-    // public static convert_month($month){
-    //     if($month = "Jan") return 1;
-    //     else if($month = "Feb") return 2;
-    //     else if($month = "Mar") return 3;
-    //     else if($month = "Apr") return 4;
-    //     else if($month = "Feb") return 5;
-    //     else if($month = "Feb") return 6;
-    //     else if($month = "Feb") return 7;
-    //     else if($month = "Feb") return 8;
+    // public static function convert_month($month){
+    //     if($month == 1) return  "Jan";
+    //     else if($month == 2) return  "Feb";
+    //     else if($month == 3) return  "Mar";
+    //     else if($month == 4) return  "Apr";
+    //     else if($month == 5) return  "May";
+    //     else if($month == 6) return  "Jun";
+    //     else if($month == 7) return  "Jul";
+    //     else if($month == 8) return  "Aug";
+    //     else if($month == 9) return  "Sep";
+    //     else if($month == 10) return  "Oct";
+    //     else if($month == 11) return  "Nov";
+    //     else if($month == 12) return  "Dec";
     // }
 }
