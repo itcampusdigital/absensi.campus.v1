@@ -177,6 +177,19 @@
                 $("select[name=office]").html(html).removeAttr("disabled");
             }
         });
+        $.ajax({
+            type: 'get',
+            url: "{{ route('api.position.index') }}",
+            data: {group: group},
+            success: function(result){
+                var html = '<option value="0" disabled selected>--Pilih Jabatan--</option>';
+                $(result).each(function(key,value){
+                    html += '<option value="' + value.id + '">' + value.name + '</option>';
+                });
+                $("select[name=position]").html(html);
+            }
+        });
+        // $("#form-filter").find("button[type=submit]").attr("disabled","disabled");
     });
 
     // Change Date

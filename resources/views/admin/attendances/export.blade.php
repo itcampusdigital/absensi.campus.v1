@@ -1,12 +1,12 @@
 <table>
     <thead style="background-color: green; color: skyblue; border: 3px solid #ee00ee">
     <tr>
-        <th><b>No</b></th>
-        <th>Tanggal</th>
-        <th>Karyawan</th>
-        <th >Jam Kerja</th>
-        <th>Absen Masuk</th>
-        <th>Absen Keluar</th>
+        <th width="8" style="text-align:center"><b>No</b></th>
+        <th><b>Tanggal</b></th>
+        <th><b>Karyawan</b> </th>
+        <th><b>Jam Kerja</b>  </th>
+        <th><b>Absen Masuk</b>  </th>
+        <th><b>Absen Keluar</b>  </th>
 
     </tr>
     </thead>

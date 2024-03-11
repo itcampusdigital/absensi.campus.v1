@@ -28,7 +28,7 @@
                     </div>
                     @if(Auth::user()->role_id == role('super-admin'))
                     <div class="ms-lg-2 ms-0 mb-lg-0 mb-2">
-                        <select name="group" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Perusahaan">
+                        <select name="group" id="group" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Perusahaan">
                             <option value="0">--Pilih Perusahaan--</option>
                             @foreach($groups as $group)
                             <option value="{{ $group->id }}" {{ Request::query('group') == $group->id ? 'selected' : '' }}>{{ $group->name }}</option>

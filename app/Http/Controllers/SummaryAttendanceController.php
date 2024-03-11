@@ -297,10 +297,10 @@ class SummaryAttendanceController extends Controller
 		// Set the status and status sign
             $status = $request->query('status') != null ? $request->query('status') : 1;
             $statusSign = $status == 1 ? '=' : '!=';
-            $group = Auth::user()->group_id;
+            $group = Auth::user()->role_id == 1 ? $request->group_id : Auth::user()->group_id;
             $office = $request->office_id ;
             $position = $request->position_id ;
-
+            
         // Get users
             if($office != 0 && $position != 0){
                 $users = User::where('role_id','=',role('member'))->where('group_id','=',$group)->where('office_id','=',$office)->where('position_id','=',$position)
@@ -317,7 +317,12 @@ class SummaryAttendanceController extends Controller
                 ->where('end_date',$statusSign,null)->get();
             }
             else{
-                $users = User::where('role_id','=',role('member'))->where('group_id','=',$group)->where('end_date',$statusSign,null)->get();
+                if(Auth::user()->role_id == role('super-admin')) {
+                    $users = User::where('role_id','=',role('member'))->where('end_date',$statusSign,null)->get();
+                }
+                else{
+                    $users = User::where('role_id','=',role('member'))->where('group_id','=',$group)->where('end_date',$statusSign,null)->get();
+                }
             }
 
             //count
@@ -373,8 +378,8 @@ class SummaryAttendanceController extends Controller
 
         // Get work hours and group
         if(Auth::user()->role_id == role('super-admin')) {
-            $work_hours = WorkHour::where('group_id','=',$request->query('group'))->where('office_id','=',$request->query('office'))->where('position_id','=',$request->query('position'))->orderBy('name','asc')->get();
-            $group = Group::find($request->query('group'));
+            $work_hours = WorkHour::where('group_id','=',$group_id)->where('office_id','=',$office_id)->where('position_id','=',$position_id)->orderBy('name','asc')->get();
+            $group = Group::find($group_id);
         }
         elseif(Auth::user()->role_id == role('admin')) {
             $work_hours = WorkHour::where('group_id','=',Auth::user()->group_id)->where('office_id','=',$office_id)->where('position_id','=',$position_id)->orderBy('name','asc')->get();
@@ -398,6 +403,7 @@ class SummaryAttendanceController extends Controller
         for($i=0;$i<count($monitoring);$i++){
             $monitoring[$i]->late_time = Carbon::parse(date('H:i:s', strtotime($monitoring[$i]->entry_at)))->diffInMinutes($monitoring[$i]->start_at) > 0 ? Carbon::parse(date('H:i:s', strtotime($monitoring[$i]->entry_at)))->diffInMinutes($monitoring[$i]->start_at) : 0;
         }
+
 
         // dd($monitoring);
         return Excel::download(new MonitorExport($monitoring), 'Monitor Absensi.xlsx');

@@ -347,15 +347,28 @@ class AttendanceController extends Controller
         }
         else if($office == 0 && $position != 0)
         {
-            $attendances = Attendance::whereDate('date','>=',$t1)->whereDate('date','<=',$t2)->whereHas('user', function($query) use ($position,$group,$office){
+            $attendances = Attendance::whereDate('date','>=',$t1)->whereDate('date','<=',$t2)->whereHas('user', function($query) use ($position,$group){
                 return $query->where('group_id','=',$group)->where('position_id','=',$position);
             })->get();
         }
-        else{
-            $attendances = Attendance::whereDate('date','>=',$t1)->whereDate('date','<=',$t2)->whereHas('user', function (Builder $query) use ($group) {
-                return $query->where('group_id','=',$group);
+        else if($office != 0 && $position == 0)
+        {
+            $attendances = Attendance::whereDate('date','>=',$t1)->whereDate('date','<=',$t2)->whereHas('user', function($query) use ($group,$office){
+                return $query->where('group_id','=',$group)->where('office_id','=',$office);
             })->get();
         }
+        else{
+            if(Auth::user()->role_id == role('super-admin')) {
+                $attendances = Attendance::whereDate('date','>=',$t1)->whereDate('date','<=',$t2)->has('user')
+                                        ->get();
+            }
+            else{   
+                $attendances = Attendance::whereDate('date','>=',$t1)->whereDate('date','<=',$t2)->whereHas('user', function (Builder $query) use ($group) {
+                    return $query->where('group_id','=',$group);
+                })->get();
+            }
+        }
+
             
         return Excel::download(new AttendanceExport($attendances), 'Absensi.xlsx');
 
