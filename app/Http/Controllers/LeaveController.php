@@ -235,12 +235,12 @@ class LeaveController extends Controller
         $groups = Group::orderBy('name','asc')->get();
 
         if(Auth::user()->role_id == role('super-admin')){
-            $group = Group::find($request->query('group'));
+            $group = $request->query('group');
      
                 $office = $request->query('office');
-                $cuti = User::with(['leave','kontrak'])
+                $cuti = User::select(["id","group_id","office_id","name","start_date","end_date"])->with(['leave','kontrak'])
                     ->has('kontrak')
-                    // ->where('group_id',$group)
+                    ->where('group_id',$group)
                     ->where('office_id',$office)
                     ->where('end_date','=',null)
                     ->get();
@@ -248,13 +248,12 @@ class LeaveController extends Controller
         }
 
         elseif(Auth::user()->role_id == role('admin')){
-
             $group = Auth::user()->group_id;
             $office = $request->query('office');
-            $s = Office::where('group_id',$group)->first();
+            $s = Office::select('id')->where('group_id',$group)->first();
 
             $if_office = $office == 0 ? $s->id : $office;
-            $cuti = User::with(['leave','kontrak'])
+            $cuti = User::select(["id","group_id","office_id","name","start_date","end_date"])->with(['leave','kontrak'])
             ->has('kontrak')
             ->where('group_id',$group)
             ->where('office_id',$if_office)
@@ -276,6 +275,7 @@ class LeaveController extends Controller
 
         //jumlah cuti   
 
+        // dd($cuti);
         return view('admin/leave/cuti', [
             'cuti' => $cuti,
             'year' => $year,

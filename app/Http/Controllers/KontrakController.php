@@ -110,11 +110,11 @@ class KontrakController extends Controller
         ]);
     }
 
-    public function store(Request $request){
+    public function updateCuti(Request $request){
        
         $cuti = User::with(['kontrak'])->find($request->user_id);
         $cuti->kontrak->cuti = $request->cuti_tahunan;
-        $cuti->kontrak->save();
+        $cuti->kontrak->update();
 
         return Redirect::back()->with(['message' => 'Berhasil mengupdate data.']);
     }

@@ -72,7 +72,7 @@
                             <td align="center">{{ $loop->iteration }}</td>
                             <td >{{ $cutis->name }}</td>
                             <td align="center"> 
-                                <form action="{{ route('admin.kontrak.store') }}" method="POST" enctype="multipart/form-data" 
+                                <form action="{{ route('admin.kontrak.updateCuti') }}" method="POST" enctype="multipart/form-data" 
                                     id="#myFormID">
                                     @csrf
                                     <input style="border: none;border-color: transparent;" type="number" min="0" max="12" step="1" value="{{ $cutis->kontrak->cuti }}" id="cuti_tahunan" name="cuti_tahunan">
@@ -100,11 +100,9 @@
     <script type="text/javascript">
 
 Spandiv.DataTable("#datatable");
-// $(document).on("change", '#cuti_tahunan', function(){
-//     // alert($('#cuti_tahunan').val());
-//     $("#myFormID").submit();
-// })
-$('#cuti_tahunan').change(function(){
+
+    $('input[name=cuti_tahunan]').change(function(){
+        // alert($(this).val());
          $(this).closest('form').trigger('submit');
     });
 
@@ -143,7 +141,7 @@ $('#cuti_tahunan').change(function(){
     //         // var url = $(this).attr('data-action');
 
     //         $.ajax({
-    //             url: "{{ route('admin.kontrak.store') }}",
+    //             url: "#",
     //             method: 'post',
     //             data: {cuti : data_cuti},
     //             success:function(response)
