@@ -72,8 +72,7 @@
                             <td align="center">{{ $loop->iteration }}</td>
                             <td >{{ $cutis->name }}</td>
                             <td align="center"> 
-                                <form action="{{ route('admin.kontrak.store') }}" 
-                                    method="post" enctype="multipart/form-data" 
+                                <form action="{{ route('admin.kontrak.store') }}" method="POST" enctype="multipart/form-data" 
                                     id="#myFormID">
                                     @csrf
                                     <input style="border: none;border-color: transparent;" type="number" min="0" max="12" step="1" value="{{ $cutis->kontrak->cuti }}" id="cuti_tahunan" name="cuti_tahunan">
@@ -101,12 +100,16 @@
     <script type="text/javascript">
 
 Spandiv.DataTable("#datatable");
-$(document).on("change", '#cuti_tahunan', function(){
-    $("#myFormID").submit();
-})
+// $(document).on("change", '#cuti_tahunan', function(){
+//     // alert($('#cuti_tahunan').val());
+//     $("#myFormID").submit();
+// })
+$('#cuti_tahunan').change(function(){
+         $(this).closest('form').trigger('submit');
+    });
 
 // Change Group
-$(document).on("change", "select[name=group]", function() {
+    $(document).on("change", "select[name=group]", function() {
         var group = $(this).val();
         $.ajax({
             type: "get",
@@ -130,6 +133,30 @@ $(document).on("change", "select[name=group]", function() {
         else
             $("#form-filter").find("button[type=submit]").attr("disabled","disabled");
     });
+
+    // $(document).ready(function(){
+    //     var form = '#myFormID';
+
+    //     $('#cuti_tahunan').on('change', function(){
+    //         // event.preventDefault();
+    //         data_cuti = $('#cuti_tahunan').val();
+    //         // var url = $(this).attr('data-action');
+
+    //         $.ajax({
+    //             url: "{{ route('admin.kontrak.store') }}",
+    //             method: 'post',
+    //             data: {cuti : data_cuti},
+    //             success:function(response)
+    //             {
+    //                 // $(form).trigger("reset");
+    //                 alert(response.success)
+    //             },
+    //             error: function(response) {
+    //             }
+    //         });
+    //     });
+
+    // });
     </script>
 
 @endsection

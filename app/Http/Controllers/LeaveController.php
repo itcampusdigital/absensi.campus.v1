@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Group;
 use App\Models\Leave;
+use App\Models\Office;
 use Illuminate\Http\Request;
 use Ajifatur\Helpers\DateTimeExt;
 use Illuminate\Database\Eloquent\Builder;
@@ -250,10 +251,13 @@ class LeaveController extends Controller
 
             $group = Auth::user()->group_id;
             $office = $request->query('office');
+            $s = Office::where('group_id',$group)->first();
+
+            $if_office = $office == 0 ? $s->id : $office;
             $cuti = User::with(['leave','kontrak'])
             ->has('kontrak')
             ->where('group_id',$group)
-            ->where('office_id',$office)
+            ->where('office_id',$if_office)
             ->where('end_date','=',null)
             ->get();
         }

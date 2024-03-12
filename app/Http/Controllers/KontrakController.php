@@ -12,6 +12,7 @@ use Yajra\DataTables\DataTables;
 use Ajifatur\Helpers\DateTimeExt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 
 class KontrakController extends Controller
@@ -115,7 +116,7 @@ class KontrakController extends Controller
         $cuti->kontrak->cuti = $request->cuti_tahunan;
         $cuti->kontrak->save();
 
-        return redirect()->route('admin.leave.cuti')->with(['message' => 'Berhasil mengupdate data.']);
+        return Redirect::back()->with(['message' => 'Berhasil mengupdate data.']);
     }
 
     public function edit(Request $request)
