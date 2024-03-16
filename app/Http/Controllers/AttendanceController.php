@@ -85,8 +85,12 @@ class AttendanceController extends Controller
                     return $query->where('group_id','=',$group)->where('office_id','=',$office)->where('position_id','=', $position);
                 })->get();
             else if($office == 0 && $position != 0)
-                $attendances = Attendance::whereDate('date','>=',$t1)->whereDate('date','<=',$t2)->whereHas('user', function (Builder $query) use ($group, $office,$position) {
+                $attendances = Attendance::whereDate('date','>=',$t1)->whereDate('date','<=',$t2)->whereHas('user', function (Builder $query) use ($group,$position) {
                     return $query->where('group_id','=',$group)->where('position_id','=', $position);
+                })->get();
+            else if($office != 0 && $position == 0)
+                $attendances = Attendance::whereDate('date','>=',$t1)->whereDate('date','<=',$t2)->whereHas('user', function (Builder $query) use ($group, $office) {
+                    return $query->where('group_id','=',$group)->where('office_id','=',$office);
                 })->get();
             else
                 $attendances = Attendance::whereDate('date','>=',$t1)->whereDate('date','<=',$t2)->whereHas('user', function (Builder $query) use ($group) {
