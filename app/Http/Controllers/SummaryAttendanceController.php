@@ -395,18 +395,22 @@ class SummaryAttendanceController extends Controller
         $from = $prev_month == 00 ? ($request->year-1).'-12-24' : $request->year.'-'.$prev_month.'-24';
         $to = $request->year.'-'.$now_month.'-23';
         
-        $monitoring = Attendance::select('id','date','start_at','entry_at','user_id','workhour_id','office_id')->where('workhour_id','=',$work_hours[0]->id)
+        for($i=0;$i<count($work_hours);$i++){
+            $array_id_workhours[$i] = $work_hours[$i]->id;
+        }
+
+        $monitoring = Attendance::select('id','date','start_at','entry_at','user_id','workhour_id','office_id')->whereIn('workhour_id',$array_id_workhours)
                             ->whereBetween('date',[$from, $to])                
                             ->get();
+
 
 
         for($i=0;$i<count($monitoring);$i++){
             $monitoring[$i]->late_time = Carbon::parse(date('H:i:s', strtotime($monitoring[$i]->entry_at)))->diffInMinutes($monitoring[$i]->start_at) > 0 ? Carbon::parse(date('H:i:s', strtotime($monitoring[$i]->entry_at)))->diffInMinutes($monitoring[$i]->start_at) : 0;
         }
 
-
         // dd($monitoring);
-        return Excel::download(new MonitorExport($monitoring), 'Monitor Absensi.xlsx');
+        return Excel::download(new MonitorExport($monitoring), 'Monitor Absensi '.now().'.xlsx');
 
         
     }
