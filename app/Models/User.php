@@ -45,6 +45,10 @@ class User extends \Ajifatur\FaturHelper\Models\User
     {
         return $this->hasOne(Kontrak::class);
     }
+    public function attendance()
+    {
+        return $this->hasMany(Attendance::class,'user_id');
+    }
     /**
      * Get the group that owns the user.
      */

@@ -94,6 +94,7 @@
                                 <th width="150">Posisi Jabatan</th>
                                 <th width="60">Hadir</th>
                                 <th width="60">Terlambat</th>
+                                <th width="60">Alpa</th>
                                 <th width="60">Sakit</th>
                                 <th width="60">Izin</th>
                                 <th width="60">Cuti</th>
@@ -126,6 +127,9 @@
                                         </td>
                                         <td align="right">
                                             <a href="{{ route('admin.summary.attendance.detail', ['id' => $user->id, 'workhour' => $workhour->id, 'category' => 2, 't1' => date('d/m/Y', strtotime($t1)), 't2' => date('d/m/Y', strtotime($t2))]) }}">{{ number_format($workhour->late,0,',',',') }}</a>
+                                        </td>
+                                        <td align="right">
+                                            <a href="{{ route('admin.summary.attendance.detail', ['id' => $user->id, 'category' => 6, 't1' => date('d/m/Y', strtotime($t1)), 't2' => date('d/m/Y', strtotime($t2))]) }}">{{ number_format($user->absent3,0,',',',') }}</a>
                                         </td>
                                         <td align="right">
                                             <a href="{{ route('admin.summary.attendance.detail', ['id' => $user->id, 'category' => 3, 't1' => date('d/m/Y', strtotime($t1)), 't2' => date('d/m/Y', strtotime($t2))]) }}">{{ number_format($user->absent1,0,',',',') }}</a>

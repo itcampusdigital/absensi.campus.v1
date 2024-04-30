@@ -7,6 +7,7 @@
         <th >Posisi Jabatan</th>
         <th >Hadir</th>
         <th >Terlambat</th>
+        <th >Alpa</th>
         <th >Sakit</th>
         <th >Izin</th>
         <th >Cuti</th>
@@ -37,6 +38,9 @@
                     </td>
                     <td align="right">
                         {{ number_format($workhour->late,0,',',',') }}
+                    </td>
+                    <td align="right">
+                        {{ number_format($user->absent3,0,',',',') }}
                     </td>
                     <td align="right">
                         {{ number_format($user->absent1,0,',',',') }}

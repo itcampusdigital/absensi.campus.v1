@@ -110,6 +110,7 @@ class SummaryAttendanceController extends Controller
                 // Set absents
                 $users[$key]->absent1 = Absent::where('user_id','=',$user->id)->where('category_id','=',1)->where('date','>=',$t1)->where('date','<=',$t2)->count();
                 $users[$key]->absent2 = Absent::where('user_id','=',$user->id)->where('category_id','=',2)->where('date','>=',$t1)->where('date','<=',$t2)->count();
+                $users[$key]->absent3 = Absent::where('user_id','=',$user->id)->where('category_id','=',3)->where('date','>=',$t1)->where('date','<=',$t2)->count();
 
                 // Set leaves
                 $users[$key]->leave = Leave::where('user_id','=',$user->id)->where('date','>=',$t1)->where('date','<=',$t2)->count();
@@ -209,8 +210,10 @@ class SummaryAttendanceController extends Controller
         // Get absents
         $absents1 = Absent::where('user_id','=',$user->id)->where('category_id','=',1)->where('date','>=',$t1)->where('date','<=',$t2)->orderBy('date','desc')->get();
         $absents2 = Absent::where('user_id','=',$user->id)->where('category_id','=',2)->where('date','>=',$t1)->where('date','<=',$t2)->orderBy('date','desc')->get();
+        $absents3 = Absent::where('user_id','=',$user->id)->where('category_id','=',3)->where('date','>=',$t1)->where('date','<=',$t2)->orderBy('date','desc')->get();
         if($category == 3) $attendances = $absents1;
         if($category == 4) $attendances = $absents2;
+        if($category == 6) $attendances = $absents3;
 
         // Get leaves
         $leaves = Leave::where('user_id','=',$user->id)->where('date','>=',$t1)->where('date','<=',$t2)->orderBy('date','desc')->get();
@@ -220,6 +223,7 @@ class SummaryAttendanceController extends Controller
         $count[3] = count($absents1);
         $count[4] = count($absents2);
         $count[5] = count($leaves);
+        $count[6] = count($absents3);
 
         // View
         return view('admin/summary/attendance/detail', [
@@ -331,6 +335,7 @@ class SummaryAttendanceController extends Controller
                     // Set absents
                     $users[$key]->absent1 = Absent::where('user_id','=',$user->id)->where('category_id','=',1)->where('date','>=',$t1)->where('date','<=',$t2)->count();
                     $users[$key]->absent2 = Absent::where('user_id','=',$user->id)->where('category_id','=',2)->where('date','>=',$t1)->where('date','<=',$t2)->count();
+                    $users[$key]->absent3 = Absent::where('user_id','=',$user->id)->where('category_id','=',3)->where('date','>=',$t1)->where('date','<=',$t2)->count();
 
                     // Set leaves
                     $users[$key]->leave = Leave::where('user_id','=',$user->id)->where('date','>=',$t1)->where('date','<=',$t2)->count();
@@ -397,36 +402,54 @@ class SummaryAttendanceController extends Controller
         
         for($i=0;$i<count($work_hours);$i++){
             $array_id_workhours[$i] = $work_hours[$i]->id;
+            $array_name_workhours[$i] = $work_hours[$i]->name;
         }
+        $dates = Attendance::select('date')->whereIn('workhour_id',$array_id_workhours)
+                ->whereBetween('date',[$from, $to])
+                ->groupBy('date')
+                ->get();
 
-        $monitoring = Attendance::select('id','date','start_at','entry_at','user_id','workhour_id','office_id')->whereIn('workhour_id',$array_id_workhours)
-                            ->whereBetween('date',[$from, $to])                
+        $monitoring = Attendance::select('id','date','start_at','entry_at','user_id','workhour_id','office_id')
+                            ->whereIn('workhour_id',$array_id_workhours)
+                            ->whereBetween('date',[$from, $to])   
+                            ->orderBy('date','asc')
                             ->get();
 
-
+        $shift1 = array();
+        $shift2 = array();
+        $shift3 = array();
+        $sisipan = array();
+        $arrays = array();
+        
 
         for($i=0;$i<count($monitoring);$i++){
-            $monitoring[$i]->late_time = Carbon::parse(date('H:i:s', strtotime($monitoring[$i]->entry_at)))->diffInMinutes($monitoring[$i]->start_at) > 0 ? Carbon::parse(date('H:i:s', strtotime($monitoring[$i]->entry_at)))->diffInMinutes($monitoring[$i]->start_at) : 0;
+            // $monitoring[$i]->late_time = Carbon::parse(date('H:i:s', strtotime($monitoring[$i]->entry_at)))->diffInMinutes($monitoring[$i]->start_at) > 0 ? Carbon::parse(date('H:i:s', strtotime($monitoring[$i]->entry_at)))->diffInMinutes($monitoring[$i]->start_at) : 0;
+            $monitoring[$i]->count_wh = count($array_id_workhours);
+            if($monitoring[$i]->workhour->name == 'Shift 1'){
+                $shift1[$i] = $monitoring[$i];
+            }
+            else if($monitoring[$i]->workhour->name == 'Shift 2'){
+                $shift2[$i] = $monitoring[$i];
+            }
+            else if($monitoring[$i]->workhour->name == 'Shift 3'){
+                $shift3[$i] = $monitoring[$i];
+            }
+            else if($monitoring[$i]->workhour->name == 'Sisipan 3'){
+                $sisipan[$i] = $monitoring[$i];
+            }
+           
         }
 
-        // dd($monitoring);
-        return Excel::download(new MonitorExport($monitoring), 'Monitor Absensi '.now().'.xlsx');
+        for($j=0;$j<count($dates);$j++){
+            $arrays[$j] = $monitoring->where('date',$dates[$j]->date)->count();
+        }
+
+        // dd($arrays);
+
+        return Excel::download(new MonitorExport($monitoring, $dates,$array_name_workhours,$shift1,$shift2,$shift3,$sisipan), 'Monitor Absensi '.now().'.xlsx');
 
         
     }
 
-    // public static function convert_month($month){
-    //     if($month == 1) return  "Jan";
-    //     else if($month == 2) return  "Feb";
-    //     else if($month == 3) return  "Mar";
-    //     else if($month == 4) return  "Apr";
-    //     else if($month == 5) return  "May";
-    //     else if($month == 6) return  "Jun";
-    //     else if($month == 7) return  "Jul";
-    //     else if($month == 8) return  "Aug";
-    //     else if($month == 9) return  "Sep";
-    //     else if($month == 10) return  "Oct";
-    //     else if($month == 11) return  "Nov";
-    //     else if($month == 12) return  "Dec";
-    // }
+
 }

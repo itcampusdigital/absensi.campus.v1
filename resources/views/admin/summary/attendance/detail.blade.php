@@ -67,6 +67,9 @@
                     <li class="nav-item" role="presentation">
                         <a class="nav-link {{ $category == 5 ? 'active' : '' }}" href="{{ route('admin.summary.attendance.detail', ['id' => $user->id, 'category' => 5, 't1' => date('d/m/Y', strtotime($t1)), 't2' => date('d/m/Y', strtotime($t2))]) }}" role="tab" aria-selected="false">Cuti <span class="badge bg-warning">{{ $count[5] }}</span></a>
                     </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link {{ $category == 6 ? 'active' : '' }}" href="{{ route('admin.summary.attendance.detail', ['id' => $user->id, 'category' => 6, 't1' => date('d/m/Y', strtotime($t1)), 't2' => date('d/m/Y', strtotime($t2))]) }}" role="tab" aria-selected="false">Alpa <span class="badge bg-warning">{{ $count[6] }}</span></a>
+                    </li>
                 </ul>
                 <hr class="my-0">
                 <div class="tab-content py-3" id="myTabContent">
@@ -141,7 +144,7 @@
                                     @endforeach
                                 </tbody>
                             </table>
-                            @elseif($category == 3 || $category == 4)
+                            @elseif($category == 3 || $category == 4 || $category == 6)
                             <table class="table table-sm table-hover table-bordered" id="datatable">
                                 <thead class="bg-light">
                                     <tr>

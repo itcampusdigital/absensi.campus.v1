@@ -34,7 +34,6 @@ class AbsentController extends Controller
         if(Auth::user()->role_id == role('super-admin')) {
             // Get group
             $group = Group::find($request->query('group'));
-
             if($group) {
                 // Set params
                 $t1 = $month > 1 ? date('Y-m-d', strtotime($year.'-'.($month-1).'-'.$group->period_start)) : date('Y-m-d', strtotime(($year-1).'-12-'.$group->period_start));
@@ -42,9 +41,10 @@ class AbsentController extends Controller
                 $office = $request->query('office');
 
                 // Get absents
-                $absents = Absent::has('user')->whereHas('user', function (Builder $query) use ($group, $office) {
+                $absents = Absent::whereHas('user', function ($query) use ($group, $office) {
                     return $query->where('group_id','=',$group->id)->where('office_id','=',$office);
                 })->where('date','>=',$t1)->where('date','<=',$t2)->orderBy('date','desc')->get();
+
             }
         }
         elseif(Auth::user()->role_id == role('admin')) {
@@ -75,6 +75,7 @@ class AbsentController extends Controller
             })->where('date','>=',$t1)->where('date','<=',$t2)->orderBy('date','desc')->get();
         }
 
+        
         // View
         return view('admin/absent/index', [
             'absents' => isset($absents) ? $absents : [],

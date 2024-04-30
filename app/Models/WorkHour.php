@@ -46,4 +46,9 @@ class WorkHour extends Model
     {
         return $this->belongsTo(Position::class, 'position_id');
     }
+
+    public function attendance()
+    {
+        return $this->hasMany(Attendance::class, 'workhour_id');
+    }
 }
