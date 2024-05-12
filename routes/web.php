@@ -55,6 +55,14 @@ Route::group(['middleware' => ['admin']], function() {
 
 	Route::get('/admin/attendances/export', 'AttendanceController@exportAttendance')->name('admin.attendance.export');
 
+	//lembur
+	Route::get('/admin/lembur', 'LemburController@index')->name('admin.lembur.index');
+	Route::get('/admin/lembur/create', 'LemburController@create')->name('admin.lembur.create');
+	Route::post('/admin/lembur/store', 'LemburController@store')->name('admin.lembur.store');
+	Route::get('/admin/lembur/edit/{id}', 'LemburController@edit')->name('admin.lembur.edit');
+	Route::post('/admin/lembur/update', 'LemburController@update')->name('admin.lembur.update');
+	Route::post('/admin/lembur/approval', 'LemburController@approval')->name('admin.lembur.approval');
+	Route::post('/admin/lembur/delete', 'LemburController@delete')->name('admin.lembur.delete');
 
     // Absent
 	Route::get('/admin/absent', 'AbsentController@index')->name('admin.absent.index');

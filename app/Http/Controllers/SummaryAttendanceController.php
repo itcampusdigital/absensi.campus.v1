@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Group;
 use App\Models\Leave;
 use App\Models\Absent;
+use App\Models\Lembur;
 use App\Models\WorkHour;
 use App\Models\Attendance;
 use Illuminate\Http\Request;
@@ -115,6 +116,8 @@ class SummaryAttendanceController extends Controller
                 // Set leaves
                 $users[$key]->leave = Leave::where('user_id','=',$user->id)->where('date','>=',$t1)->where('date','<=',$t2)->count();
 
+                // set lembur
+                $users[$key]->lembur = Lembur::where('user_id','=',$user->id)->where('status','=',1)->where('date','>=',$t1)->where('date','<=',$t2)->count();
                 // Get the work hours
                 $users[$key]->workhours = WorkHour::where('group_id','=',$user->group_id)->where('office_id','=',$user->office_id)->where('position_id','=',$user->position_id)->orderBy('name','asc')->get();
 
@@ -219,11 +222,15 @@ class SummaryAttendanceController extends Controller
         $leaves = Leave::where('user_id','=',$user->id)->where('date','>=',$t1)->where('date','<=',$t2)->orderBy('date','desc')->get();
         if($category == 5) $attendances = $leaves;
 
+        //get lembur
+        $lembur = Lembur::where('user_id','=',$user->id)->where('date','>=',$t1)->where('date','<=',$t2)->orderBy('date','desc')->get();
+        if($category == 7) $attendances = $lembur;
         // Count absents
         $count[3] = count($absents1);
         $count[4] = count($absents2);
         $count[5] = count($leaves);
         $count[6] = count($absents3);
+        $count[7] = count($lembur);
 
         // View
         return view('admin/summary/attendance/detail', [

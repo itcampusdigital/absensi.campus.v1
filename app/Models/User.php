@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Leave;
+use App\Models\Lembur;
 use App\Models\Office;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
@@ -44,6 +45,11 @@ class User extends \Ajifatur\FaturHelper\Models\User
     public function kontrak()
     {
         return $this->hasOne(Kontrak::class);
+    }
+
+    public function lembur()
+    {
+        return $this->hasMany(Lembur::class,'user_id');
     }
     public function attendance()
     {

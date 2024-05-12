@@ -70,6 +70,9 @@
                     <li class="nav-item" role="presentation">
                         <a class="nav-link {{ $category == 6 ? 'active' : '' }}" href="{{ route('admin.summary.attendance.detail', ['id' => $user->id, 'category' => 6, 't1' => date('d/m/Y', strtotime($t1)), 't2' => date('d/m/Y', strtotime($t2))]) }}" role="tab" aria-selected="false">Alpa <span class="badge bg-warning">{{ $count[6] }}</span></a>
                     </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link {{ $category == 7 ? 'active' : '' }}" href="{{ route('admin.summary.attendance.detail', ['id' => $user->id, 'category' => 7, 't1' => date('d/m/Y', strtotime($t1)), 't2' => date('d/m/Y', strtotime($t2))]) }}" role="tab" aria-selected="false">Lembur <span class="badge bg-warning">{{ $count[7] }}</span></a>
+                    </li>
                 </ul>
                 <hr class="my-0">
                 <div class="tab-content py-3" id="myTabContent">
@@ -194,6 +197,37 @@
                                             <div class="btn-group">
                                                 <a href="{{ route('admin.leave.edit', ['id' => $attendance->id]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a>
                                                 <a href="#" class="btn btn-sm btn-danger btn-delete-leave" data-id="{{ $attendance->id }}" data-bs-toggle="tooltip" title="Hapus"><i class="bi-trash"></i></a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                            @elseif($category == 7)
+                            <table class="table table-sm table-hover table-bordered" id="datatable">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th width="20"><input type="checkbox" class="form-check-input checkbox-all"></th>
+                                        <th>Tanggal Lembur</th>
+                                        <th>Waktu</th>
+                                        <th>Keterangan</th>
+                                        <th width="40">Opsi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($attendances as $attendance)
+                                    <tr>
+                                        <td align="center"><input type="checkbox" class="form-check-input checkbox-one"></td>
+                                        <td>
+                                            <span class="d-none">{{ date('Y-m-d', strtotime($attendance->entry_at)).' '.$attendance->start_at }}</span>
+                                            {{ date('d/m/Y', strtotime($attendance->date)) }}
+                                        </td>
+                                        <td>{{ $attendance->start_time }} - {{ $attendance->end_time }} </td>
+                                        <td>{{ $attendance->keterangan }} </td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="{{ route('admin.lembur.edit', ['id' => $attendance->id]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a>
+                                                {{-- <a href="#" class="btn btn-sm btn-danger btn-delete-leave" data-id="{{ $attendance->id }}" data-bs-toggle="tooltip" title="Hapus"><i class="bi-trash"></i></a> --}}
                                             </div>
                                         </td>
                                     </tr>

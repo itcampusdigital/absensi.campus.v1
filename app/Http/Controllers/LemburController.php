@@ -2,62 +2,64 @@
 
 namespace App\Http\Controllers;
 
-use Auth;
-use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Group;
 use App\Models\Leave;
-use App\Models\Office;
+use App\Models\Lembur;
 use Illuminate\Http\Request;
-use Ajifatur\Helpers\DateTimeExt;
-use Illuminate\Database\Eloquent\Builder;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Ajifatur\Helpers\DateTimeExt;
 
-class LeaveController extends Controller
+
+class LemburController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
     {
-        // Check the access
         has_access(method(__METHOD__), Auth::user()->role_id);
 
         // Get the year
         $year = $request->query('year') ?: date('Y');
-
+        $status = $request->query('status');
         // Get groups
         $groups = Group::orderBy('name','asc')->get();
 
         if(Auth::user()->role_id == role('super-admin')) {
             // Get group
             $group = Group::find($request->query('group'));
-
             // Get leaves
-            if($group) {
+            if($group && $status != 0) {
                 $office = $request->query('office');
-                $leaves = Leave::has('user')->whereHas('user', function (Builder $query) use ($group, $office) {
+                $lembur = Lembur::has('user')->whereHas('user', function ($query) use ($group, $office) {
                     return $query->where('group_id','=',$group->id)->where('office_id','=',$office);
-                })->whereYear('date',$year)->orderBy('date','desc')->get();
+                })->where('status','=', $status)->whereYear('date',$year)->orderBy('date','desc')->get();
             }
             else{
-                $leaves = Leave::has('user')->whereYear('date',$year)->orderBy('date','desc')->get();
+                $lembur = Lembur::whereYear('date',$year)->orderBy('date','desc')->get();
             }
         }
         elseif(Auth::user()->role_id == role('admin')) {
             // Get leaves
             $group = Auth::user()->group_id;
             $office = $request->query('office');
-            if($office){
-                $leaves = Leave::has('user')->whereHas('user', function (Builder $query) use ($group, $office) {
+
+            if($status != 0 && $office) {
+                $lembur = Lembur::has('user')->whereHas('user', function ($query) use ($group, $office) {
+                    return $query->where('group_id','=',$group)->where('office_id','=',$office);
+                })->where('status','=', $status)->whereYear('date',$year)->orderBy('date','desc')->get();
+            }else if($office){
+                $lembur = Lembur::has('user')->whereHas('user', function ($query) use ($group, $office) {
                     return $query->where('group_id','=',$group)->where('office_id','=',$office);
                 })->whereYear('date',$year)->orderBy('date','desc')->get();
             }
             else{
-                $leaves = Leave::has('user')->whereHas('user', function (Builder $query) use ($group, $office) {
+                $lembur = Lembur::has('user')->whereHas('user', function ($query) use ($group, $office) {
                     return $query->where('group_id','=',$group);
                 })->whereYear('date',$year)->orderBy('date','desc')->get();
             }
@@ -69,8 +71,8 @@ class LeaveController extends Controller
             // Get leaves
             $group = Auth::user()->group_id;
             $office = $request->query('office');
-            $leaves = Leave::has('user')
-                    ->whereHas('user', function (Builder $query) use ($user, $group, $office) {
+            $lembur = Lembur::has('user')
+                    ->whereHas('user', function ($query) use ($user, $group, $office) {
                         return $query->where('group_id','=',$group)
                         ->where('office_id','=',$office)
                         ->whereIn('office_id',$user->managed_offices()->pluck('office_id')->toArray());
@@ -78,9 +80,9 @@ class LeaveController extends Controller
         }
 
         // View
-        return view('admin/leave/index', [
-            'leaves' => $leaves,
+        return view('admin/lembur/index', [
             'year' => $year,
+            'lemburs' => $lembur,
             'groups' => $groups,
         ]);
     }
@@ -93,13 +95,13 @@ class LeaveController extends Controller
     public function create()
     {
         // Check the access
-        has_access(method(__METHOD__), Auth::user()->role_id);
+        // has_access(method(__METHOD__), Auth::user()->role_id);
 
         // Get groups
         $groups = Group::orderBy('name','asc')->get();
 
         // View
-        return view('admin/leave/create', [
+        return view('admin/lembur/create', [
             'groups' => $groups
         ]);
     }
@@ -112,12 +114,13 @@ class LeaveController extends Controller
      */
     public function store(Request $request)
     {
-        // Validation
         $validator = Validator::make($request->all(), [
             'group_id' => Auth::user()->role_id == role('super-admin') ? 'required' : '',
             'office_id' => 'required',
             'user_id' => 'required',
             'date' => 'required',
+            'start_time' => 'required',
+            'end_time' => 'required',
         ]);
         
         // Check errors
@@ -127,30 +130,32 @@ class LeaveController extends Controller
         }
         else {
             // Save the leave
-            $leave = new Leave;
-            $leave->user_id = $request->user_id;
-            $leave->date = DateTimeExt::change($request->date);
-            $leave->save();
+            $lembur = new Lembur;
+            $lembur->user_id = $request->user_id;
+            $lembur->start_time = $request->start_time;
+            $lembur->end_time = $request->end_time;
+            $lembur->keterangan = $request->keterangan;
+            $lembur->status = 1;
+            $lembur->date = DateTimeExt::change($request->date);
+            $lembur->save();
 
             // Redirect
-            return redirect()->route('admin.leave.index')->with(['message' => 'Berhasil menambah data.']);
+            return redirect()->route('admin.lembur.index')->with(['message' => 'Berhasil menambah data.']);
         }
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Models\Lembur  $lembur
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Request $request)
     {
-        // Check the access
-        has_access(method(__METHOD__), Auth::user()->role_id);
-
+        $id = $request->id;
         if(Auth::user()->role_id == role('super-admin')) {
             // Get the leave
-            $leave = Leave::findOrFail($id);
+            $lembur = Lembur::findOrFail($id);
         }
         elseif(Auth::user()->role_id == role('admin')) {
             // Get the group
@@ -160,7 +165,7 @@ class LeaveController extends Controller
             $offices = Auth::user()->group->offices()->pluck('id')->toArray();
 
             // Get the leave
-            $leave = Leave::whereHas('user', function (Builder $query) use ($group, $offices) {
+            $lembur = Lembur::whereHas('user', function ($query) use ($group, $offices) {
                 return $query->where('group_id','=',$group)->whereIn('office_id',$offices);
             })->findOrFail($id);
         }
@@ -172,7 +177,7 @@ class LeaveController extends Controller
             $offices = Auth::user()->managed_offices()->pluck('office_id')->toArray();
 
             // Get the leave
-            $leave = Leave::whereHas('user', function (Builder $query) use ($group, $offices) {
+            $lembur = Lembur::whereHas('user', function ($query) use ($group, $offices) {
                 return $query->where('group_id','=',$group)->whereIn('office_id',$offices);
             })->findOrFail($id);
         }
@@ -181,8 +186,8 @@ class LeaveController extends Controller
         $groups = Group::orderBy('name','asc')->get();
 
         // View
-        return view('admin/leave/edit', [
-            'leave' => $leave,
+        return view('admin/lembur/edit', [
+            'lembur' => $lembur,
             'groups' => $groups,
         ]);
     }
@@ -191,13 +196,15 @@ class LeaveController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Lembur  $lembur
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request)
     {
-        // Validation
         $validator = Validator::make($request->all(), [
             'date' => 'required',
+            'start_time' => 'required',
+            'end_time' => 'required',
         ]);
         
         // Check errors
@@ -206,91 +213,36 @@ class LeaveController extends Controller
             return redirect()->back()->withErrors($validator->errors())->withInput();
         }
         else {
-            // Update the leave
-            $leave = Leave::find($request->id);
-            $leave->date = DateTimeExt::change($request->date);
-            $leave->save();
+            // Save the leave
+            $lembur = Lembur::find($request->id);
+            $lembur->start_time = $request->start_time;
+            $lembur->end_time = $request->end_time;
+            $lembur->keterangan = $request->keterangan;
+            $lembur->date = DateTimeExt::change($request->date);
+            $lembur->save();
 
             // Redirect
-            return redirect()->route('admin.leave.index')->with(['message' => 'Berhasil mengupdate data.']);
+            return redirect()->route('admin.lembur.index')->with(['message' => 'Berhasil Merubah data.']);
         }
+    }
+
+    public function approval(Request $request)
+    {
+        $lembur = Lembur::find($request->id);
+        $lembur->status = $request->status;
+        $lembur->save();
+
+        return redirect()->route('admin.lembur.index')->with(['message' => 'Berhasil Approval data.']);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Lembur  $lembur
      * @return \Illuminate\Http\Response
      */
-    public function delete(Request $request)
+    public function destroy(Lembur $lembur)
     {
-        // Check the access
-        has_access(method(__METHOD__), Auth::user()->role_id);
-
-        // Get the leave
-        $leave = Leave::find($request->id);
-
-        // Delete the leave
-        $leave->delete();
-
-        // Redirect
-        return redirect()->route('admin.leave.index')->with(['message' => 'Berhasil menghapus data.']);
-    }
-
-    public function cuti(Request $request){
-        has_access(method(__METHOD__), Auth::user()->role_id);
-
-        
-        $year = $request->query('year') ?: date('Y');
-        $groups = Group::orderBy('name','asc')->get();
-
-        if(Auth::user()->role_id == role('super-admin')){
-            $group = $request->query('group');
-     
-                $office = $request->query('office');
-                $cuti = User::select(["id","group_id","office_id","name","start_date","end_date"])->with(['leave','kontrak'])
-                    ->has('kontrak')
-                    ->where('group_id',$group)
-                    ->where('office_id',$office)
-                    ->where('end_date','=',null)
-                    ->get();
-            
-        }
-
-        elseif(Auth::user()->role_id == role('admin')){
-            $group = Auth::user()->group_id;
-            $office = $request->query('office');
-            $s = Office::select('id')->where('group_id',$group)->first();
-
-            $if_office = $office == 0 ? $s->id : $office;
-            $cuti = User::select(["id","group_id","office_id","name","start_date","end_date"])->with(['leave','kontrak'])
-            ->has('kontrak')
-            ->where('group_id',$group)
-            ->where('office_id',$if_office)
-            ->where('end_date','=',null)
-            ->get();
-        }
-
-        
-        foreach($cuti as $key=>$user_cuti){
-            if($user_cuti->kontrak->cuti == null){
-                $user_cuti->kontrak->cuti = 0;
-            }
-            $conv_format = date('Y/m/d',strtotime($user_cuti->start_date));
-            $cuti[$key]->selisih = Carbon::parse($conv_format)->diffInDays(Carbon::parse(date('Y/m/d', time())),false);
-
-            $cuti[$key]->cuti_tahunan = Leave::where('user_id','=',$user_cuti->id)->whereYear('date',$year)->count();
-            $cuti[$key]->sisa_cuti = $user_cuti->kontrak->cuti -  $cuti[$key]->cuti_tahunan;
-        }
-
-        //jumlah cuti   
-
-        // dd($cuti);
-        return view('admin/leave/cuti', [
-            'cuti' => $cuti,
-            'year' => $year,
-            'groups' => $groups,
-            
-        ]);
+        //
     }
 }

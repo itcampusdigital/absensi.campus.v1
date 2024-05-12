@@ -98,6 +98,7 @@
                                 <th width="60">Sakit</th>
                                 <th width="60">Izin</th>
                                 <th width="60">Cuti</th>
+                                <th width="60">Lembur</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -139,6 +140,9 @@
                                         </td>
                                         <td align="right">
                                             <a href="{{ route('admin.summary.attendance.detail', ['id' => $user->id, 'category' => 5, 't1' => date('d/m/Y', strtotime($t1)), 't2' => date('d/m/Y', strtotime($t2))]) }}">{{ number_format($user->leave,0,',',',') }}</a>
+                                        </td>
+                                        <td align="right">
+                                            <a href="{{ route('admin.summary.attendance.detail', ['id' => $user->id, 'category' => 7, 't1' => date('d/m/Y', strtotime($t1)), 't2' => date('d/m/Y', strtotime($t2))]) }}">{{ number_format($user->lembur,0,',',',') }}</a>
                                         </td>
                                     </tr>
                                 @endforeach
