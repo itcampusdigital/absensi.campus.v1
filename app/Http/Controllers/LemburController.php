@@ -114,6 +114,7 @@ class LemburController extends Controller
      */
     public function store(Request $request)
     {
+
         $validator = Validator::make($request->all(), [
             'group_id' => Auth::user()->role_id == role('super-admin') ? 'required' : '',
             'office_id' => 'required',
@@ -241,8 +242,16 @@ class LemburController extends Controller
      * @param  \App\Models\Lembur  $lembur
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Lembur $lembur)
+    public function delete(Request $request)
     {
-        //
+
+        // Get the leave
+        $lembur = Lembur::find($request->id);
+
+        // Delete the leave
+        $lembur->delete();
+
+        // Redirect
+        return redirect()->route('admin.lembur.index')->with(['message' => 'Berhasil menghapus data.']);
     }
 }

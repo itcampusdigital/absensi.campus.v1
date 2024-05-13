@@ -107,6 +107,7 @@
                                         <a href="{{ route('admin.lembur.edit', $lembur->id) }}" title="Edit data" class="btn btn-sm btn-warning"><i class="bi-pencil"></i></a>
                                         @if(Auth::user()->role_id == role('super-admin') || Auth::user()->role_id == role('admin'))
                                             <a href="#" class="btn btn-sm btn-success btn-approval" data-id="{{ $lembur->id }}" title="Approval data"><i class="bi bi-check-lg"></i></a>
+                                            <a href="#" class="btn btn-sm btn-danger btn-delete" data-id="{{ $lembur->id }}" title="Delete data"><i class="bi bi-trash"></i></a>
                                         @endif
                                     </td>
                                 </tr>
@@ -125,7 +126,7 @@
     <input type="hidden" name="status" id="status" value="1">
 </form>
 
-<form class="form-delete d-none" method="post" action="{{ route('admin.leave.delete') }}">
+<form class="form-delete d-none" method="post" action="{{ route('admin.lembur.delete') }}">
     @csrf
     <input type="hidden" name="id">
 </form>

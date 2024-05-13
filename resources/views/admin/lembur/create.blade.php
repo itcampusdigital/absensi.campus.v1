@@ -91,24 +91,24 @@
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <label class="col-12 col-sm-2 col-md-3 col-lg-2  col-form-label">Mulai<span class="text-danger">*</span></label>
-                        <div class="col-12 col-sm-4 col-md-3 col-lg-4 ">
+                        <label class="col-lg-2 col-md-3 col-form-label">Mulai<span class="text-danger">*</span></label>
+                        <div class="col-12 col-sm-4 col-md-3 col-lg-4">
                             <div class="input-group input-group-sm">
-                                <input type="time" name="start_time" class="form-control form-control-sm {{ $errors->has('start_time') ? 'border-danger' : '' }}" value="{{ old('start_time') }}" autocomplete="off">
-                                <span class="input-group-text"><i class="bi bi-clock"></i></span>
+                                <input type="text" name="start_time" class="form-control form-control-sm clockpicker {{ $errors->has('entry_at.1') ? 'border-danger' : '' }}" value="{{ old('entry_at.1') }}" autocomplete="off" data-placement="top">
+                                <span class="input-group-text"><i class="bi-alarm"></i></span>
                             </div>
-                            @if($errors->has('start_time'))
-                                <div class="small text-danger">{{ $errors->first('start_time') }}</div>
+                            @if($errors->has('entry_at.0'))
+                            <div class="small text-danger">{{ $errors->first('entry_at.0') }}</div>
                             @endif
                         </div>
-                        <label class="col-12 col-sm-2 col-md-3 col-lg-2  col-form-label">Akhir<span class="text-danger">*</span></label>
-                        <div class="col-12 col-sm-4 col-md-3 col-lg-4 ">
+                        <label class="col-12 col-sm-2 col-md-3 col-lg-2 col-form-label">Selesai</label>
+                        <div class="col-12 col-sm-4 col-md-3 col-lg-4">
                             <div class="input-group input-group-sm">
-                                <input type="time" name="end_time" class="form-control form-control-sm {{ $errors->has('end_time') ? 'border-danger' : '' }}" value="{{ old('end_time') }}" autocomplete="off">
-                                <span class="input-group-text"><i class="bi bi-clock"></i></span>
+                                <input type="text" name="end_time" class="form-control form-control-sm clockpicker {{ $errors->has('exit_at.1') ? 'border-danger' : '' }}" value="{{ old('exit_at.1') }}" autocomplete="off" data-placement="top">
+                                <span class="input-group-text"><i class="bi-alarm"></i></span>
                             </div>
-                            @if($errors->has('end_time'))
-                                <div class="small text-danger">{{ $errors->first('end_time') }}</div>
+                            @if($errors->has('exit_at.0'))
+                            <div class="small text-danger">{{ $errors->first('exit_at.0') }}</div>
                             @endif
                         </div>
                     </div>
@@ -163,7 +163,10 @@
 <script type="text/javascript">
     // Datepicker
     Spandiv.DatePicker("input[name=date]");
+    Spandiv.DatePicker(".datepicker");
 
+    // Clockpicker
+    Spandiv.ClockPicker(".clockpicker");
     // Change Group
     $(document).on("change", "#group", function() {
         var group = $(this).val();
