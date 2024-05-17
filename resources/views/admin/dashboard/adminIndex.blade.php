@@ -31,10 +31,10 @@
           </tr>
         </thead>
         <tbody>
-            @foreach ($new_data as $data)
+            @foreach ($data_all as $data)
                 <tr>
                     <td>{{ $data->user->name }}</td>
-                    <td>{{ $data->keterangan }}</td>
+                    <td>cek</td>
                     <td><span class="badge bg-warning">Pending</span></td>
                 </tr>
             @endforeach
