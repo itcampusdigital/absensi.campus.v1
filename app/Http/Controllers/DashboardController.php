@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use Auth;
+use App\Models\User;
+use App\Models\Lembur;
+use App\Models\Kontrak;
+use App\Models\WorkHour;
+use App\Models\Attendance;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use App\Models\Attendance;
-use App\Models\WorkHour;
 
 class DashboardController extends Controller
 {
@@ -18,11 +21,46 @@ class DashboardController extends Controller
      */
     public function index(Request $request)
     {
-        if(Auth::user()->role == role('super-admin') || Auth::user()->role == role('admin') || Auth::user()->role == role('manager')) {
+        if(Auth::user()->role->code == 'super-admin' || Auth::user()->role->code == 'admin' ) {
+            //kontrak
+            $kontrak = Kontrak::with('user')->whereHas('user', function($query){
+                                        return $query->whereNull('end_date');
+                                    })->get();
+
+            $kontrak_count = $kontrak->count();
+            //lemburan
+            $lembur = Lembur::where('status','=',3)->get();
+            $lembur_count = $lembur->count();
+
+
+            //magang
+            $magang_count = User::where('role_id','=',3)->where('group_id','=',1)
+                        ->where('office_id','=',19)
+                        ->where('end_date','=',null)->count();
+
+            //all karyawan
+            $users_count = User::where('role_id','=',3)->where('group_id','=',1)
+                            ->where('end_date','=',null)->count();
+
+            $data_all = array();
+            dd($data_all);
+            
+
+
+
             // View
+            return view('admin/dashboard/adminIndex',[
+                'new_data' => $lembur, 
+                'kontrak_count' => $kontrak_count,
+                'users_count' => $users_count,
+                'lembur_count' => $lembur_count,
+                'magang_count' => $magang_count
+            ]);
+        }
+        else if (Auth::user()->role->code == 'manager'){
             return view('admin/dashboard/index');
         }
-        elseif(Auth::user()->role == role('member')) {
+        elseif(Auth::user()->role->code == 'member') {
             // Check whether is already absent and not exit yet
             $is_entry = Attendance::has('workhour')->where('user_id','=',Auth::user()->id)->where('exit_at','=',null)->whereIn('date',[date('Y-m-d'), date('Y-m-d',strtotime("+1 day"))])->get();
 
@@ -81,6 +119,9 @@ class DashboardController extends Controller
                 'is_entry' => $is_entry,
                 'work_hours' => $work_hours,
             ]);
+        }
+        else{
+            abort(404);
         }
     }
 }

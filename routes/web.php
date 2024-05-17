@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,6 +16,11 @@ use Illuminate\Support\Facades\Route;
 
 // Admin
 Route::group(['middleware' => ['admin']], function() {
+	//dashboard
+	Route::get('/admin', 'DashboardController@index')->name('admin.dashboard');
+
+
+
 	// Summary Attendance
 	Route::get('/admin/summary/attendance', 'SummaryAttendanceController@index')->name('admin.summary.attendance.index');
 	Route::get('/admin/summary/attendance/detail/{id}', 'SummaryAttendanceController@detail')->name('admin.summary.attendance.detail');
