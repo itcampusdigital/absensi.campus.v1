@@ -6,6 +6,7 @@ use Auth;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Lembur;
+use App\Models\Office;
 use App\Models\Kontrak;
 use App\Models\WorkHour;
 use App\Models\Attendance;
@@ -38,8 +39,9 @@ class DashboardController extends Controller
                         ->where('office_id','=',19)
                         ->where('end_date','=',null)->count();
 
-            //all karyawan
+            //all karyawan headoffice dan 3 CN
             $users_count = User::where('role_id','=',3)->where('group_id','=',1)
+                            ->whereIn('office_id',[1,4,6,8])
                             ->where('end_date','=',null)->count();
 
             $data_all = array();
