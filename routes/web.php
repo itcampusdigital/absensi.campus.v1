@@ -20,6 +20,8 @@ Route::group(['middleware' => ['admin']], function() {
 	Route::get('/admin', 'DashboardController@index')->name('admin.dashboard');
 
 
+	//DAP
+	Route::get('/admin/report','ReportDailyController@index')->name('admin.report.index');
 
 	// Summary Attendance
 	Route::get('/admin/summary/attendance', 'SummaryAttendanceController@index')->name('admin.summary.attendance.index');

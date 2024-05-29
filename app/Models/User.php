@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Leave;
 use App\Models\Lembur;
 use App\Models\Office;
+use App\Models\ReportDaily;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -42,6 +43,11 @@ class User extends \Ajifatur\FaturHelper\Models\User
         'email_verified_at' => 'datetime',
     ];
     
+    public function reportDaily()
+    {
+        return $this->hasMany(ReportDaily::class);
+    }
+
     public function kontrak()
     {
         return $this->hasOne(Kontrak::class);
