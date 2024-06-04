@@ -63,7 +63,7 @@
                 </form>
             </div>
             <hr class="my-0">
-            @if(Request::query('office') != null)
+            {{-- @if(Request::query('office') != null) --}}
             <div class="card-body">
                 @if(Session::get('message'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -112,7 +112,7 @@
                     </table>
                 </div>
             </div>
-            @endif
+            {{-- @endif --}}
         </div>
     </div>
 </div>
