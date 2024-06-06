@@ -48,7 +48,10 @@
                                     @foreach($position->duties_and_responsibilities as $key=>$dr)
                                     <tr data-id="{{ $key }}">
                                         <td>
-                                            <textarea name="dr_names[]" class="form-control form-control-sm" rows="2">{{ $dr->name }}</textarea>
+                                            <textarea name="dr_names[]" class="form-control form-control-sm" rows="2" cols="300">{{ $dr->name }}</textarea>
+                                        </td>
+                                        <td>
+                                            <input type="text" name="target[]" value="{{ $dr->target == null ? '' : $dr->target  }}"  class="form-control form-control-sm" >
                                         </td>
                                         <td width="80" align="center">
                                             <input type="hidden" name="dr_ids[]" value="{{ $dr->id }}">
@@ -143,7 +146,10 @@
         var html = '';
         html += '<tr data-id="0">';
         html += '<td>';
-        html += '<textarea name="dr_names[]" class="form-control form-control-sm" rows="2"></textarea>';
+        html += '<textarea name="dr_names[]" class="form-control form-control-sm" rows="2" cols="300"></textarea>';
+        html += '</td>';
+        html += '<td>';
+        html += '<input type="number" name="target[]"  class="form-control form-control-sm">';
         html += '</td>';
         html += '<td width="80" align="center">';
         html += '<input type="hidden" name="dr_ids[]">';

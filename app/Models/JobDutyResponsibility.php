@@ -21,7 +21,7 @@ class JobDutyResponsibility extends Model
      *
      * @param  array
      */
-    protected $fillable = ['name'];
+    protected $fillable = ['name','target'];
     
     /**
      * Get the position that owns the job duty & responsibility.

@@ -209,6 +209,7 @@ class PositionController extends Controller
             $position->name = $request->name;
             $position->save();
 
+            
             // Compare and delete duties & responsibilities
             $array_diff = array_diff($position->duties_and_responsibilities()->pluck('id')->toArray(), array_filter($request->dr_ids));
             if(count($array_diff) > 0) {
@@ -224,6 +225,7 @@ class PositionController extends Controller
                 if(!$dr) $dr = new JobDutyResponsibility;
     
                 $dr->position_id = $position->id;
+                $dr->target = $request->target[$key];
                 $dr->name = $name;
                 $dr->save();
             }
