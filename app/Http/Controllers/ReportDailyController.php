@@ -7,9 +7,34 @@ use App\Models\Group;
 use App\Models\ReportDaily;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\JobDutyResponsibility;
 
 class ReportDailyController extends Controller
 {
+    public function getReport(Request $request)
+    {
+        $id = $request->id;
+        $report = ReportDaily::where('id','=',$id)->first();
+        $reports_id = json_decode($report->report);
+        for($i = 0; $i < count($reports_id); $i++){
+            $arr_id[$i] = $reports_id[$i]->report;
+        }
+        $dailyJob = JobDutyResponsibility::select('id','name','target')->whereIn('id', $arr_id)->get();
+        for($i=0;$i<count($dailyJob);$i++){
+            if($dailyJob[$i]->id == $reports_id[$i]->report){
+                $dailyJob[$i]['score'] = $reports_id[$i]->score;
+            }
+        }
+
+        $data = array();
+        $data['nama'] = $report->user->name;
+        $data['date'] = $report->date;
+        $data['note'] = $report->note;
+        $data['dailyReport'] = $dailyJob;
+
+        return response()->json($data);
+    }
+
     public function index(Request $request)
     {
         has_access(method(__METHOD__), Auth::user()->role_id);

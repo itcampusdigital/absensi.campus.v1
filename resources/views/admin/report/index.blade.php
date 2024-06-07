@@ -81,7 +81,6 @@
                                 <th width="300">Nama</th>
                                 <th width="250">Tanggal</th>
                                 <th>Note</th>
-                                <th>Report</th>
                                 <th width="200"></th>
                             </tr>
                         </thead>
@@ -90,13 +89,8 @@
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td class="data_names" id="data_names{{ $daily->id }}">{{ $daily->user->name }}</td>
-                                <td class="data_dates" id="data_dates{{ $daily->id }}">{{ $daily->date }}</td>
+                                <td align="center" class="data_dates" id="data_dates{{ $daily->id }}">{{ $daily->date }}</td>
                                 <td class="data_notes" id="data_notes{{ $daily->id }}">{{ $daily->note }}</td>
-                                <td > 
-                                    @foreach ($daily->report as $key=>$report)
-                                        <li class="reports{{ $daily->id }}" id="report{{ $daily->id }}">{{ $report->report }} <span class="scores{{ $daily->id }}" id="score{{ $daily->id }}">({{ $report->score }})</span>-</li>
-                                    @endforeach
-                                </td>
                                 <td>
                                     <a href="#" class="btn btn-sm btn-info"><i class="bi-pencil-square me-1"></i> Edit</a>
                                     <button data-toggle="modal" type="button" data-id="{{ $daily->id }}" id="btnModal" class="btnModals btn btn-sm btn-primary"><i class="bi bi-eye-fill"></i> View</button>
@@ -144,34 +138,33 @@
     $('.btnModals').click(function(){
         modal.style.display = "block"
         var id = $(this).data('id');
-        var name = $('#data_names'+id).text()
-        var date = $('#data_dates'+id).text()
-        var note = $('#data_notes'+id).text()
-
-        var report = $('.reports'+id).text()
-        var score = $('.scores'+id).text()
-
-        var cek = report.split('-')
-
-        var report_panjang = $('.reports'+id).length
-        var score_panjang = $('.score'+id).length
-
-        $('.get_data_name').text(name)
-        $('.get_data_date').text(date)
-        $('.get_data_note').text(note)
-        // $('.data_report').text(report)
-        // $('.data_score').text(score)
-        
-
-        
-        $('.get_data_report').empty().append(cek)
-        // for(var i = 0; i < report_panjang; i++){
-        //     $('.get_data_report').append('cek')
-        // }
-
+        getReports(id)
         
     }) 
 
+    function getReports(id){
+        $.ajax({
+            type: 'get',
+            url: "/admin/report/getData/"+id,
+            dataType: 'json',
+            success: function(result){
+                console.log(result)
+                dailyReport = result.dailyReport
+
+                $('#get_data_name').text(result.nama)
+                $('#get_data_date').text(result.date)
+                $('#get_data_note').text(result.note)
+
+                div = $('<div></div>')
+                $.each(dailyReport, function(key,val){
+                    score = val['score'] == null ? 0 : val['score']
+                    target = val['target'] == null ? 0 : val['target']
+                    div.append('<p>'+(key+1)+'. '+val['name']+' <span style="color: green">('+score+' / '+target+')</span></p>')
+                })
+                $('#get_data_report').empty().append(div)
+            }
+        })
+    }
     
     
     // DataTable
