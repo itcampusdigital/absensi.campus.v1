@@ -15,12 +15,13 @@ class DivisiController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        $id_work =$request->id_work;
         $groups = Group::orderBy('name','asc')->get();
-        $jabatan_all = Divisi::where('group_id',Auth::user()->group_id)->get();
+        $jabatan_all = Divisi::where('group_id',Auth::user()->group_id)->where('workhour_id',$id_work)->orderBy('name','asc')->get();
         // View
-        return view('admin/jabatan/index', [
+        return view('admin/work-hour/divisi/index', [
             'groups' => $groups,
             'jabatans' => $jabatan_all
         ]);
@@ -31,14 +32,15 @@ class DivisiController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create($id_tugas)
     {
         // Get groups
         $groups = Group::orderBy('name','asc')->get();
 
         // View
-        return view('admin/jabatan/create', [
-            'groups' => $groups
+        return view('admin/work-hour/divisi/create', [
+            'groups' => $groups,
+            'id_tugas' => $id_tugas
         ]);
     }
 
@@ -50,10 +52,9 @@ class DivisiController extends Controller
      */
     public function store(Request $request)
     {
+        dd($request->all());
         $validator = Validator::make($request->all(), [
             'group_id' => Auth::user()->role_id == role('super-admin') ? 'required' : '',
-            'office_id' => 'required',
-            'name' => 'required',
         ]);
         
         // Check errors
@@ -63,9 +64,8 @@ class DivisiController extends Controller
         }
         else {
             $jabatan = new Divisi;
-            $jabatan->name = $request->name;
             $jabatan->group_id = Auth::user()->group_id;
-            $jabatan->office_id = $request->office_id;
+            $jabatan->workhour_id = $request->workhour_id;
             $jabatan->save();
 
             return redirect()->route('admin.jabatan.index')->with(['message' => 'Berhasil menambah data.']);
