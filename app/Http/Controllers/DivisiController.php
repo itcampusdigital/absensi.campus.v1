@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Group;
 use App\Models\Divisi;
+use App\Models\Position;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -17,13 +18,13 @@ class DivisiController extends Controller
      */
     public function index(Request $request)
     {
-        $id_work =$request->id_work;
+        // $id_work =$request->id_work;
         $groups = Group::orderBy('name','asc')->get();
-        $jabatan_all = Divisi::where('group_id',Auth::user()->group_id)->where('workhour_id',$id_work)->orderBy('name','asc')->get();
+        $divisi = Divisi::select('id','position_id','name')->get();
         // View
-        return view('admin/work-hour/divisi/index', [
+        return view('admin/divisi/index', [
             'groups' => $groups,
-            'jabatans' => $jabatan_all
+            'divisi' => $divisi
         ]);
     }
 
@@ -32,15 +33,15 @@ class DivisiController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create($id_tugas)
+    public function create()
     {
         // Get groups
         $groups = Group::orderBy('name','asc')->get();
-
+        $position = Position::where('group_id',Auth::user()->group_id)->orderBy('name','asc')->get();
         // View
-        return view('admin/work-hour/divisi/create', [
+        return view('admin/divisi/create', [
             'groups' => $groups,
-            'id_tugas' => $id_tugas
+            'positions' => $position
         ]);
     }
 
@@ -52,9 +53,10 @@ class DivisiController extends Controller
      */
     public function store(Request $request)
     {
-        dd($request->all());
+        // dd($request->all());
         $validator = Validator::make($request->all(), [
             'group_id' => Auth::user()->role_id == role('super-admin') ? 'required' : '',
+            'position_id' => 'required',
         ]);
         
         // Check errors
@@ -63,12 +65,17 @@ class DivisiController extends Controller
             return redirect()->back()->withErrors($validator->errors())->withInput();
         }
         else {
-            $jabatan = new Divisi;
-            $jabatan->group_id = Auth::user()->group_id;
-            $jabatan->workhour_id = $request->workhour_id;
-            $jabatan->save();
+            $array_tugas = array();
+            $array_tugas['tugas'] = $request->dr_names;
+            $array_tugas['target'] = $request->target;
 
-            return redirect()->route('admin.jabatan.index')->with(['message' => 'Berhasil menambah data.']);
+            $divisi = new Divisi;
+            $divisi->position_id = $request->position_id;
+            $divisi->tugas = json_encode($array_tugas);
+            $divisi->wewenang = json_encode($request->a_names);
+            $divisi->save();
+
+            return redirect()->route('admin.divisi.index')->with(['message' => 'Berhasil menambah data.']);
 
         }
     }
@@ -90,9 +97,27 @@ class DivisiController extends Controller
      * @param  \App\Models\Divisi  $divisi
      * @return \Illuminate\Http\Response
      */
-    public function edit(Divisi $divisi)
+    public function edit(Request $request)
     {
-        //
+        $groups = Group::orderBy('name','asc')->get();
+        $position = Position::select('id','name','group_id')->where('group_id',Auth::user()->group_id)->orderBy('name','asc')->get();
+        $wh_tugas = Divisi::find($request->id)->first(); 
+        $tugas = $wh_tugas == null ? '' : json_decode($wh_tugas->tugas);
+        $wewenang = $wh_tugas == null ? '' : json_decode($wh_tugas->wewenang);
+
+        $count_tugas = $tugas == null ? 1 : count($tugas->tugas);
+        $count_wewenang = $wewenang == null ? 1 : count($wewenang);
+
+        // View
+        return view('admin/divisi/edit', [
+            'groups' => $groups,
+            'positions' => $position,
+            'wh_tugas' => $wh_tugas,
+            'tugas' => $tugas,
+            'wewenang' => $wewenang,
+            'count_tugas' => $count_tugas,
+            'count_wewenang' => $count_wewenang
+        ]);
     }
 
     /**
@@ -104,7 +129,30 @@ class DivisiController extends Controller
      */
     public function update(Request $request, Divisi $divisi)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'group_id' => Auth::user()->role_id == role('super-admin') ? 'required' : '',
+            'position_id' => 'required',
+        ]);
+        
+        // Check errors
+        if($validator->fails()) {
+            // Back to form page with validation error messages
+            return redirect()->back()->withErrors($validator->errors())->withInput();
+        }
+        else {
+            $divisi = Divisi::find($request->id);
+            $array_tugas = array();
+            $array_tugas['tugas'] = $request->dr_names;
+            $array_tugas['target'] = $request->target;
+
+            $divisi->position_id = $request->position_id;
+            $divisi->tugas = json_encode($array_tugas);
+            $divisi->wewenang = json_encode($request->a_names);
+            $divisi->save();
+
+            return redirect()->route('admin.divisi.index')->with(['message' => 'Berhasil menambah data.']);
+
+        }
     }
 
     /**

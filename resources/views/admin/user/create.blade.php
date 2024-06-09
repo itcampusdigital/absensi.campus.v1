@@ -305,6 +305,29 @@
     // Select2
     Spandiv.Select2("#offices");
 
+        $(document).on("change", "#position" ,function() {
+            position = $('#position').val();
+            office = $('#office').val();
+            group = $('#group').val();
+            $.ajax({
+                type: "get",
+                url: "{{ route('api.work-hour.indexApi') }}",
+                data : {position: position, office: office, group: group},
+                success: function(result){
+                    var html = '<option value="" disabled>--Pilih--</option>';
+                    $(result).each(function(key,value){
+                        html += '<option value="' + value.id + '">' + value.name + '</option>';
+                    });
+                    if(position == 4){
+                        var htmlm = '<option value="" disabled>--Pilih--</option>';
+                        $("#wh_tugas").html(htmlm).attr("disabled","disabled");
+                    }else{
+                        $("#wh_tugas").html(html).removeAttr("disabled");
+                    }
+                }
+            });
+        });
+
     // Change Group
     $(document).on("change", "#group", function() {
         var group = $(this).val();

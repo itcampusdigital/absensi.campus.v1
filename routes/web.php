@@ -25,7 +25,13 @@ Route::group(['middleware' => ['admin']], function() {
 	Route::get('/admin/report/getData/{id}', 'ReportDailyController@getReport')->name('admin.report.getReport');
 	
 
-
+	// divisi
+	Route::get('/admin/divisi', 'DivisiController@index')->name('admin.divisi.index');
+	Route::get('/admin/divisi/create', 'DivisiController@create')->name('admin.divisi.create');
+	Route::post('/admin/divisi/store', 'DivisiController@store')->name('admin.divisi.store');
+	Route::get('/admin/divisi/edit/{id}', 'DivisiController@edit')->name('admin.divisi.edit');
+	Route::post('/admin/divisi/update', 'DivisiController@update')->name('admin.divisi.update');
+	Route::post('/admin/divisi/delete', 'DivisiController@delete')->name('admin.divisi.delete');
 	//jabatan_attr
 	// Route::get('/admin/jabatan/divisi/{id_jabatan}', 'JabatanAttributeController@index')->name('admin.jabatan.divisi.index');
 	// Route::get('/admin/jabatan/divisi/{id_jabatan}/create', 'JabatanAttributeController@create')->name('admin.jabatan.divisi.create');
@@ -152,13 +158,13 @@ Route::group(['middleware' => ['admin']], function() {
 	Route::post('/admin/work-hour/update', 'WorkHourController@update')->name('admin.work-hour.update');
 	Route::post('/admin/work-hour/delete', 'WorkHourController@delete')->name('admin.work-hour.delete');
 
-		//workhour_tugas
-		Route::get('/admin/work-hour/{id_tugas}/tugas', 'DivisiController@index')->name('admin.divisi.index');
-		Route::get('/admin/work-hour/tugas/{id_tugas}/create', 'DivisiController@create')->name('admin.divisi.create');
-		Route::post('/admin/work-hour/tugas/store','DivisiController@store')->name('admin.divisi.store');
-		Route::get('/admin/work-hour/tugas/edit/{id}', 'DivisiController@edit')->name('admin.divisi.edit');
-		Route::post('/admin/work-hour/tugas/update', 'DivisiController@update')->name('admin.divisi.update');
-		Route::post('/admin/work-hour/tugas/delete', 'DivisiController@delete')->name('admin.divisi.delete');
+		// //workhour_tugas
+		// Route::get('/admin/work-hour/{id_tugas}/tugas', 'WorkHourTugasController@index')->name('admin.tugas.index');
+		// Route::get('/admin/work-hour/tugas/{id_tugas}/create', 'WorkHourTugasController@create')->name('admin.tugas.create');
+		// Route::post('/admin/work-hour/tugas/store','WorkHourTugasController@store')->name('admin.tugas.store');
+		// Route::get('/admin/work-hour/tugas/edit/{id_tugas}', 'WorkHourTugasController@edit')->name('admin.tugas.edit');
+		// Route::post('/admin/work-hour/tugas/update', 'WorkHourTugasController@update')->name('admin.tugas.update');
+		// Route::post('/admin/work-hour/tugas/delete', 'WorkHourTugasController@delete')->name('admin.tugas.delete');
 
 	// Certification
 	Route::get('/admin/certification', 'CertificationController@index')->name('admin.certification.index');

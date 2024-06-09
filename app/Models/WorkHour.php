@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\WorkHourTugas;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class WorkHour extends Model
 {
@@ -23,6 +24,10 @@ class WorkHour extends Model
      */
     protected $fillable = ['name', 'category', 'quota', 'start_at', 'end_at'];
     
+    public function wokhourtugas()
+    {
+        return $this->hasMany(WorkHourTugas::class, 'work_hour_id');
+    }
     /**
      * Get the group that owns the work hour.
      */

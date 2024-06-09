@@ -199,10 +199,11 @@
     // Change Member
     $(document).on("change", "#member", function() {
         var user = $(this).val();
+        var office = $("#office").val();
         $.ajax({
             type: "get",
-            url: "{{ route('api.work-hour.index') }}",
-            data: {user: user},
+            url: "{{ route('api.work-hour.indexApi') }}",
+            data: {user: user, office: office},
             success: function(result){
                 var html = '<option value="" selected>--Pilih--</option>';
                 $(result).each(function(key,value){

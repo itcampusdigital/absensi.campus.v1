@@ -1,19 +1,38 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', 'Tambah Jabatan')
+@section('title', 'Tambah Divisi')
 
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">Tambah Tugas</h1>
+    <h1 class="h3 mb-0">Tambah Divisi</h1>
 </div>
 <div class="row">
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <form method="post" action="{{ route('admin.tugas.store') }}" enctype="multipart/form-data">
+                <form method="post" action="{{ route('admin.divisi.store') }}" enctype="multipart/form-data">
                     @csrf
-                    <input type="hidden" name="workhour_id" value="{{ $id_tugas }}">
+                    <div class="row mb-3">
+                        <label class="col-lg-2 col-md-3 col-form-label">Jabatan <span class="text-danger">*</span></label>
+                        <div class="col-lg-10 col-md-9">
+                            <select class="form-control form-control-sm" name="position_id" id="position_id">
+                                <option class="form-control form-control-sm" value="" selected>--Pilih--</option>
+                                @foreach($positions as $position)
+                                    <option class="form-control form-control-sm" value="{{ $position->id }}">{{ $position->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-lg-2 col-md-3 col-form-label">Nama <span class="text-danger">*</span></label>
+                        <div class="col-lg-10 col-md-9">
+                            <input type="text" name="name" class="form-control form-control-sm {{ $errors->has('name') ? 'border-danger' : '' }}" value="{{ old('name') }}" autofocus>
+                            @if($errors->has('name'))
+                            <div class="small text-danger">{{ $errors->first('name') }}</div>
+                            @endif
+                        </div>
+                    </div>
                     @if(Auth::user()->role_id == role('super-admin'))
                     <div class="row mb-3">
                         <label class="col-lg-2 col-md-3 col-form-label">Perusahaan <span class="text-danger">*</span></label>
@@ -52,7 +71,7 @@
                         <div class="col-lg-2 col-md-3"></div>
                         <div class="col-lg-10 col-md-9">
                             <button type="submit" class="btn btn-sm btn-primary"><i class="bi-save me-1"></i> Submit</button>
-                            <a href="{{ route('admin.work-hour.index') }}" class="btn btn-sm btn-secondary"><i class="bi-arrow-left me-1"></i> Kembali</a>
+                            <a href="{{ route('admin.position.index') }}" class="btn btn-sm btn-secondary"><i class="bi-arrow-left me-1"></i> Kembali</a>
                         </div>
                     </div>
                 </form>
@@ -100,11 +119,15 @@
     });
 
     // Starter HTML
+    
     function starter_html() {
         var html = '';
         html += '<tr data-id="0">';
         html += '<td>';
-        html += '<textarea name="dr_names[]" class="form-control form-control-sm" rows="2"></textarea>';
+        html += '<textarea name="dr_names[]" class="form-control form-control-sm" rows="2" cols="300"></textarea>';
+        html += '</td>';
+        html += '<td>';
+        html += '<input type="text" name="target[]"  class="form-control form-control-sm">';
         html += '</td>';
         html += '<td width="80" align="center">';
         html += '<input type="hidden" name="dr_ids[]">';

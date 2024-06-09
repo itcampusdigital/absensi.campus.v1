@@ -1,27 +1,27 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', 'Tambah Jabatan')
+@section('title', 'Edit Jabatan: ')
 
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">Tambah Tugas</h1>
+    <h1 class="h3 mb-0">Edit Divisi</h1>
 </div>
 <div class="row">
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <form method="post" action="{{ route('admin.tugas.store') }}" enctype="multipart/form-data">
+                <form method="post" action="{{ route('admin.divisi.update',['id' => $wh_tugas->id]) }}" enctype="multipart/form-data">
                     @csrf
-                    <input type="hidden" name="workhour_id" value="{{ $id_tugas }}">
-                    @if(Auth::user()->role_id == role('super-admin'))
+                    {{-- <input type="hidden" name="workhour_id" value="{{ $id_tugas }}"> --}}
+                    {{-- @if(Auth::user()->role_id == role('super-admin'))
                     <div class="row mb-3">
                         <label class="col-lg-2 col-md-3 col-form-label">Perusahaan <span class="text-danger">*</span></label>
                         <div class="col-lg-10 col-md-9">
                             <select name="group_id" class="form-select form-select-sm {{ $errors->has('group_id') ? 'border-danger' : '' }}">
                                 <option value="" disabled selected>--Pilih--</option>
                                 @foreach($groups as $group)
-                                <option value="{{ $group->id }}" {{ old('group_id') == $group->id ? 'selected' : '' }}>{{ $group->name }}</option>
+                                <option value="{{ $group->id }}" {{ $position->group_id == $group->id ? 'selected' : '' }}>{{ $group->name }}</option>
                                 @endforeach
                             </select>
                             @if($errors->has('group_id'))
@@ -29,13 +29,52 @@
                             @endif
                         </div>
                     </div>
-                    @endif
+                    @endif --}}
+                    <div class="row mb-3">
+                        <label class="col-lg-2 col-md-3 col-form-label">Jabatan <span class="text-danger">*</span></label>
+                        <div class="col-lg-10 col-md-9">
+                            <select class="form-control form-control-sm" name="position_id" id="position_id">
+                                <option class="form-control form-control-sm" value="{{ $wh_tugas->position_id }}" selected>{{$wh_tugas->position->name }}</option>
+                                @foreach($positions as $position)
+                                    <option class="form-control form-control-sm" value="{{ $position->id }}">{{ $position->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-lg-2 col-md-3 col-form-label">Nama <span class="text-danger">*</span></label>
+                        <div class="col-lg-10 col-md-9">
+                            <input type="text" name="name" class="form-control form-control-sm {{ $errors->has('name') ? 'border-danger' : '' }}" value="{{ $wh_tugas->name }}" autofocus>
+                            @if($errors->has('name'))
+                            <div class="small text-danger">{{ $errors->first('name') }}</div>
+                            @endif
+                        </div>
+                    </div>
                     <hr>
                     <div class="row mb-3">
                         <label class="col-lg-2 col-md-3 col-form-label">Tugas dan Tanggung Jawab</label>
                         <div class="col-lg-10 col-md-9">
                             <table class="table table-sm table-bordered" id="table-dr">
-                                <tbody></tbody>
+                                <tbody>
+                                    @for($key=0; $key < $count_tugas; $key++)
+              
+                                    <tr data-id="{{ $key }}">
+                                        <td>
+                                            <textarea name="dr_names[]" class="form-control form-control-sm" rows="2" cols="300">{{ $tugas != null ? $tugas->tugas[$key] : '' }}</textarea>
+                                        </td>
+                                        <td>
+                                            <input type="text" name="target[]" value="{{ $tugas != null ? $tugas->target[$key] : null }}" class="form-control form-control-sm" >
+                                        </td>
+                                        <td width="80" align="center">
+                                            {{-- <input type="hidden" name="dr_ids[]" value="#"> --}}
+                                            <div class="btn-group">
+                                                <a href="#" class="btn btn-success btn-sm btn-add-row" data-id="{{ $key }}" data-bs-toggle="tooltip" title="Tambah"><i class="bi-plus"></i></a>
+                                                <a href="#" class="btn btn-danger btn-sm btn-delete-row" data-id="{{ $key }}" data-bs-toggle="tooltip" title="Hapus"><i class="bi-trash"></i></a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @endfor
+                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -43,7 +82,22 @@
                         <label class="col-lg-2 col-md-3 col-form-label">Wewenang</label>
                         <div class="col-lg-10 col-md-9">
                             <table class="table table-sm table-bordered" id="table-a">
-                                <tbody></tbody>
+                                <tbody>
+                                    @for($key=0;$key<$count_wewenang;$key++)
+                                    <tr data-id="{{ $key }}">
+                                        <td>
+                                            <textarea name="a_names[]" class="form-control form-control-sm" rows="2">{{ $wewenang != null ? $wewenang[$key] : null }}</textarea>
+                                        </td>
+                                        <td width="80" align="center">
+                                            {{-- <input type="hidden" name="a_ids[]" > --}}
+                                            <div class="btn-group">
+                                                <a href="#" class="btn btn-success btn-sm btn-add-row" data-id="{{ $key }}" data-bs-toggle="tooltip" title="Tambah"><i class="bi-plus"></i></a>
+                                                <a href="#" class="btn btn-danger btn-sm btn-delete-row" data-id="{{ $key }}" data-bs-toggle="tooltip" title="Hapus"><i class="bi-trash"></i></a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @endfor
+                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -52,7 +106,7 @@
                         <div class="col-lg-2 col-md-3"></div>
                         <div class="col-lg-10 col-md-9">
                             <button type="submit" class="btn btn-sm btn-primary"><i class="bi-save me-1"></i> Submit</button>
-                            <a href="{{ route('admin.work-hour.index') }}" class="btn btn-sm btn-secondary"><i class="bi-arrow-left me-1"></i> Kembali</a>
+                            <a href="{{ route('admin.divisi.index') }}" class="btn btn-sm btn-secondary"><i class="bi-arrow-left me-1"></i> Kembali</a>
                         </div>
                     </div>
                 </form>
@@ -104,7 +158,10 @@
         var html = '';
         html += '<tr data-id="0">';
         html += '<td>';
-        html += '<textarea name="dr_names[]" class="form-control form-control-sm" rows="2"></textarea>';
+        html += '<textarea name="dr_names[]" class="form-control form-control-sm" rows="2" cols="300"></textarea>';
+        html += '</td>';
+        html += '<td>';
+        html += '<input type="text" name="target[]"  class="form-control form-control-sm">';
         html += '</td>';
         html += '<td width="80" align="center">';
         html += '<input type="hidden" name="dr_ids[]">';
@@ -123,7 +180,6 @@
         html += '<textarea name="a_names[]" class="form-control form-control-sm" rows="2"></textarea>';
         html += '</td>';
         html += '<td width="80" align="center">';
-        html += '<input type="hidden" name="a_ids[]">';
         html += '<div class="btn-group">';
         html += '<a href="#" class="btn btn-success btn-sm btn-add-row" data-id="0" data-bs-toggle="tooltip" title="Tambah"><i class="bi-plus"></i></a>';
         html += '<a href="#" class="btn btn-danger btn-sm btn-delete-row" data-id="0" data-bs-toggle="tooltip" title="Hapus"><i class="bi-trash"></i></a>';

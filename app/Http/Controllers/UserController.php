@@ -6,6 +6,7 @@ use Auth;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Group;
+use App\Models\Divisi;
 use App\Models\Office;
 use App\Models\Kontrak;
 use App\Models\Position;
@@ -16,6 +17,7 @@ use Ajifatur\Helpers\Salary;
 use Illuminate\Http\Request;
 use App\Models\Certification;
 use App\Models\UserIndicator;
+use App\Models\WorkHourTugas;
 use App\Models\SalaryCategory;
 use Illuminate\Validation\Rule;
 use App\Models\WorkHourCategory;
@@ -139,7 +141,6 @@ class UserController extends Controller
 
         // Get roles
         $roles = Role::where('code','!=','super-admin')->orderBy('num_order','asc')->get();
-
         // Get groups
         $groups = Group::orderBy('name','asc')->get();
 

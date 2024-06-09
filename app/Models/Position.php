@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\User;
+use App\Models\Divisi;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -27,6 +28,10 @@ class Position extends Model
     /**
      * Get the users for the position.
      */
+    public function divisi()
+    {
+        return $this->hasMany(Divisi::class);
+    }
     public function users()
     {
         return $this->hasMany(User::class);

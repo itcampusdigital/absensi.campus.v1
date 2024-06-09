@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 use Auth;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use App\Models\WorkHour;
-use App\Models\Group;
 use App\Models\User;
+use App\Models\Group;
+use App\Models\Divisi;
+use App\Models\WorkHour;
+use Illuminate\Http\Request;
 use App\Models\WorkHourCategory;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Validator;
 
 class WorkHourController extends Controller
 {
@@ -19,6 +20,23 @@ class WorkHourController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    public function indexApi(Request $request)
+    {
+        if($request->ajax()) {
+                if($request->query('user') != null) {
+                    $user = User::find($request->query('user'));
+                    $work_hours = WorkHour::where('office_id','=',$user->office_id)->where('position_id','=',$user->position_id)->get();
+    
+                    return response()->json($work_hours);
+                }
+                else{
+                    $work_hours = WorkHour::where('group_id','=',$request->group)->where('position_id','=',$request->position)->get();
+                    return response()->json($work_hours);
+                }
+                
+        }
+    }
+
     public function index(Request $request)
     {
         if($request->ajax()) {

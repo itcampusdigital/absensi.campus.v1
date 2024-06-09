@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Leave;
+use App\Models\Divisi;
 use App\Models\Lembur;
 use App\Models\Office;
 use App\Models\ReportDaily;
