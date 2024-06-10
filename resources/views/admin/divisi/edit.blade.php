@@ -13,34 +13,7 @@
             <div class="card-body">
                 <form method="post" action="{{ route('admin.divisi.update',['id' => $wh_tugas->id]) }}" enctype="multipart/form-data">
                     @csrf
-                    {{-- <input type="hidden" name="workhour_id" value="{{ $id_tugas }}"> --}}
-                    {{-- @if(Auth::user()->role_id == role('super-admin'))
-                    <div class="row mb-3">
-                        <label class="col-lg-2 col-md-3 col-form-label">Perusahaan <span class="text-danger">*</span></label>
-                        <div class="col-lg-10 col-md-9">
-                            <select name="group_id" class="form-select form-select-sm {{ $errors->has('group_id') ? 'border-danger' : '' }}">
-                                <option value="" disabled selected>--Pilih--</option>
-                                @foreach($groups as $group)
-                                <option value="{{ $group->id }}" {{ $position->group_id == $group->id ? 'selected' : '' }}>{{ $group->name }}</option>
-                                @endforeach
-                            </select>
-                            @if($errors->has('group_id'))
-                            <div class="small text-danger">{{ $errors->first('group_id') }}</div>
-                            @endif
-                        </div>
-                    </div>
-                    @endif --}}
-                    <div class="row mb-3">
-                        <label class="col-lg-2 col-md-3 col-form-label">Jabatan <span class="text-danger">*</span></label>
-                        <div class="col-lg-10 col-md-9">
-                            <select class="form-control form-control-sm" name="position_id" id="position_id">
-                                <option class="form-control form-control-sm" value="{{ $wh_tugas->position_id }}" selected>{{$wh_tugas->position->name }}</option>
-                                @foreach($positions as $position)
-                                    <option class="form-control form-control-sm" value="{{ $position->id }}">{{ $position->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
+                
                     <div class="row mb-3">
                         <label class="col-lg-2 col-md-3 col-form-label">Nama <span class="text-danger">*</span></label>
                         <div class="col-lg-10 col-md-9">

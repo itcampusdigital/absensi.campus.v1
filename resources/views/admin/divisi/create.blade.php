@@ -14,17 +14,6 @@
                 <form method="post" action="{{ route('admin.divisi.store') }}" enctype="multipart/form-data">
                     @csrf
                     <div class="row mb-3">
-                        <label class="col-lg-2 col-md-3 col-form-label">Jabatan <span class="text-danger">*</span></label>
-                        <div class="col-lg-10 col-md-9">
-                            <select class="form-control form-control-sm" name="position_id" id="position_id">
-                                <option class="form-control form-control-sm" value="" selected>--Pilih--</option>
-                                @foreach($positions as $position)
-                                    <option class="form-control form-control-sm" value="{{ $position->id }}">{{ $position->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
                         <label class="col-lg-2 col-md-3 col-form-label">Nama <span class="text-danger">*</span></label>
                         <div class="col-lg-10 col-md-9">
                             <input type="text" name="name" class="form-control form-control-sm {{ $errors->has('name') ? 'border-danger' : '' }}" value="{{ old('name') }}" autofocus>

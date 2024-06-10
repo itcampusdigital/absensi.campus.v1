@@ -33,12 +33,8 @@ Route::group(['middleware' => ['admin']], function() {
 	Route::post('/admin/divisi/update', 'DivisiController@update')->name('admin.divisi.update');
 	Route::post('/admin/divisi/delete', 'DivisiController@delete')->name('admin.divisi.delete');
 	//jabatan_attr
-	// Route::get('/admin/jabatan/divisi/{id_jabatan}', 'JabatanAttributeController@index')->name('admin.jabatan.divisi.index');
-	// Route::get('/admin/jabatan/divisi/{id_jabatan}/create', 'JabatanAttributeController@create')->name('admin.jabatan.divisi.create');
-	// Route::post('/admin/jabatan/divisi/{id_jabatan}/store','JabatanAttributeController@store')->name('admin.jabatan.divisi.store');
-	// Route::get('/admin/jabatan/divisi/{id_jabatan}/edit/{id}', 'JabatanAttributeController@edit')->name('admin.jabatan.divisi.edit');
-	// Route::post('/admin/jabatan/divisi/{id_jabatan}/update', 'JabatanAttributeController@update')->name('admin.jabatan.divisi.update');
-	// Route::post('/admin/jabatan/divisi/{id_jabatan}/delete', 'JabatanAttributeController@delete')->name('admin.jabatan.divisi.delete');
+	Route::get('/admin/jabatan/divisi/{id_divisi}', 'JabatanAttributeController@index')->name('admin.jabatan.divisi.index');
+	Route::get('/admin/jabatan/divisi/{id_divisi}/create', 'JabatanAttributeController@create')->name('admin.jabatan.divisi.create');
 
 	// Summary Attendance
 	Route::get('/admin/summary/attendance', 'SummaryAttendanceController@index')->name('admin.summary.attendance.index');

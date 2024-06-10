@@ -109,6 +109,20 @@
                             @endif
                         </div>
                     </div>
+                    <div class="row mb-3">
+                        <label class="col-lg-2 col-md-3 col-form-label">Divisi</label>
+                        <div class="col-lg-10 col-md-9">
+                            <select name="divisi" class="form-select form-select-sm" id="divisi">
+                                <option class="form-select form-select-sm" >--Pilih--</option>
+                                @foreach ($divisi as $division)
+                                    <option value="{{ $division->id }}" >{{ $division->name }}</option>
+                                @endforeach
+                            </select>
+                            @if ($errors->has('divisi'))
+                                <div class="small text-danger">{{ $errors->first('divisi') }}</div>
+                            @endif
+                        </div>
+                    </div>  
                     @endif
                     <hr>
                     <div class="row mb-3">

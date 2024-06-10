@@ -94,6 +94,25 @@
                                     @endif
                                 </div>
                             </div>       
+                            <div class="row mb-3">
+                                <label class="col-lg-2 col-md-3 col-form-label">Divisi</label>
+                                <div class="col-lg-10 col-md-9">
+                                    <select name="divisi" class="form-select form-select-sm" id="divisi">
+                                        <option class="form-select form-select-sm" >--Pilih--</option>
+
+                                        @foreach ($divisi as $division)
+                                            @if($jabatan != null)
+                                                <option value="{{ $division->id }}" {{ $jabatan->division_id == $division->id ? 'selected' : '' }} >{{ $division->name }}</option>
+                                            @else
+                                                <option value="{{ $division->id }}" >{{ $division->name }}</option>
+                                            @endif
+                                        @endforeach
+                                    </select>
+                                    @if ($errors->has('divisi'))
+                                        <div class="small text-danger">{{ $errors->first('divisi') }}</div>
+                                    @endif
+                                </div>
+                            </div>       
                         @endif
                         <hr>
                         <div class="row mb-3">

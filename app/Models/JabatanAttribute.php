@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\User;
 use App\Models\Divisi;
 use App\Models\Position;
 use Illuminate\Database\Eloquent\Model;
@@ -18,8 +19,8 @@ class JabatanAttribute extends Model
         return $this->belongsTo(Divisi::class, 'division_id');
     }
 
-    public function position()
+    public function user()
     {
-        return $this->belongsTo(Position::class, 'position_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

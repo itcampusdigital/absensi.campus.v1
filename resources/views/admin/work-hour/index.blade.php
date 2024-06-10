@@ -75,7 +75,6 @@
                                     <div class="btn-group">
                                         <a href="{{ route('admin.work-hour.edit', ['id' => $work_hour->id]) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit"><i class="bi-pencil"></i></a>
                                         <a href="#" class="btn btn-sm btn-danger btn-delete" data-id="{{ $work_hour->id }}" data-bs-toggle="tooltip" title="Hapus"><i class="bi-trash"></i></a>
-                                        <a href="{{ route('admin.tugas.edit', ['id_tugas' => $work_hour->id]) }}" class="btn btn-sm btn-info btn-detail" data-id="{{ $work_hour->id }}" data-bs-toggle="tooltip" title="add Tugas"><i class="bi-info-circle"></i></a>
                                     </div>
                                 </td>
                             </tr>

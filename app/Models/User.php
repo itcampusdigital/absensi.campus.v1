@@ -7,6 +7,7 @@ use App\Models\Divisi;
 use App\Models\Lembur;
 use App\Models\Office;
 use App\Models\ReportDaily;
+use App\Models\JabatanAttribute;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -43,6 +44,11 @@ class User extends \Ajifatur\FaturHelper\Models\User
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function jabatanAttribute()
+    {
+        return $this->hasMany(JabatanAttribute::class);
+    }
     
     public function reportDaily()
     {

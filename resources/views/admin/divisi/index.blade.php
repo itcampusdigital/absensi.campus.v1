@@ -37,7 +37,7 @@
                         <thead class="bg-light">
                             <tr>
                                 <th width="20"><input type="checkbox" class="form-check-input checkbox-all"></th>
-                                <th>Jabatan</th>
+            
                                 <th>Nama Divisi</th>
                                 <th width="250">Opsi</th>
                             </tr>
@@ -46,12 +46,12 @@
                             @foreach ($divisi as $division)
                                 <tr>
                                     <td><input type="checkbox" class="form-check-input checkbox-item"></td>
-                                    <td>{{ $division->position->name }}</td>
+                                    
                                     <td>{{ $division->name }}</td>
                                     <td>
                                         <a href="{{ route('admin.divisi.edit', ['id' => $division->id]) }}" class="btn btn-sm btn-primary"><i class="bi-pencil me-1"></i> Edit</a>
                                         <a href="#" class="btn btn-sm btn-danger btn-delete" data-id="{{ $division->id }}"><i class="bi-trash me-1"></i> Hapus</a>
-                                        <a href="#" class="btn btn-sm btn-info btn-detail" data-id="#" data-bs-toggle="tooltip" title="add Pengguna"><i class="bi-info-circle"></i>Pengguna</a>
+                                        <a href="{{ route('admin.jabatan.divisi.index', ['id_divisi' => $division->id]) }}" class="btn btn-sm btn-info btn-detail" data-id="#" data-bs-toggle="tooltip" title="karyawan"><i class="bi-info-circle"></i>Karyawan</a>
                                     </td>
                                 </tr>
                             @endforeach                
@@ -63,7 +63,7 @@
     </div>
 </div>
 
-<form class="form-delete d-none" method="post" action="{{ route('admin.position.delete') }}">
+<form class="form-delete d-none" method="post" action="{{ route('admin.divisi.delete') }}">
     @csrf
     <input type="hidden" name="id">
 </form>

@@ -20,6 +20,7 @@ use App\Models\UserIndicator;
 use App\Models\WorkHourTugas;
 use App\Models\SalaryCategory;
 use Illuminate\Validation\Rule;
+use App\Models\JabatanAttribute;
 use App\Models\WorkHourCategory;
 use Ajifatur\Helpers\DateTimeExt;
 use App\Models\UserCertification;
@@ -138,6 +139,7 @@ class UserController extends Controller
     {
         // Check the access
         has_access(method(__METHOD__), Auth::user()->role_id);
+        $divisi = Divisi::select('id','name')->get();
 
         // Get roles
         $roles = Role::where('code','!=','super-admin')->orderBy('num_order','asc')->get();
@@ -147,7 +149,8 @@ class UserController extends Controller
         // View
         return view('admin/user/create', [
             'roles' => $roles,
-            'groups' => $groups
+            'groups' => $groups,
+            'divisi'=>$divisi
         ]);
     }
 
@@ -218,6 +221,11 @@ class UserController extends Controller
             $new_kontrak->end_date_kontrak = date('Y-m-d', strtotime( $change_start_kontrak.'+'.$d.' month'));
             $new_kontrak->save();
 
+            //divisi
+            $divisi_new = new JabatanAttribute;
+            $divisi_new->user_id = $request->id;
+            $divisi_new->division_id = $request->divisi;
+            $divisi_new->save();
             
 
             // If manager, attach offices
@@ -244,7 +252,7 @@ class UserController extends Controller
         
         // Check the access
         has_access(method(__METHOD__), Auth::user()->role_id);
-
+        $divisi = Divisi::select('id','name')->get();
         // Get the user
         if(Auth::user()->role_id == role('super-admin')) {
             $user = User::findOrFail($id);
@@ -264,6 +272,7 @@ class UserController extends Controller
         // View
         return view('admin/user/detail', [
             'user' => $user,
+            'divisi'=>$divisi
 
         ]);
     }
@@ -290,9 +299,10 @@ class UserController extends Controller
             $user = User::where('group_id','=',Auth::user()->group_id)->whereIn('office_id',Auth::user()->managed_offices()->pluck('office_id')->toArray())->findOrFail($id);
         }
         
+        $jabatan = JabatanAttribute::where('user_id',$id)->first();
         // Get roles
         $roles = Role::where('code','!=','super-admin')->orderBy('num_order','asc')->get();
-
+        $divisi = Divisi::select('id','name')->get();
         // Get groups
         $groups = Group::orderBy('name','asc')->get();
 
@@ -301,6 +311,9 @@ class UserController extends Controller
             'user' => $user,
             'roles' => $roles,
             'groups' => $groups,
+            'divisi'=>$divisi,
+            'jabatan'=>$jabatan
+
         ]);
     }
 
@@ -360,6 +373,20 @@ class UserController extends Controller
             $user->username = $request->username;
             $user->password = $request->password != '' ? bcrypt($request->password) : $user->password;
             $user->save();
+
+            //divisi
+            $divisi = JabatanAttribute::find($request->id);
+            if($divisi == null){
+                $divisi_new = new JabatanAttribute;
+                $divisi_new->user_id = $request->id;
+                $divisi_new->division_id = $request->divisi;
+                $divisi_new->save();
+            }
+            else{
+                $divisi->division_id = $request->divisi;
+                $divisi->save();
+            }
+
 
             //kontrak
             if($user->kontrak == null){

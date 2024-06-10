@@ -5,13 +5,13 @@
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">Tambah Cuti</h1>
+    <h1 class="h3 mb-0">Tambah Karyawan</h1>
 </div>
 <div class="row">
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <form method="post" action="{{ route('admin.jabatan.store') }}" enctype="multipart/form-data">
+                <form method="post" action="{{ route('admin.jabatan.divisi.store') }}" enctype="multipart/form-data">
                     @csrf
                     <div class="row mb-3">
                         <label class="col-lg-2 col-md-3 col-form-label">Perusahaan <span class="text-danger">*</span></label>
@@ -63,15 +63,22 @@
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <label class="col-lg-2 col-md-3 col-form-label">Nama jabatan <span class="text-danger">*</span></label>
+                        <label class="col-lg-2 col-md-3 col-form-label">Jabatan <span class="text-danger">*</span></label>
                         <div class="col-lg-10 col-md-9">
-                            <div class="input-group input-group-sm">
-                                <input type="text" name="name" class="form-control form-control-sm {{ $errors->has('name') ? 'border-danger' : '' }}" value="{{ old('name') }}" autocomplete="off">
-                                <span class="input-group-text"><i class="bi-calendar2"></i></span>
+                            <select disabled name="position" class="form-select form-select-sm" id="position">
+                                <option class="form-select form-select-sm" >--Pilih--</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="col-lg-2 col-md-3 col-form-label">Nama Karyawan <span class="text-danger">*</span></label>
+                        <div class="col-lg-10 col-md-9">
+                            <select disabled name="user_id" class="form-select form-select-sm" id="user_id">
+                                <option class="form-select form-select-sm user_id_list" >--Pilih--</option>
+                            </select>
+                            <div id="badge-users">
+                                <span id="list_user[]" class="badge badge-sm badge-success bg-success">Success</span>
                             </div>
-                            @if($errors->has('name'))
-                            <div class="small text-danger">{{ $errors->first('name') }}</div>
-                            @endif
                         </div>
                     </div>
                     <hr>
@@ -79,7 +86,7 @@
                         <div class="col-lg-2 col-md-3"></div>
                         <div class="col-lg-10 col-md-9">
                             <button type="submit" class="btn btn-sm btn-primary"><i class="bi-save me-1"></i> Submit</button>
-                            <a href="{{ route('admin.jabatan.index') }}" class="btn btn-sm btn-secondary"><i class="bi-arrow-left me-1"></i> Kembali</a>
+                            <a href="{{ route('admin.jabatan.divisi.index',['id_divisi'=> $id_divisi]) }}" class="btn btn-sm btn-secondary"><i class="bi-arrow-left me-1"></i> Kembali</a>
                         </div>
                     </div>
                 </form>
@@ -95,6 +102,50 @@
 <script type="text/javascript">
     // Datepicker
     Spandiv.DatePicker("input[name=date]");
+
+    //position
+    $(document).on("change", "#office", function() {
+        var group = $('#group').val();
+        var office = $(this).val();
+
+        $.ajax({
+            type: "get",
+            url: "{{ route('api.position.index') }}",
+            data: {group: group},
+            success: function(result){
+                var html = '<option value="" disabled>--Pilih--</option>';
+                $(result).each(function(key,value){
+                    html += '<option value="' + value.id + '">' + value.name + '</option>';
+                });
+                $("#position").html(html).removeAttr("disabled");
+            }
+        });
+        
+    });
+
+    $(document).on('change',"#position", function(){
+        var group = $('#group').val();
+        var office = $('#office').val();
+        var position = $(this).val();
+        $.ajax({
+            type: "get",
+            url: "{{ route('api.user.index') }}",
+            data: {group: group, office: office, position: position},
+            success: function(result){
+                var html = '<option class="user_id_list" value="" disabled>--Pilih--</option>';
+                $(result).each(function(key,value){
+                    html += '<option class="user_id_list" value="' + value.id + '">' + value.name + '</option>';
+                });
+                $("#user_id").html(html).removeAttr("disabled");
+            }
+        })
+    });
+
+    $(document).on('click',"#user_id", function(){
+        var user_id = $(this).val();
+        var user_id_name = $(this).text();
+        $("#badge-users").append('<span id="list_user[]" class="badge badge-sm badge-success bg-success">'+user_id+'</span>');
+    });
 
     // Change Group
     $(document).on("change", "#group", function() {

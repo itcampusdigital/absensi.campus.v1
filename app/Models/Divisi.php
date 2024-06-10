@@ -25,9 +25,6 @@ class Divisi extends Model
      *
      * @param  array
      */
-    protected $fillable = ['name', 'position_id', 'tugas','wewenang'];
-    public function position()
-    {
-        return $this->belongsTo(Position::class, 'position_id');
-    }
+    protected $fillable = ['name', 'tugas','wewenang'];
+
 }

@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\JabatanAttribute;
+use App\Models\Group;
+use App\Models\Divisi;
 use Illuminate\Http\Request;
+use App\Models\JabatanAttribute;
 
 class JabatanAttributeController extends Controller
 {
@@ -12,9 +14,18 @@ class JabatanAttributeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('admin/divisi/index');
+        
+        $groups = Group::orderBy('name','asc')->get();
+        $user_divisi = JabatanAttribute::where('division_id',$request->id_divisi)->get();
+        $divisi = Divisi::where('id',$request->id_divisi)->first();
+        return view('admin/divisi/jabatan_attr/index',[
+            'groups' => $groups,
+            'divisi'=>$divisi,
+            'divisi_id' => $request->id_divisi,
+            'user_divisi' => $user_divisi
+        ]);
     }
 
     /**
@@ -22,64 +33,15 @@ class JabatanAttributeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
+        $groups = Group::orderBy('name','asc')->get();
+
+        return view('admin.divisi.jabatan_attr.create',[
+            'groups' => $groups,
+            'id_divisi' => $request->id_divisi
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\JabatanAttribute  $jabatanAttribute
-     * @return \Illuminate\Http\Response
-     */
-    public function show(JabatanAttribute $jabatanAttribute)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\JabatanAttribute  $jabatanAttribute
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(JabatanAttribute $jabatanAttribute)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\JabatanAttribute  $jabatanAttribute
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, JabatanAttribute $jabatanAttribute)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\JabatanAttribute  $jabatanAttribute
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(JabatanAttribute $jabatanAttribute)
-    {
-        //
-    }
 }
