@@ -19,6 +19,9 @@ class DivisiController extends Controller
      */
     public function index(Request $request)
     {
+
+        has_access(method(__METHOD__), Auth::user()->role_id);
+
         if($request->ajax()) {
             // Get offices by the group
             $divisi = Divisi::all();
@@ -43,6 +46,8 @@ class DivisiController extends Controller
      */
     public function create()
     {
+        has_access(method(__METHOD__), Auth::user()->role_id);
+
         // Get groups
         $groups = Group::orderBy('name','asc')->get();
         $position = Position::where('group_id',Auth::user()->group_id)->orderBy('name','asc')->get();
