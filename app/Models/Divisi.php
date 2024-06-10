@@ -25,6 +25,6 @@ class Divisi extends Model
      *
      * @param  array
      */
-    protected $fillable = ['name', 'tugas','wewenang'];
+    protected $fillable = ['name', 'tugas','wewenang','group_id'];
 
 }

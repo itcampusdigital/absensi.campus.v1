@@ -84,6 +84,7 @@ class DivisiController extends Controller
 
             $divisi = new Divisi;
             $divisi->name = $request->name;
+            $divisi->group_id = Auth::user()->role_id == role('super-admin') ? $request->group_id : Auth::user()->group_id;
             $divisi->tugas = json_encode($array_tugas);
             $divisi->wewenang = json_encode($request->a_names);
             $divisi->save();
