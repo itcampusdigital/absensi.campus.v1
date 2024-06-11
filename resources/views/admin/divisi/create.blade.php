@@ -40,27 +40,27 @@
                     @endif
                     <hr>
                     <div class="row mb-3">
-                        <label class="col-lg-2 col-md-3 col-form-label">Tugas dan Tanggung Jawab</label>
+                        <label class="col-lg-2 col-md-3 col-form-label">Tugas </label>
                         <div class="col-lg-10 col-md-9">
                             <table class="table table-sm table-bordered" id="table-dr">
                                 <tbody></tbody>
                             </table>
                         </div>
                     </div>
-                    <div class="row mb-3">
+                    {{-- <div class="row mb-3">
                         <label class="col-lg-2 col-md-3 col-form-label">Wewenang</label>
                         <div class="col-lg-10 col-md-9">
                             <table class="table table-sm table-bordered" id="table-a">
                                 <tbody></tbody>
                             </table>
                         </div>
-                    </div>
+                    </div> --}}
                     <hr>
                     <div class="row">
                         <div class="col-lg-2 col-md-3"></div>
                         <div class="col-lg-10 col-md-9">
                             <button type="submit" class="btn btn-sm btn-primary"><i class="bi-save me-1"></i> Submit</button>
-                            <a href="{{ route('admin.position.index') }}" class="btn btn-sm btn-secondary"><i class="bi-arrow-left me-1"></i> Kembali</a>
+                            <a href="{{ route('admin.divisi.index') }}" class="btn btn-sm btn-secondary"><i class="bi-arrow-left me-1"></i> Kembali</a>
                         </div>
                     </div>
                 </form>
@@ -113,10 +113,10 @@
         var html = '';
         html += '<tr data-id="0">';
         html += '<td>';
-        html += '<textarea name="dr_names[]" class="form-control form-control-sm" rows="2" cols="300"></textarea>';
+        html += '<textarea placeholder="Tugas" name="dr_names[]" class="form-control form-control-sm" rows="2" cols="300"></textarea>';
         html += '</td>';
         html += '<td>';
-        html += '<input type="text" name="target[]"  class="form-control form-control-sm">';
+        html += '<input placeholder="Target" type="text" name="target[]"  class="form-control form-control-sm">';
         html += '</td>';
         html += '<td width="80" align="center">';
         html += '<input type="hidden" name="dr_ids[]">';

@@ -14,6 +14,7 @@ use Ajifatur\Helpers\Date;
 use App\Models\Attendance;
 use App\Exports\ExportUser;
 use Ajifatur\Helpers\Salary;
+use App\Imports\UsersImport;
 use Illuminate\Http\Request;
 use App\Models\Certification;
 use App\Models\UserIndicator;
@@ -567,5 +568,14 @@ class UserController extends Controller
                         ->get();
         }
         return Excel::download(new ExportUser($userExport), 'users.xlsx');
+    }
+
+    public function import(Request $request)
+    {
+        $file = $request->file('file');
+        $import =  Excel::import(new UsersImport, $file);
+        // $import = new UsersImport;
+        // $import->import($file);
+        // dd($import->failures());
     }
 }

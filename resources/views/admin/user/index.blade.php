@@ -4,11 +4,21 @@
 
 @section('content')
 
-<div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-2 mb-sm-0">Kelola {{ role(role(Request::query('role'))) }}</h1>
-    @if(has_access('UserController::create', Auth::user()->role_id, false))
-    <a href="{{ route('admin.user.create', ['role' => Request::query('role')]) }}" class="btn btn-sm btn-primary"><i class="bi-plus me-1"></i> Tambah {{ role(role(Request::query('role'))) }}</a>
-    @endif
+<div class="d-sm-flex justify-content-between  mb-3">
+    <div class="div1">
+        <h1 class="h3 mb-2 mb-sm-0">Kelola {{ role(role(Request::query('role'))) }}</h1>
+    </div>
+    <div class="div2">
+        @if(has_access('UserController::create', Auth::user()->role_id, false))
+            <a href="{{ route('admin.user.create', ['role' => Request::query('role')]) }}" class="btn btn-sm btn-primary m-0"><i class="bi-plus me-1"></i> Tambah {{ role(role(Request::query('role'))) }}</a>
+        @endif
+        @if((Auth::user()->role->code == 'admin' || Auth::user()->role->code == 'super-admin') && Request::query('role') == 'member')
+            <button type="button" class="m-0 btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#myModal">
+                Import Data
+            </button>
+        @endif
+    </div>
+
 </div>
 <div class="row">
     <div class="col-12">
@@ -204,6 +214,38 @@
         </div>
     </div>
 </div>
+
+{{-- modal --}}
+<!-- The Modal -->
+<div class="modal" id="myModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+  
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Import Data Pegawai</h4>
+          {{-- <button type="button" class="btn-close" data-bs-dismiss="modal"></button> --}}
+        </div>
+  
+        <!-- Modal body -->
+        <div class="modal-body">
+            <p>Silahkan melakukan import data dibawah ini dengan format csv, xlsx.</p>
+            <form action="{{ route('admin.user.import') }}" method="post" enctype="multipart/form-data">
+                @csrf
+                <input class="form-control form-control-sm mb-3" type="file" name="file" id="file">
+
+                <button type="submit" class="btn btn-sm btn-primary" >Import</button>
+            </form>
+        </div>
+  
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+        </div>
+  
+      </div>
+    </div>
+  </div>
 
 <form class="form-delete d-none" method="post" action="{{ route('admin.user.delete') }}">
     @csrf

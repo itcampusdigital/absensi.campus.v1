@@ -118,6 +118,9 @@ Route::group(['middleware' => ['admin']], function() {
 	//user-export
 	Route::get('/admin/user/export', 'UserController@exportKaryawan')->name('admin.user.export');
 
+	//user-import
+	Route::post('/admin/user/import','UserController@import')->name('admin.user.import');
+
 
 	// Group
 	Route::get('/admin/group', 'GroupController@index')->name('admin.group.index');
