@@ -230,11 +230,13 @@
         <!-- Modal body -->
         <div class="modal-body">
             <p>Silahkan melakukan import data dibawah ini dengan format csv, xlsx.</p>
+            <p>Template untuk melakukan import pegawai bisa didownload disini: 
+                <a href="{{ asset('assets/document/users.xlsx') }}">import-file</a>
+            </p>
             <form action="{{ route('admin.user.import') }}" method="post" enctype="multipart/form-data">
                 @csrf
-                <input class="form-control form-control-sm mb-3" type="file" name="file" id="file">
-
-                <button type="submit" class="btn btn-sm btn-primary" >Import</button>
+                <input class="form-control form-control-sm mb-3" type="file" name="file" id="file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                <button type="submit" class="btn btn-sm btn-primary btnImports" id="btnImports" disabled>Import</button>
             </form>
         </div>
   
@@ -262,6 +264,18 @@
     
     // Button Delete
     Spandiv.ButtonDelete(".btn-delete", ".form-delete");
+
+    $('#file').change(function(){
+        typeData = ['application/vnd.ms-excel','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', '.csv' , 'text/csv'];
+        getData = $('#file').prop('files')[0].type;
+        const res1 = typeData.includes(getData)
+        if(res1 == true){
+            $('#btnImports').prop('disabled',false);
+        }
+        else{
+            $('#btnImports').prop("disabled", true);
+        }
+    })
 
     $('#exportExcel').click(function(){
         position_id = $('#position').val();
