@@ -80,6 +80,7 @@ class DivisiController extends Controller
         else {
             $array_tugas = array();
             $array_tugas['tugas'] = $request->dr_names;
+            $array_tugas['tipe'] = $request->tipe;
             $array_tugas['target'] = $request->target;
 
             $divisi = new Divisi;
@@ -142,6 +143,7 @@ class DivisiController extends Controller
      */
     public function update(Request $request, Divisi $divisi)
     {
+        // dd($request->all());
         $validator = Validator::make($request->all(), [
             'group_id' => Auth::user()->role_id == role('super-admin') ? 'required' : '',
             'name' => 'required',
@@ -156,13 +158,14 @@ class DivisiController extends Controller
             $divisi = Divisi::find($request->id);
             $array_tugas = array();
             $array_tugas['tugas'] = $request->dr_names;
+            $array_tugas['tipe'] = $request->tipe;
             $array_tugas['target'] = $request->target;
 
             $divisi->tugas = json_encode($array_tugas);
             $divisi->wewenang = json_encode($request->a_names);
             $divisi->save();
 
-            return redirect()->route('admin.divisi.index')->with(['message' => 'Berhasil menambah data.']);
+            return redirect()->route('admin.divisi.index')->with(['message' => 'Berhasil Mengubah data.']);
 
         }
     }

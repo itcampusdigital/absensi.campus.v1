@@ -54,7 +54,7 @@
                                         <a href="{{ route('admin.jabatan.divisi.index', ['id_divisi' => $division->id]) }}" class="btn btn-sm btn-info btn-detail" data-id="#" data-bs-toggle="tooltip" title="karyawan"><i class="bi-info-circle"></i>Karyawan</a>
                                     </td>
                                 </tr>
-                            @endforeach                
+                            @endforeach    
                         </tbody>
                     </table>
                 </div>

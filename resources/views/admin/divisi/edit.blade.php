@@ -43,16 +43,28 @@
                     <div class="row mb-3">
                         <label class="col-lg-2 col-md-3 col-form-label">Tugas</label>
                         <div class="col-lg-10 col-md-9">
-                            <table class="table table-sm table-bordered" id="table-dr">
+                            <table class="table table-sm table-bordered table-responsive" id="table-dr">
                                 <tbody>
                                     @for($key=0; $key < $count_tugas; $key++)
-              
                                     <tr data-id="{{ $key }}">
                                         <td>
-                                            <textarea placeholder="Tugas" name="dr_names[]" class="form-control form-control-sm" rows="2" cols="300">{{ $tugas != null ? $tugas->tugas[$key] : '' }}</textarea>
+                                            <textarea placeholder="Tugas" name="dr_names[]" class="form-control form-control-sm" rows="2" cols="140">{{ $tugas != null ? $tugas->tugas[$key] : '' }}</textarea>
                                         </td>
                                         <td>
-                                            <input placeholder="Target" type="text" name="target[]" value="{{ $tugas != null ? $tugas->target[$key] : null }}" class="form-control form-control-sm" >
+                                            @if(empty($tugas->tipe[$key]))
+                                                <select name="tipe[]" class="form-select form-select-sm" id="tipe">
+                                                    <option value="1">Harian</option>
+                                                    <option value="2">Mingguan</option>
+                                                    <option value="3">Bulanan</option>
+                                                </select>    
+                                            @else
+                                                <select name="tipe[]" class="form-select form-select-sm" id="tipe">
+                                                    <option value="1" {{ $tugas->tipe[$key] == 1 ? 'selected' : '' }}>Harian</option>
+                                                    <option value="2" {{ $tugas->tipe[$key] == 2 ? 'selected' : '' }}>Mingguan</option>
+                                                    <option value="3" {{ $tugas->tipe[$key] == 3 ? 'selected' : '' }}>Bulanan</option>
+                                                </select>
+                                            @endif
+                                            <input size="5" placeholder="Target" type="text" name="target[]" value="{{ $tugas != null ? $tugas->target[$key] : null }}" class="form-control form-control-sm" >
                                         </td>
                                         <td width="80" align="center">
                                             {{-- <input type="hidden" name="dr_ids[]" value="#"> --}}
@@ -147,10 +159,17 @@
         var html = '';
         html += '<tr data-id="0">';
         html += '<td>';
-        html += '<textarea name="dr_names[]" class="form-control form-control-sm" rows="2" cols="300"></textarea>';
+        html += '<textarea name="dr_names[]" class="form-control form-control-sm" rows="2" cols="140"></textarea>';
         html += '</td>';
         html += '<td>';
-        html += '<input type="text" name="target[]"  class="form-control form-control-sm">';
+        html += '<select name="tipe[]" class="form-select form-select-sm" id="tipe">';
+        html += '<option value="1">Harian</option>';
+        html += '<option value="2">Mingguan</option>';
+        html += '<option value="3">Bulanan</option>';
+        html += '</select>';
+        html += '</td>';
+        html += '<td>';
+        html += '<input size="5" placeholder="Target" type="text" name="target[]"  class="form-control form-control-sm">';
         html += '</td>';
         html += '<td width="80" align="center">';
         html += '<input type="hidden" name="dr_ids[]">';
