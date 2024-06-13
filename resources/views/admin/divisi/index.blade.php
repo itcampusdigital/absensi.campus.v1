@@ -37,7 +37,7 @@
                         <thead class="bg-light">
                             <tr>
                                 <th width="20"><input type="checkbox" class="form-check-input checkbox-all"></th>
-            
+                                <th>Kode</th>
                                 <th>Nama Divisi</th>
                                 <th width="250">Opsi</th>
                             </tr>
@@ -46,7 +46,7 @@
                             @foreach ($divisi as $division)
                                 <tr>
                                     <td><input type="checkbox" class="form-check-input checkbox-item"></td>
-                                    
+                                    <td>{{ $division->code }}</td>
                                     <td>{{ $division->name }}</td>
                                     <td>
                                         <a href="{{ route('admin.divisi.edit', ['id' => $division->id]) }}" class="btn btn-sm btn-primary"><i class="bi-pencil me-1"></i> Edit</a>

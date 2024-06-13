@@ -13,7 +13,7 @@
             <div class="card-body">
                 <form method="post" action="{{ route('admin.divisi.update',['id' => $wh_tugas->id]) }}" enctype="multipart/form-data">
                     @csrf
-                
+                    <input type="hidden" name="code" value="{{ $wh_tugas->code }}">
                     <div class="row mb-3">
                         <label class="col-lg-2 col-md-3 col-form-label">Nama <span class="text-danger">*</span></label>
                         <div class="col-lg-10 col-md-9">
@@ -45,13 +45,18 @@
                         <div class="col-lg-10 col-md-9">
                             <table class="table table-sm table-bordered table-responsive" id="table-dr">
                                 <tbody>
+                                {{--    $array_tugas[$i]['id_tugas'] 
+                                        $array_tugas[$i]['tugas'] 
+                                        $array_tugas[$i]['tipe'] 
+                                        $array_tugas[$i]['target']  --}}
+
                                     @for($key=0; $key < $count_tugas; $key++)
                                     <tr data-id="{{ $key }}">
                                         <td>
-                                            <textarea placeholder="Tugas" name="dr_names[]" class="form-control form-control-sm" rows="2" cols="140">{{ $tugas != null ? $tugas->tugas[$key] : '' }}</textarea>
+                                            <textarea placeholder="Tugas" name="dr_names[]" class="form-control form-control-sm" rows="2" cols="140">{{ $tugas != null ? $tugas[$key]->tugas : '' }}</textarea>
                                         </td>
                                         <td>
-                                            @if(empty($tugas->tipe[$key]))
+                                            @if(empty($tugas[$key]->tipe))
                                                 <select name="tipe[]" class="form-select form-select-sm" id="tipe">
                                                     <option value="1">Harian</option>
                                                     <option value="2">Mingguan</option>
@@ -59,12 +64,12 @@
                                                 </select>    
                                             @else
                                                 <select name="tipe[]" class="form-select form-select-sm" id="tipe">
-                                                    <option value="1" {{ $tugas->tipe[$key] == 1 ? 'selected' : '' }}>Harian</option>
-                                                    <option value="2" {{ $tugas->tipe[$key] == 2 ? 'selected' : '' }}>Mingguan</option>
-                                                    <option value="3" {{ $tugas->tipe[$key] == 3 ? 'selected' : '' }}>Bulanan</option>
+                                                    <option value="1" {{ $tugas[$key]->tipe == 1 ? 'selected' : '' }}>Harian</option>
+                                                    <option value="2" {{ $tugas[$key]->tipe == 2 ? 'selected' : '' }}>Mingguan</option>
+                                                    <option value="3" {{ $tugas[$key]->tipe == 3 ? 'selected' : '' }}>Bulanan</option>
                                                 </select>
                                             @endif
-                                            <input size="5" placeholder="Target" type="text" name="target[]" value="{{ $tugas != null ? $tugas->target[$key] : null }}" class="form-control form-control-sm" >
+                                            <input size="5" placeholder="Target" type="text" name="target[]" value="{{ $tugas != null ? $tugas[$key]->target : null }}" class="form-control form-control-sm" >
                                         </td>
                                         <td width="80" align="center">
                                             {{-- <input type="hidden" name="dr_ids[]" value="#"> --}}

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use DateTime;
 use App\Models\Group;
+use App\Models\Divisi;
 use App\Models\ReportDaily;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,23 +17,23 @@ class ReportDailyController extends Controller
         $id = $request->id;
         $report = ReportDaily::where('id','=',$id)->first();
         $reports_id = json_decode($report->report);
-        for($i = 0; $i < count($reports_id); $i++){
-            $arr_id[$i] = $reports_id[$i]->report;
-        }
-        $dailyJob = JobDutyResponsibility::select('id','name','target')->whereIn('id', $arr_id)->get();
-        for($i=0;$i<count($dailyJob);$i++){
-            if($dailyJob[$i]->id == $reports_id[$i]->report){
-                $dailyJob[$i]['score'] = $reports_id[$i]->score;
-            }
-        }
+        
+        $dailyJob = Divisi::select('id','name','tugas')->where('id', $report->division_id)->first();
+        $tugasJob = json_decode($dailyJob->tugas);
+        $tugas = $tugasJob->tugas;
+        // for($i=0;$i<count($dailyJob);$i++){
+        //     if($dailyJob[$i]->id == $reports_id[$i]->report){
+        //         $dailyJob[$i]['score'] = $reports_id[$i]->score;
+        //     }
+        // }
 
         $data = array();
         $data['nama'] = $report->user->name;
         $data['date'] = $report->date;
         $data['note'] = $report->note;
-        $data['dailyReport'] = $dailyJob;
+        // $data['dailyReport'] = $dailyJob;
 
-        return response()->json($data);
+        return response()->json($reports_id);
     }
 
     public function index(Request $request)
@@ -87,8 +88,6 @@ class ReportDailyController extends Controller
         foreach($dailies as $daily){
             $daily->report = json_decode($daily->report);
         }
-
-        // dd($dailies[0]->report[0]);
 
         return view('admin.report.index',[
             'groups' => $groups,
