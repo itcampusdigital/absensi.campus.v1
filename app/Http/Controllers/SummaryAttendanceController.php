@@ -278,16 +278,52 @@ class SummaryAttendanceController extends Controller
 
         // Set dates
         $dates = [];
+        $only_d = [];
         if($group) {
             $dt1 = $month > 1 ? date('Y-m-d', strtotime($year.'-'.($month-1).'-'.$group->period_start)) : date('Y-m-d', strtotime(($year-1).'-12-'.$group->period_start));
             $dt2 = date('Y-m-d', strtotime($year.'-'.$month.'-'.$group->period_end));
             $d = $dt1;
             while(date('d/m/Y', strtotime("-1 day", strtotime($d))) != date('d/m/Y', strtotime($dt2))) {
                 array_push($dates, date('d/m/Y', strtotime($d)));
+                array_push($only_d, date('d', strtotime($d)));
                 $d = date('Y-m-d', strtotime("+1 day", strtotime($d)));
             }
         }
+        $id = array();
+        foreach($work_hours as $key=>$wh) {
+            $id[$key] = $wh->id;
+        }
 
+        $date_array = array();
+        $date_array['day'] = $only_d;
+        $date_array['date'] = $dates;
+
+        $ceks = array();
+        if($request['office'] == 19)
+        {
+            // Get attendances
+            $list_user = Attendance::select('id','user_id','date')->whereIn('workhour_id',$id)->where('date','>=',$dt1)->where('date','<=',$dt2)->groupBy('user_id')->get();
+            // $list_user = User::select('id','position_id','end_date')->where('position_id','=',$request['position'])->get();
+            $attendance_user = Attendance::select('id','user_id','date')->whereIn('workhour_id',$id)->where('date','>=',$dt1)->where('date','<=',$dt2)->get();
+
+            for($i=0;$i<count($list_user);$i++) {
+                for($j=0;$j<count($attendance_user);$j++) {
+                    $ceks[$i]['name'] = $attendance_user[$i]->user->name;
+
+                    if($list_user[$i]->user_id == $attendance_user[$j]->user_id) {
+                        for($k=1;$k<=count($only_d);$k++) {      
+                            if($only_d[$k-1] == date('d', strtotime($attendance_user[$j]->date)) ) {
+                                $ceks[$i]['date'][$k] = 'v';
+                            }             
+                        }
+                    }   
+                }
+                
+            }
+        }
+        
+
+        // dd($ceks);
         // View
         return view('admin/summary/attendance/monitor', [
             'month' => $month,
@@ -295,6 +331,9 @@ class SummaryAttendanceController extends Controller
             'groups' => $groups,
             'work_hours' => $work_hours,
             'dates' => $dates,
+            'date_array' => $date_array,
+            'attendance_user' => $request['office'] == 19 ? $attendance_user : [],
+            'ceks' => $ceks != null ? $ceks : []
         ]);
     }
 

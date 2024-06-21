@@ -21,6 +21,12 @@ use Ajifatur\Helpers\RouteExt;
 Route::get('/user', 'UserController@index')->name('api.user.index');
 Route::get('/office', 'OfficeController@index')->name('api.office.index');
 Route::get('/divisi', 'DivisiController@index')->name('api.divisi.index');
+//DAP
+Route::get('/userJobAll/{id}', 'JabatanAttributeController@apiJob')->name('api.apiJob,indexApi');
+Route::get('/userJob', 'JabatanAttributeController@apiIndex')->name('api.getJob,indexApi');
+
+Route::get('/userJob/report/{id}','ReportDailyController@rekapApi')->name('api.rekapApi,indexApi');
+//--------
 Route::get('/position', 'PositionController@index')->name('api.position.index');
 Route::get('/work-hour', 'WorkHourController@index')->name('api.work-hour.index');
 Route::get('/work-hour/divisi', 'WorkHourController@indexApi')->name('api.work-hour.indexApi');

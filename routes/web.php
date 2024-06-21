@@ -22,6 +22,7 @@ Route::group(['middleware' => ['admin']], function() {
 
 	//DAP
 	Route::get('/admin/report','ReportDailyController@index')->name('admin.report.index');
+	Route::get('/admin/report/rekap','ReportDailyController@indexRekap')->name('admin.report.indexRekap');
 	Route::get('/admin/report/getData/{id}', 'ReportDailyController@getReport')->name('admin.report.getReport');
 	
 

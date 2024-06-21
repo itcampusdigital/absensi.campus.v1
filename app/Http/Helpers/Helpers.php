@@ -36,6 +36,26 @@ use App\Models\WorkHourCategory;
 //     }
 // }
 
+//bulan
+if(!function_exists('hitungan_bulan')){
+    function hitungan_bulan(){
+        $bulan[1] = 'Januari';
+        $bulan[2] = 'Februari';
+        $bulan[3] = 'Maret';
+        $bulan[4] = 'April';
+        $bulan[5] = 'Mei';
+        $bulan[6] = 'Juni';
+        $bulan[7] = 'Juli';
+        $bulan[8] = 'Agustus';
+        $bulan[9] = 'September';
+        $bulan[10] = 'Oktober';
+        $bulan[11] = 'November';
+        $bulan[12] = 'Desember';
+
+        return $bulan;
+    }
+}
+
 // Time to string
 if(!function_exists('time_to_string')) {
     function time_to_string($time) {

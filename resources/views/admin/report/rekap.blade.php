@@ -1,12 +1,11 @@
 @extends('faturhelper::layouts/admin/main')
 
-@section('title', 'report')
+@section('title', 'rekap DAP')
 
 @section('content')
 
 <div class="d-sm-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-2 mb-sm-0">Daily Activity Progress report</h1>
-    {{-- <a href="{{ route('admin.attendance.create') }}" class="btn btn-sm btn-primary"><i class="bi-plus me-1"></i> Tambah Absensi</a> --}}
+    <h1 class="h3 mb-2 mb-sm-0">Rekap Daily Activity Progress</h1>
 </div>
 <div class="row">
     <div class="col-12">
@@ -44,36 +43,48 @@
                         </select>
                     </div>
                     <div class="ms-lg-2 ms-0 mb-lg-0 mb-2">
-                            <select name="position" id="position" class="form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Jabatan">
-                                <option value="0">--Pilih Jabatan--</option>
-                                @if(Auth::user()->role_id == role('super-admin') )
-                                    @if(Request::query('group') != 0)
-                                        @foreach(\App\Models\Group::find(Request::query('group'))->positions()->orderBy('name','asc')->get() as $position)
-                                        <option value="{{ $position->id }}" {{ Request::query('position') == $position->id ? 'selected' : '' }}>{{ $position->name }}</option>
-                                        @endforeach
-                                    @endif
-                                @elseif(Auth::user()->role_id == role('admin') || Auth::user()->role_id == role('manager'))
-                                    @foreach(\App\Models\Group::find(Auth::user()->group_id)->positions()->orderBy('name','asc')->get() as $position)
-                                    <option value="{{ $position->id }}" {{ Request::query('position') == $position->id ? 'selected' : '' }}>{{ $position->name }}</option>
-                                    @endforeach
-                                @endif
-                            </select>
+                        <select name="divisi" id="divisi" class="divisi form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Divisi">
+                            <option value="0">--Pilih Jabatan--</option>
+                            @foreach ($divisis as $divisi)
+                                <option value="{{ $divisi->id }}">{{ $divisi->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="ms-lg-2 ms-0 mb-lg-0 mb-2">
+                        <select disabled name="pegawai" id="pegawai" class="pegawai form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Pegawai">
+                            <option value="0">--Pilih Pegawai--</option>
+                            
+                        </select>
+                    </div>
+                    <div class="ms-lg-2 ms-0 mb-lg-0 mb-2">
+                        <select disabled name="bulan" id="bulan" class="bulan form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Bulan">
+                            <option value="0">--Pilih Bulan--</option>
+                            @foreach (hitungan_bulan() as $key=>$bulan)
+                                <option value="{{ $key }}">{{ $bulan }}</option>
+                                    
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="ms-lg-2 ms-0 mb-lg-0 mb-2">
+                        <select disabled name="tahun" id="tahun" class="tahun form-select form-select-sm" data-bs-toggle="tooltip" title="Pilih Bulan">
+                            <option value="0">--Pilih Tahun--</option>
+                            <option value="2023">2023</option>
+                            <option value="2024">2024</option>
+                            <option value="2025">2025</option>
+                            <option value="2026">2026</option>
+
+                        </select>
                     </div>
 
-                    <div class="ms-lg-2 ms-0 mb-lg-0 mb-2">
-                        <input type="text" id="t1" name="t1" class="form-control form-control-sm input-tanggal" value="{{ Request::query('t1') != null ? Request::query('t1') : date('d/m/Y') }}" autocomplete="off" data-bs-toggle="tooltip" title="Dari Tanggal">
-                    </div>
-                    <div class="ms-lg-2 ms-0 mb-lg-0 mb-2">
-                        <input type="text" id="t2" name="t2" class="form-control form-control-sm input-tanggal" value="{{ Request::query('t2') != null ? Request::query('t2') : date('d/m/Y') }}" autocomplete="off" data-bs-toggle="tooltip" title="Sampai Tanggal">
-                    </div>
+    
                     <div class="ms-lg-2 ms-0">
-                        <button type="submit" class="btn btn-sm btn-info"><i class="bi-filter-square me-1"></i> Filter</button>
+                        <button type="submit" class="btn btn-sm btn-info" disabled><i class="bi-filter-square me-1"></i> Filter</button>
                     </div>
                 </form>
             </div>
             <hr class="my-0">
             <div class="card-body">
-                <div class="table-responsive">
+                {{-- <div class="table-responsive">
                     <table class="table table-sm table-hover table-bordered" id="datatable">
                         <thead class="bg-light">
                             <tr>
@@ -85,21 +96,10 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($dailies as $key=>$daily)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td class="data_names" id="data_names{{ $daily->id }}">{{ $daily->user->name }}</td>
-                                <td align="center" class="data_dates" id="data_dates{{ $daily->id }}">{{ $daily->date }}</td>
-                                <td class="data_notes" id="data_notes{{ $daily->id }}">{{ $daily->note }}</td>
-                                <td>
-                                    <a href="#" class="btn btn-sm btn-info"><i class="bi-pencil-square me-1"></i> Edit</a>
-                                    <button data-toggle="modal" type="button" data-id="{{ $daily->id }}" id="btnModal" class="btnModals btn btn-sm btn-primary"><i class="bi bi-eye-fill"></i> View</button>
-                                </td>
-                            </tr>
-                            @endforeach
+                            
                         </tbody>
                     </table>
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>
@@ -115,57 +115,21 @@
 
 @section('js')
 
-<script type="text/javascript">
+<script type="text/javascript">    
 
-    //modal
-    var modal = document.getElementById("modal")
-    var span = document.getElementsByClassName("close")[0]
-    
+    function cek_tanggal(month,year){
+        const oneDay = 24 * 3600 * 1000; // hours*minutes*seconds*milliseconds
+        months = Number(month)
+        month_start = (months - 1) == 0 ? 12 : months - 1
+        year_end = month_start == 12 ? year+1 : year
+        const firstDate = "24/"+month_start+"/"+year
+        const secondDate = "23/"+(months)+"/"+year_end
 
-    // When the user clicks on <span> (x), close the modal
-    span.onclick = function() {
-        modal.style.display = "none"
+        const diffDays = Math.abs((firstDate - secondDate) / oneDay);
+
+        return year_end
+
     }
-
-    // When the user clicks anywhere outside of the modal, close it
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
-        }
-    }
-
-    //send data to modal
-    $('.btnModals').click(function(){
-        modal.style.display = "block"
-        var id = $(this).data('id')
-        getReports(id)
-        
-    }) 
-
-    function getReports(id){
-        $.ajax({
-            type: 'get',
-            url: "/admin/report/getData/"+id,
-            dataType: 'json',
-            success: function(result){
-                dailyReport = result.dailyReport
-
-                $('#get_data_name').text(result.nama)
-                $('#get_data_date').text(result.date)
-                $('#get_data_note').text(result.note)
-
-                div = $('<div></div>')
-                $.each(dailyReport, function(key,val){
-                    score = val['score'] == null ? 0 : val['score']
-                    target = val['target'] == null ? 0 : val['target']
-                    div.append('<p>'+(key+1)+'. '+val['tugas']+' <span style="color: green">('+score+' / '+target+')</span></p>')
-                })
-                $('#get_data_report').empty().append(div)
-            }
-        })
-    }
-    
-    
     // DataTable
     Spandiv.DataTable("#datatable");
 
@@ -206,10 +170,53 @@
         $("select[name=position]").html(html).removeAttr("disabled");
     });
 
+    $('#divisi').change(function(){
+        var divisi = $(this).val();
+        $.ajax({
+            type: 'get',
+            url: "/api/userJobAll/"+divisi,
+            success: function(result){
+                
+                var html = '<option value="0" disabled selected>--Pilih Pegawai--</option>';
+                $(result).each(function(key,value){
+                    html += '<option value="' + value.id + '">' + value.name + '</option>';
+                });
+                $("select[name=pegawai]").html(html);
+            }
+        })
+        $("#pegawai").removeAttr("disabled")
+    })
+
+    $('#pegawai').change(function(){
+        var pegawai = $('#pegawai').val()
+        if(pegawai != null){
+            $("#bulan").removeAttr("disabled")
+            $("#tahun").removeAttr("disabled")
+
+            $('#tahun').change(function(pegawai){
+                var bulan = $("#bulan").val()
+                var tahun = $("#tahun").val()
+                $.ajax({
+                    type: 'get',
+                    url: "/api/userJob/report/"+pegawai,
+                    success: function(result){
+                        cek = cek_tanggal(bulan,tahun)
+                        console.log(cek)
+                    }
+                })
+            })
+        }
+        else{
+            $("#bulan").attr("disabled","disabled")
+        }
+
+    })
+
     // Change Date
-    $(document).on("change", "input[name=t1], input[name=t2]", function(){
-        var t1 = $("input[name=t1]").val();
-        var t2 = $("input[name=t2]").val();
+    $("#divisi, #bulan").change(function(){
+        var t1 = $("#bulan").val();
+        var t2 = $("#divisi").val();
+    
         (t1 != '' && t2 != '') ? $("#form-filter button[type=submit]").removeAttr("disabled") : $("#form-filter button[type=submit]").attr("disabled","disabled");
     });
 
