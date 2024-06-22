@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Auth;
+use DateTime;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Group;
@@ -278,6 +279,7 @@ class SummaryAttendanceController extends Controller
 
         // Set dates
         $dates = [];
+        $dates_convert = [];
         $only_d = [];
         if($group) {
             $dt1 = $month > 1 ? date('Y-m-d', strtotime($year.'-'.($month-1).'-'.$group->period_start)) : date('Y-m-d', strtotime(($year-1).'-12-'.$group->period_start));
@@ -285,6 +287,7 @@ class SummaryAttendanceController extends Controller
             $d = $dt1;
             while(date('d/m/Y', strtotime("-1 day", strtotime($d))) != date('d/m/Y', strtotime($dt2))) {
                 array_push($dates, date('d/m/Y', strtotime($d)));
+                array_push($dates_convert, date('Y-m-d', strtotime($d)));
                 array_push($only_d, date('d', strtotime($d)));
                 $d = date('Y-m-d', strtotime("+1 day", strtotime($d)));
             }
@@ -298,32 +301,36 @@ class SummaryAttendanceController extends Controller
         $date_array['day'] = $only_d;
         $date_array['date'] = $dates;
 
+
         $ceks = array();
         if($request['office'] == 19)
         {
             // Get attendances
             $list_user = Attendance::select('id','user_id','date')->whereIn('workhour_id',$id)->where('date','>=',$dt1)->where('date','<=',$dt2)->groupBy('user_id')->get();
-            // $list_user = User::select('id','position_id','end_date')->where('position_id','=',$request['position'])->get();
+        
             $attendance_user = Attendance::select('id','user_id','date')->whereIn('workhour_id',$id)->where('date','>=',$dt1)->where('date','<=',$dt2)->get();
-
+            // dd($list_user);
             for($i=0;$i<count($list_user);$i++) {
-                for($j=0;$j<count($attendance_user);$j++) {
-                    $ceks[$i]['name'] = $attendance_user[$i]->user->name;
-
-                    if($list_user[$i]->user_id == $attendance_user[$j]->user_id) {
-                        for($k=1;$k<=count($only_d);$k++) {      
-                            if($only_d[$k-1] == date('d', strtotime($attendance_user[$j]->date)) ) {
-                                $ceks[$i]['date'][$k] = 'v';
-                            }             
-                        }
-                    }   
-                }
+                $list_name = User::select('id','name')->where('id', $list_user[$i]->user_id)->first();
+                $ceks[$i]['name'] = $list_name->name;
                 
+                for($k=0;$k<count($dates_convert);$k++) { 
+                    $datea[$k] = Attendance::select('id','user_id','date')->where('user_id',$list_user[$i]->user_id)->where('date',$dates_convert[$k])->first();
+                    $ceks[$i]['day'][$k] = $datea[$k] != null ? 'v' : null;                             
+                }
+           
             }
+            // //get absent
+            for($h=0;$h<count($list_user);$h++) {
+                $ceks[$h]['sakit'] = Absent::select('user_id')->where('date','>=',$dt1)->where('date','<=',$dt2)->where('user_id',$list_user[$h]->user_id)->where('category_id',1)->count();
+                $ceks[$h]['izin'] = Absent::select('user_id')->where('date','>=',$dt1)->where('date','<=',$dt2)->where('user_id',$list_user[$h]->user_id)->where('category_id',2)->count();
+                $ceks[$h]['alpa'] = Absent::select('user_id')->where('date','>=',$dt1)->where('date','<=',$dt2)->where('user_id',$list_user[$h]->user_id)->where('category_id',3)->count();
+            }
+
+            // dd($ceks);       
         }
         
 
-        // dd($ceks);
         // View
         return view('admin/summary/attendance/monitor', [
             'month' => $month,

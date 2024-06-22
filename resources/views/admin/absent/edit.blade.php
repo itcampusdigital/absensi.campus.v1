@@ -74,6 +74,7 @@
                                 <option value="" selected>--Pilih--</option>
                                 <option value="1" {{ $absent->category_id == 1 ? 'selected' : '' }}>Sakit</option>
                                 <option value="2" {{ $absent->category_id == 2 ? 'selected' : '' }}>Izin</option>
+                                <option value="3" {{ $absent->category_id == 3 ? 'selected' : '' }}>Alpa/Tanpa keterangan</option>
                             </select>
                             @if($errors->has('category_id'))
                             <div class="small text-danger">{{ ucfirst($errors->first('category_id')) }}</div>

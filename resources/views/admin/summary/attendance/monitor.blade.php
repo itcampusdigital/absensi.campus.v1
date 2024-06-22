@@ -97,21 +97,29 @@
                                     @foreach ($date_array['day'] as $days)
                                         <th>{{ $days }}</th>
                                     @endforeach
+                                    {{-- <th>Hadir</th> --}}
+                                    <th>Sakit</th>
+                                    <th>Ijin</th>
+                                    <th>Alpa</th>
                                 </tr>
                             </thead>
                             @if($ceks != null)
                                 <tbody>
                                         @for ($i=0; $i < count($ceks); $i++)                          
                                             <tr>
-                                                <td>{{ $i+1 }}</td>
+                                                <td align="center">{{ $i+1 }}</td>
                                                 <td>{{ $ceks[$i]['name'] }}</td>
-                                                @for($j=1;$j<=count($date_array['day']);$j++)
-                                                    @if(array_key_exists($j,$ceks[$i]['date']))
-                                                        <td>v</td>
+                                                @for($j=0;$j<count($ceks[$i]['day']);$j++)
+                                                    @if($ceks[$i]['day'][$j] != null)
+                                                        <td align="center">{{ $ceks[$i]['day'][$j] }}</td>
                                                     @else
                                                         <td style="background-color: red"></td>
                                                     @endif
                                                 @endfor
+                                                <td align="center">{{ $ceks[$i]['sakit'] }}</td>
+                                                <td align="center">{{ $ceks[$i]['izin'] }}</td>
+                                                <td align="center">{{ $ceks[$i]['alpa'] }}</td>
+      
                                             </tr>
                                         @endfor
                                 </tbody>

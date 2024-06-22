@@ -92,6 +92,8 @@
                                         <span class="badge bg-warning">Sakit</span>
                                     @elseif($absent->category_id == 2)
                                         <span class="badge bg-info">Izin</span>
+                                    @elseif($absent->category_id == 3)
+                                        <span class="badge bg-primary">Alpa/Tanpa Keterangan</span>
                                     @endif
                                     <br>
                                     {{ $absent->note }}
