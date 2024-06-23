@@ -15,6 +15,7 @@ use App\Models\Attendance;
 use Illuminate\Http\Request;
 use App\Exports\MonitorExport;
 use Ajifatur\Helpers\DateTimeExt;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\SummaryAttendanceExport;
 use Illuminate\Database\Eloquent\Builder;
@@ -37,13 +38,13 @@ class SummaryAttendanceController extends Controller
         $dt2 = date('Y-m-d', strtotime(date('Y').'-'.date('m').'-23'));
         $t1 = $request->query('t1') != null ? DateTimeExt::change($request->query('t1')) : $dt1;
         $t2 = $request->query('t2') != null ? DateTimeExt::change($request->query('t2')) : $dt2;
-		
+
 		// Set the status and status sign
         $status = $request->query('status') != null ? $request->query('status') : 1;
         $statusSign = $status == 1 ? '=' : '!=';
 
         if(Auth::user()->role_id == role('super-admin')) {
-            
+
             // Set params
             $group = $request->query('group') != null ? $request->query('group') : 0;
             $office = $request->query('office') != null ? $request->query('office') : 0;
@@ -265,15 +266,30 @@ class SummaryAttendanceController extends Controller
 
         // Get work hours and group
         if(Auth::user()->role_id == role('super-admin')) {
-            $work_hours = WorkHour::where('group_id','=',$request->query('group'))->where('office_id','=',$request->query('office'))->where('position_id','=',$request->query('position'))->orderBy('name','asc')->get();
+            if($request->query('position') != null) {
+                $work_hours = WorkHour::where('group_id','=',$request->query('group'))->where('office_id','=',$request->query('office'))->where('position_id','=',$request->query('position'))->orderBy('name','asc')->get();
+            }
+            else{
+                $work_hours = WorkHour::where('group_id','=',$request->query('group'))->where('office_id','=',$request->query('office'))->orderBy('name','asc')->get();
+            }
             $group = Group::find($request->query('group'));
         }
         elseif(Auth::user()->role_id == role('admin')) {
-            $work_hours = WorkHour::where('group_id','=',Auth::user()->group_id)->where('office_id','=',$request->query('office'))->where('position_id','=',$request->query('position'))->orderBy('name','asc')->get();
+            if($request->query('position') != null) {
+                $work_hours = WorkHour::where('group_id','=',Auth::user()->group_id)->where('office_id','=',$request->query('office'))->where('position_id','=',$request->query('position'))->orderBy('name','asc')->get();
+            }
+            else{
+                $work_hours = WorkHour::where('group_id','=',Auth::user()->group_id)->where('office_id','=',$request->query('office'))->orderBy('name','asc')->get();
+            }
             $group = Group::find(Auth::user()->group_id);
         }
         elseif(Auth::user()->role_id == role('manager')) {
-            $work_hours = WorkHour::where('group_id','=',Auth::user()->group_id)->where('office_id','=',$request->query('office'))->whereIn('office_id',Auth::user()->managed_offices()->pluck('office_id')->toArray())->where('position_id','=',$request->query('position'))->orderBy('name','asc')->get();
+            if($request->query('position') != null) {
+                $work_hours = WorkHour::where('group_id','=',Auth::user()->group_id)->where('office_id','=',$request->query('office'))->whereIn('office_id',Auth::user()->managed_offices()->pluck('office_id')->toArray())->where('position_id','=',$request->query('position'))->orderBy('name','asc')->get();
+            }
+            else{
+                $work_hours = WorkHour::where('group_id','=',Auth::user()->group_id)->where('office_id','=',$request->query('office'))->orderBy('name','asc')->get();
+            }
             $group = Group::find(Auth::user()->group_id);
         }
 
@@ -306,30 +322,47 @@ class SummaryAttendanceController extends Controller
         if($request['office'] == 19)
         {
             // Get attendances
-            $list_user = Attendance::select('id','user_id','date')->whereIn('workhour_id',$id)->where('date','>=',$dt1)->where('date','<=',$dt2)->groupBy('user_id')->get();
-        
-            $attendance_user = Attendance::select('id','user_id','date')->whereIn('workhour_id',$id)->where('date','>=',$dt1)->where('date','<=',$dt2)->get();
-            // dd($list_user);
+            $list_user = User::select('id','name')->whereHas('attendance', function($query) use ($id,$dt1,$dt2){
+                return $query->whereIn('workhour_id',$id)->where('date','>=',$dt1)->where('date','<=',$dt2);
+            })->get();
+
             for($i=0;$i<count($list_user);$i++) {
-                $list_name = User::select('id','name')->where('id', $list_user[$i]->user_id)->first();
-                $ceks[$i]['name'] = $list_name->name;
-                
-                for($k=0;$k<count($dates_convert);$k++) { 
-                    $datea[$k] = Attendance::select('id','user_id','date')->where('user_id',$list_user[$i]->user_id)->where('date',$dates_convert[$k])->first();
-                    $ceks[$i]['day'][$k] = $datea[$k] != null ? 'v' : null;                             
+                $ceks[$i]['name'] = $list_user[$i]->name;
+                $date_user = Attendance::select('date')->where('user_id',$list_user[$i]->id)->whereIn('date',$dates_convert)->pluck('date')->toArray();
+                $izin_user = Absent::select('date')->where('user_id',$list_user[$i]->id)->whereIn('date',$dates_convert)->where('category_id',2)->pluck('date')->toArray();
+                $sakit_user = Absent::select('date')->where('user_id',$list_user[$i]->id)->whereIn('date',$dates_convert)->where('category_id',1)->pluck('date')->toArray();
+                $alpa_user = Absent::select('date')->where('user_id',$list_user[$i]->id)->whereIn('date',$dates_convert)->where('category_id',3)->pluck('date')->toArray();
+
+                for($k=0;$k<count($dates_convert);$k++) {
+                    for($l=0;$l<count($izin_user);$l++) {
+                        if($izin_user[$l] == $dates_convert[$k]) {
+                            $ceks[$i]['izin'][$k] = 'i';
+                        }
+                    }
+                    for($l=0;$l<count($date_user);$l++) {
+                        if($date_user[$l] == $dates_convert[$k]) {
+                            $ceks[$i]['date'][$k] = 'H';
+                        }
+                    }
+                    for($l=0;$l<count($sakit_user);$l++) {
+                        if($sakit_user[$l] == $dates_convert[$k]) {
+                            $ceks[$i]['sakit'][$k] = 's';
+                        }
+                    }
+                    for($l=0;$l<count($alpa_user);$l++) {
+                        if($alpa_user[$l] == $dates_convert[$k]) {
+                            $ceks[$i]['alpa'][$k] = 'a';
+                        }
+                    }
                 }
-           
-            }
-            // //get absent
-            for($h=0;$h<count($list_user);$h++) {
-                $ceks[$h]['sakit'] = Absent::select('user_id')->where('date','>=',$dt1)->where('date','<=',$dt2)->where('user_id',$list_user[$h]->user_id)->where('category_id',1)->count();
-                $ceks[$h]['izin'] = Absent::select('user_id')->where('date','>=',$dt1)->where('date','<=',$dt2)->where('user_id',$list_user[$h]->user_id)->where('category_id',2)->count();
-                $ceks[$h]['alpa'] = Absent::select('user_id')->where('date','>=',$dt1)->where('date','<=',$dt2)->where('user_id',$list_user[$h]->user_id)->where('category_id',3)->count();
+
+                $ceks[$i]['izin'] = array_key_exists('izin',$ceks[$i]) ? $ceks[$i]['izin'] : array();
+                $ceks[$i]['sakit'] = array_key_exists('sakit',$ceks[$i]) ? $ceks[$i]['sakit'] : array();
+                $ceks[$i]['alpa'] = array_key_exists('alpa',$ceks[$i]) ? $ceks[$i]['alpa'] : array();
+                $ceks[$i]['date'] = array_key_exists('date',$ceks[$i]) ? $ceks[$i]['date'] : array();
             }
 
-            // dd($ceks);       
         }
-        
 
         // View
         return view('admin/summary/attendance/monitor', [
@@ -339,7 +372,7 @@ class SummaryAttendanceController extends Controller
             'work_hours' => $work_hours,
             'dates' => $dates,
             'date_array' => $date_array,
-            'attendance_user' => $request['office'] == 19 ? $attendance_user : [],
+            'dates_convert' => $dates_convert,
             'ceks' => $ceks != null ? $ceks : []
         ]);
     }
@@ -350,25 +383,25 @@ class SummaryAttendanceController extends Controller
         $dt2 = date('Y-m-d', strtotime(date('Y').'-'.date('m').'-23'));
         $t1 = $request->query('t1') != null ? DateTimeExt::change($request->query('t1')) : $dt1;
         $t2 = $request->query('t2') != null ? DateTimeExt::change($request->query('t2')) : $dt2;
-		
+
 		// Set the status and status sign
             $status = $request->query('status') != null ? $request->query('status') : 1;
             $statusSign = $status == 1 ? '=' : '!=';
             $group = Auth::user()->role_id == 1 ? $request->group_id : Auth::user()->group_id;
             $office = $request->office_id ;
             $position = $request->position_id ;
-            
+
         // Get users
             if($office != 0 && $position != 0){
                 $users = User::where('role_id','=',role('member'))->where('group_id','=',$group)->where('office_id','=',$office)->where('position_id','=',$position)
                 ->where('end_date',$statusSign,null)->get();
             }
-       
+
             else if($office != 0 && $position == 0){
                 $users = User::where('role_id','=',role('member'))->where('group_id','=',$group)->where('office_id','=',$office)
                 ->where('end_date',$statusSign,null)->get();
             }
-       
+
             else if($office == 0 && $position != 0){
                 $users = User::where('role_id','=',role('member'))->where('group_id','=',$group)->where('position_id','=',$position)
                 ->where('end_date',$statusSign,null)->get();
@@ -415,19 +448,19 @@ class SummaryAttendanceController extends Controller
                     }
                 }
             }
-        
+
 
         return Excel::download(new SummaryAttendanceExport($users), 'Rangkuman Absensi.xlsx');
-           
+
     }
 
     public function ExportMonitorAttendance(Request $request)
     {
-        $position_id = $request->position_id;  
-        $office_id = $request->office_id;  
-        $group_id = $request->group_id;  
-        $year = $request->year;  
-        $month = $request->month;  
+        $position_id = $request->position_id == 'null' ? null : $request->position_id;
+        $office_id = $request->office_id;
+        $group_id = $request->group_id;
+        $year = $request->year;
+        $month = $request->month;
         $month = $request->query('month') ?: date('m');
         $year = $request->query('year') ?: date('Y');
 
@@ -436,23 +469,38 @@ class SummaryAttendanceController extends Controller
 
         // Get work hours and group
         if(Auth::user()->role_id == role('super-admin')) {
-            $work_hours = WorkHour::where('group_id','=',$group_id)->where('office_id','=',$office_id)->where('position_id','=',$position_id)->orderBy('name','asc')->get();
+            if($position_id != null){
+                $work_hours = WorkHour::where('group_id','=',$group_id)->where('office_id','=',$office_id)->where('position_id','=',$position_id)->orderBy('name','asc')->get();
+            }
+            else{
+                $work_hours = WorkHour::where('group_id','=',$group_id)->where('office_id','=',$office_id)->orderBy('name','asc')->get();
+            }
             $group = Group::find($group_id);
         }
         elseif(Auth::user()->role_id == role('admin')) {
-            $work_hours = WorkHour::where('group_id','=',Auth::user()->group_id)->where('office_id','=',$office_id)->where('position_id','=',$position_id)->orderBy('name','asc')->get();
+            if($position_id != null){
+                $work_hours = WorkHour::where('group_id','=',Auth::user()->group_id)->where('office_id','=',$office_id)->where('position_id','=',$position_id)->orderBy('name','asc')->get();
+            }
+            else{
+                $work_hours = WorkHour::where('group_id','=',Auth::user()->group_id)->where('office_id','=',$office_id)->orderBy('name','asc')->get();
+            }
             $group = Group::find(Auth::user()->group_id);
         }
         elseif(Auth::user()->role_id == role('manager')) {
-            $work_hours = WorkHour::where('group_id','=',Auth::user()->group_id)->where('office_id','=',$office_id)->whereIn('office_id',Auth::user()->managed_offices()->pluck('office_id')->toArray())->where('position_id','=',$position_id)->orderBy('name','asc')->get();
+            if($position_id != null){
+                $work_hours = WorkHour::where('group_id','=',Auth::user()->group_id)->where('office_id','=',$office_id)->whereIn('office_id',Auth::user()->managed_offices()->pluck('office_id')->toArray())->where('position_id','=',$position_id)->orderBy('name','asc')->get();
+            }
+            else{
+                $work_hours = WorkHour::where('group_id','=',Auth::user()->group_id)->where('office_id','=',$office_id)->whereIn('office_id',Auth::user()->managed_offices()->pluck('office_id')->toArray())->orderBy('name','asc')->get();
+            }
             $group = Group::find(Auth::user()->group_id);
         }
-  
+
         $prev_month = $request->month-1 < 10 ? '0'.$request->month-1 : $request->month-1;
         $now_month = $request->month < 10 ? '0'.$request->month : $request->month;
         $from = $prev_month == 00 ? ($request->year-1).'-12-24' : $request->year.'-'.$prev_month.'-24';
         $to = $request->year.'-'.$now_month.'-23';
-        
+
         for($i=0;$i<count($work_hours);$i++){
             $array_id_workhours[$i] = $work_hours[$i]->id;
             $array_name_workhours[$i] = $work_hours[$i]->name;
@@ -464,7 +512,7 @@ class SummaryAttendanceController extends Controller
 
         $monitoring = Attendance::select('id','date','start_at','entry_at','user_id','workhour_id','office_id')
                             ->whereIn('workhour_id',$array_id_workhours)
-                            ->whereBetween('date',[$from, $to])   
+                            ->whereBetween('date',[$from, $to])
                             ->orderBy('date','asc')
                             ->get();
 
@@ -473,7 +521,7 @@ class SummaryAttendanceController extends Controller
         $shift3 = array();
         $sisipan = array();
         $arrays = array();
-        
+
 
         for($i=0;$i<count($monitoring);$i++){
             // $monitoring[$i]->late_time = Carbon::parse(date('H:i:s', strtotime($monitoring[$i]->entry_at)))->diffInMinutes($monitoring[$i]->start_at) > 0 ? Carbon::parse(date('H:i:s', strtotime($monitoring[$i]->entry_at)))->diffInMinutes($monitoring[$i]->start_at) : 0;
@@ -490,7 +538,7 @@ class SummaryAttendanceController extends Controller
             else if($monitoring[$i]->workhour->name == 'Sisipan 3'){
                 $sisipan[$i] = $monitoring[$i];
             }
-           
+
         }
 
         for($j=0;$j<count($dates);$j++){
@@ -501,7 +549,7 @@ class SummaryAttendanceController extends Controller
 
         return Excel::download(new MonitorExport($monitoring, $dates,$array_name_workhours,$shift1,$shift2,$shift3,$sisipan), 'Monitor Absensi '.now().'.xlsx');
 
-        
+
     }
 
 

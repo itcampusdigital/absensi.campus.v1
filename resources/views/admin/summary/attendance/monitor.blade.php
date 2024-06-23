@@ -73,13 +73,15 @@
                         </select>
                     </div>
                     <div class="ms-lg-2 ms-0">
-                        <button type="submit" class="btn btn-sm btn-info" {{ Request::query('office') != null && Request::query('position') != null ? '' : 'disabled' }}><i class="bi-filter-square me-1"></i> Filter</button>
+                        <button type="submit" class="btn btn-sm btn-info" {{ Request::query('office') != null ? '' : 'disabled' }}><i class="bi-filter-square me-1"></i> Filter</button>
+                        @if(Auth::user()->role_id == role('super-admin'))
                         <a type="button" id="exportExcel" class="btn btn-sm btn-success"><i class="bi-filter-square me-1"></i> Export Excel</a>
+                        @endif
                     </div>
                 </form>
             </div>
             <hr class="my-0">
-            @if(Request::query('office') != null && Request::query('position') != null && count($work_hours) > 0)
+            @if(Request::query('office') != null && count($work_hours) > 0)
             <div class="card-body">
                 @if(Session::get('message'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -99,27 +101,34 @@
                                     @endforeach
                                     {{-- <th>Hadir</th> --}}
                                     <th>Sakit</th>
-                                    <th>Ijin</th>
+                                    <th>Izin</th>
                                     <th>Alpa</th>
                                 </tr>
                             </thead>
                             @if($ceks != null)
                                 <tbody>
-                                        @for ($i=0; $i < count($ceks); $i++)                          
+                                        @for ($i=0; $i < count($ceks); $i++)
                                             <tr>
                                                 <td align="center">{{ $i+1 }}</td>
                                                 <td>{{ $ceks[$i]['name'] }}</td>
-                                                @for($j=0;$j<count($ceks[$i]['day']);$j++)
-                                                    @if($ceks[$i]['day'][$j] != null)
-                                                        <td align="center">{{ $ceks[$i]['day'][$j] }}</td>
+
+                                                @for($j=0;$j<count($dates_convert);$j++)
+                                                    @if(array_key_exists($j,$ceks[$i]['date']))
+                                                        <td align="center" style="color: green"><b>{{ $ceks[$i]['date'][$j] }}</b></td>
+                                                    @elseif(array_key_exists($j,$ceks[$i]['izin']))
+                                                        <td align="center" style="color: rgb(255, 0, 170)"><b>{{ $ceks[$i]['izin'][$j] }}</b></td>
+                                                    @elseif(array_key_exists($j,$ceks[$i]['sakit']))
+                                                        <td align="center" style="color: blue"><b>{{ $ceks[$i]['sakit'][$j] }}</b></td>
+                                                    @elseif(array_key_exists($j,$ceks[$i]['alpa']))
+                                                        <td align="center"><b>{{ $ceks[$i]['alpa'][$j] }}</b></td>
                                                     @else
-                                                        <td style="background-color: red"></td>
+                                                        <td style="background-color: rgb(247, 78, 78)"></td>
                                                     @endif
                                                 @endfor
-                                                <td align="center">{{ $ceks[$i]['sakit'] }}</td>
-                                                <td align="center">{{ $ceks[$i]['izin'] }}</td>
-                                                <td align="center">{{ $ceks[$i]['alpa'] }}</td>
-      
+                                                <td align="center">{{ count($ceks[$i]['sakit']) }}</td>
+                                                <td align="center">{{ count($ceks[$i]['izin']) }}</td>
+                                                <td align="center">{{ count($ceks[$i]['alpa']) }}</td>
+
                                             </tr>
                                         @endfor
                                 </tbody>
@@ -231,10 +240,10 @@
     });
 
     // Change the Office and Position
-    $(document).on("change", "select[name=office], select[name=position]", function() {
+    $(document).on("change", "select[name=office]", function() {
         var office = $("select[name=office]").val();
         var position = $("select[name=position]").val();
-        if(office !== null && position !== null)
+        if(office != null)
             $("#form-filter").find("button[type=submit]").removeAttr("disabled");
         else
             $("#form-filter").find("button[type=submit]").attr("disabled","disabled");
@@ -263,7 +272,7 @@
 @section('css')
 
 <style type="text/css">
-    .table tbody tr td {vertical-align: top;}    
+    .table tbody tr td {vertical-align: top;}
 </style>
 
 @endsection

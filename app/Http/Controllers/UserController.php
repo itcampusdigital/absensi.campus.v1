@@ -122,7 +122,7 @@ class UserController extends Controller
 
         // Get groups
         $groups = Group::orderBy('name','asc')->get();
-        
+
         // View
         return view('admin/user/index', [
             'users' => $users,
@@ -178,9 +178,9 @@ class UserController extends Controller
             'email' => 'required|email|unique:users',
             'username' => 'required|alpha_dash|min:4|unique:users',
             'password' => 'required|min:6',
-			
+
         ]);
-        
+
         // Check errors
         if($validator->fails()) {
             // Back to form page with validation error messages
@@ -217,7 +217,7 @@ class UserController extends Controller
 
             $new_kontrak->user_id =  $user->id;
             $new_kontrak->start_date_kontrak =  $change_start_kontrak;
-            
+
             $new_kontrak->masa = $request->masa;
             $new_kontrak->end_date_kontrak = date('Y-m-d', strtotime( $change_start_kontrak.'+'.$d.' month'));
             $new_kontrak->save();
@@ -227,7 +227,7 @@ class UserController extends Controller
             $divisi_new->user_id = $request->id;
             $divisi_new->division_id = $request->divisi;
             $divisi_new->save();
-            
+
 
             // If manager, attach offices
             if($user->role_id == role('manager')) {
@@ -250,7 +250,7 @@ class UserController extends Controller
      */
     public function detail($id)
     {
-        
+
         // Check the access
         has_access(method(__METHOD__), Auth::user()->role_id);
         $divisi = Divisi::select('id','name')->get();
@@ -299,7 +299,7 @@ class UserController extends Controller
         elseif(Auth::user()->role_id == role('manager')) {
             $user = User::where('group_id','=',Auth::user()->group_id)->whereIn('office_id',Auth::user()->managed_offices()->pluck('office_id')->toArray())->findOrFail($id);
         }
-        
+
         $jabatan = JabatanAttribute::where('user_id',$id)->first();
         // Get roles
         $roles = Role::where('code','!=','super-admin')->orderBy('num_order','asc')->get();
@@ -343,7 +343,7 @@ class UserController extends Controller
             ],
             'password' => $request->password != '' ? 'min:6' : '',
         ]);
-        
+
         // Check errors
         if($validator->fails()) {
             // Back to form page with validation error messages
@@ -376,16 +376,18 @@ class UserController extends Controller
             $user->save();
 
             //divisi
-            $divisi = JabatanAttribute::find($request->id);
-            if($divisi == null){
-                $divisi_new = new JabatanAttribute;
-                $divisi_new->user_id = $request->id;
-                $divisi_new->division_id = $request->divisi;
-                $divisi_new->save();
-            }
-            else{
-                $divisi->division_id = $request->divisi;
-                $divisi->save();
+            if(isset($request->divisi)){
+                $divisi = JabatanAttribute::find($request->id);
+                if($divisi == null){
+                    $divisi_new = new JabatanAttribute;
+                    $divisi_new->user_id = $request->id;
+                    $divisi_new->division_id = $request->divisi;
+                    $divisi_new->save();
+                }
+                else{
+                    $divisi->division_id = $request->divisi;
+                    $divisi->save();
+                }
             }
 
 
@@ -399,7 +401,7 @@ class UserController extends Controller
 
                 $request->start_date_kontrak = DateTimeExt::change($request->start_date_kontrak);
                 $kontrak->start_date_kontrak = $request->start_date_kontrak != null ? $request->start_date_kontrak : null;
-                
+
                 $kontrak->end_date_kontrak = date('Y-m-d', strtotime($request->start_date_kontrak.'+'.$d.' month'));
                 $kontrak->save();
             }
@@ -407,7 +409,7 @@ class UserController extends Controller
                 // $Date = "2023-08-22";
                 $d = strval($request->masa);
                 $request->start_date_kontrak = DateTimeExt::change($request->start_date_kontrak);
-                
+
                 $end_date= date('Y-m-d', strtotime($request->start_date_kontrak.'+'.$d.' month'));
                 // $user->kontrak->masa = $request->masa;
                 // $user->kontrak->start_date_kontrak = DateTimeExt::change($request->start_date_kontrak);
@@ -418,8 +420,8 @@ class UserController extends Controller
                             ->update(['start_date_kontrak'=> $request->start_date_kontrak]);
                 DB::table('kontrak')->where('user_id',$user->kontrak->user_id)
                             ->update(['end_date_kontrak'=> $end_date]);
-                              
-                
+
+
             }
 
             // If manager, sync offices
@@ -526,7 +528,7 @@ class UserController extends Controller
     }
 
     public function exportKaryawan(Request $request){
- 
+
         $position_id = $request->position_id;
         $office_id = $request->office_id;
         $statusSign = $request->status == 1 ? '=' : '!=';
@@ -585,8 +587,8 @@ class UserController extends Controller
             $username = $row[16] != null ? $row[16] : strstr($row[14], '@', true);
             $cek_username = User::select('username')->where('username',$username)->first();
             $cek_email = User::select('email')->where('email',$row[14])->first();
-                
-                
+
+
             if($cek_username != null || $cek_email != null){
                 return abort(400,'Username atau Email pada nama "'.$row[4].'" Sudah Terdaftar');
             }
@@ -625,7 +627,7 @@ class UserController extends Controller
 
                 $new_kontrak->user_id =  $user_newData->id;
                 $new_kontrak->start_date_kontrak =  $start_date_kontrak;
-                
+
                 $new_kontrak->masa = $row[12];
                 $new_kontrak->end_date_kontrak = date('Y-m-d', strtotime( $start_date_kontrak.'+'.$d.' month'));
                 $new_kontrak->save();
