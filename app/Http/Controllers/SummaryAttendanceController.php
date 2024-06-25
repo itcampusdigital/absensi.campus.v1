@@ -14,10 +14,12 @@ use App\Models\WorkHour;
 use App\Models\Attendance;
 use Illuminate\Http\Request;
 use App\Exports\MonitorExport;
+use App\Exports\Monitor2Export;
 use Ajifatur\Helpers\DateTimeExt;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\SummaryAttendanceExport;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Validator;
 
@@ -364,6 +366,7 @@ class SummaryAttendanceController extends Controller
 
         }
 
+
         // View
         return view('admin/summary/attendance/monitor', [
             'month' => $month,
@@ -379,6 +382,7 @@ class SummaryAttendanceController extends Controller
 
     public function exportSummaryAttendance(Request $request)
     {        // Set params
+
         $dt1 = date('m') > 1 ? date('Y-m-d', strtotime(date('Y').'-'.(date('m')-1).'-24')) : date('Y-m-d', strtotime((date('Y')-1).'-12-24'));
         $dt2 = date('Y-m-d', strtotime(date('Y').'-'.date('m').'-23'));
         $t1 = $request->query('t1') != null ? DateTimeExt::change($request->query('t1')) : $dt1;
@@ -456,6 +460,7 @@ class SummaryAttendanceController extends Controller
 
     public function ExportMonitorAttendance(Request $request)
     {
+   
         $position_id = $request->position_id == 'null' ? null : $request->position_id;
         $office_id = $request->office_id;
         $group_id = $request->group_id;
@@ -545,12 +550,20 @@ class SummaryAttendanceController extends Controller
             $arrays[$j] = $monitoring->where('date',$dates[$j]->date)->count();
         }
 
-        // dd($arrays);
-
         return Excel::download(new MonitorExport($monitoring, $dates,$array_name_workhours,$shift1,$shift2,$shift3,$sisipan), 'Monitor Absensi '.now().'.xlsx');
 
 
     }
 
+    public function ExportMonitoredataUser(Request $request)
+    {
+        $data = json_decode(decrypt($request->data),true);
+        $date_array = json_decode(decrypt($request->date_array),true);
+        $dates_convert_array = json_decode(decrypt($request->dates_convert_array),true);
+
+        $time = date('m-d-Y.h-i-s', time());
+        return Excel::download(new Monitor2Export($data,$date_array,$dates_convert_array), 'monitor_'.$time.'.xlsx');
+
+    }
 
 }

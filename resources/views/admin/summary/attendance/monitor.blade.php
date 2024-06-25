@@ -74,11 +74,19 @@
                     </div>
                     <div class="ms-lg-2 ms-0">
                         <button type="submit" class="btn btn-sm btn-info" {{ Request::query('office') != null ? '' : 'disabled' }}><i class="bi-filter-square me-1"></i> Filter</button>
-                        @if(Auth::user()->role_id == role('super-admin'))
-                        <a type="button" id="exportExcel" class="btn btn-sm btn-success"><i class="bi-filter-square me-1"></i> Export Excel</a>
-                        @endif
+                        {{-- <a type="button" id="exportExcel" class="btn btn-sm btn-success"><i class="bi-filter-square me-1"></i> Export Excel</a> --}}
                     </div>
                 </form>
+                    <form action="{{ route('admin.summary.attendance.export.dataUser') }}" enctype="multipart/form-data" method="get">
+                        @csrf
+                        <div class="ms-lg-2 ms-0">
+                            <input type="hidden" name="data" value="{{ encrypt(json_encode($ceks)) }}">
+                            <input type="hidden" name="date_array" value="{{ encrypt(json_encode($date_array['day'])) }}">
+                            <input type="hidden" name="dates_convert_array" value="{{ encrypt(json_encode($dates_convert)) }}">
+                            <button {{ request('office') == 19 ? '' : 'disabled' }} id="buttonExcel" type="submit" class="btn btn-sm btn-success"><i class="bi-filter-square me-1"></i> Export Excel</button>
+                        </div>
+                    </form>
+                
             </div>
             <hr class="my-0">
             @if(Request::query('office') != null && count($work_hours) > 0)
@@ -99,7 +107,7 @@
                                     @foreach ($date_array['day'] as $days)
                                         <th>{{ $days }}</th>
                                     @endforeach
-                                    {{-- <th>Hadir</th> --}}
+                                    <th>Hadir</th>
                                     <th>Sakit</th>
                                     <th>Izin</th>
                                     <th>Alpa</th>
@@ -125,6 +133,7 @@
                                                         <td style="background-color: rgb(247, 78, 78)"></td>
                                                     @endif
                                                 @endfor
+                                                <td align="center">{{ count($ceks[$i]['date']) }}</td>
                                                 <td align="center">{{ count($ceks[$i]['sakit']) }}</td>
                                                 <td align="center">{{ count($ceks[$i]['izin']) }}</td>
                                                 <td align="center">{{ count($ceks[$i]['alpa']) }}</td>
