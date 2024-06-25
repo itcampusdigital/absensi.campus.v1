@@ -278,10 +278,10 @@ class SummaryAttendanceController extends Controller
         }
         elseif(Auth::user()->role_id == role('admin')) {
             if($request->query('position') != null) {
-                $work_hours = WorkHour::where('group_id','=',Auth::user()->group_id)->where('office_id','=',$request->query('office'))->where('position_id','=',$request->query('position'))->orderBy('name','asc')->get();
+                $work_hours = WorkHour::select('id','group_id','office_id','position_id','category_id','name')->where('group_id','=',Auth::user()->group_id)->where('office_id','=',$request->query('office'))->where('position_id','=',$request->query('position'))->orderBy('name','asc')->get();
             }
             else{
-                $work_hours = WorkHour::where('group_id','=',Auth::user()->group_id)->where('office_id','=',$request->query('office'))->orderBy('name','asc')->get();
+                $work_hours = WorkHour::select('id','group_id','office_id','position_id','category_id','name')->where('group_id','=',Auth::user()->group_id)->where('office_id','=',$request->query('office'))->orderBy('name','asc')->get();
             }
             $group = Group::find(Auth::user()->group_id);
         }
@@ -366,6 +366,15 @@ class SummaryAttendanceController extends Controller
 
         }
 
+        $date_user_office = array();
+        if($request['office'] == 1){
+            for($k=0;$k<count($dates_convert);$k++) {
+                $dates_array = $dates_convert[$k];
+                $date_user_office[$k] = User::select('id','name')->whereHas('attendance', function($query) use ($dates_array,$id){
+                    return $query->whereIn('workhour_id',$id)->where('date',$dates_array);
+                })->pluck('name')->toArray();
+            }
+        }
 
         // View
         return view('admin/summary/attendance/monitor', [
@@ -376,6 +385,7 @@ class SummaryAttendanceController extends Controller
             'dates' => $dates,
             'date_array' => $date_array,
             'dates_convert' => $dates_convert,
+            'date_user_office' => $date_user_office != null ? $date_user_office : [],
             'ceks' => $ceks != null ? $ceks : []
         ]);
     }
@@ -460,7 +470,7 @@ class SummaryAttendanceController extends Controller
 
     public function ExportMonitorAttendance(Request $request)
     {
-   
+
         $position_id = $request->position_id == 'null' ? null : $request->position_id;
         $office_id = $request->office_id;
         $group_id = $request->group_id;

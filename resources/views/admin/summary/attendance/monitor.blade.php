@@ -77,16 +77,16 @@
                         {{-- <a type="button" id="exportExcel" class="btn btn-sm btn-success"><i class="bi-filter-square me-1"></i> Export Excel</a> --}}
                     </div>
                 </form>
-                    <form action="{{ route('admin.summary.attendance.export.dataUser') }}" enctype="multipart/form-data" method="post">
-                        @csrf
-                        <div class="ms-lg-2 ms-0">
-                            <input type="hidden" name="data" value="{{ encrypt(json_encode($ceks)) }}">
-                            <input type="hidden" name="date_array" value="{{ encrypt(json_encode($date_array['day'])) }}">
-                            <input type="hidden" name="dates_convert_array" value="{{ encrypt(json_encode($dates_convert)) }}">
-                            <button {{ request('office') == 19 ? '' : 'disabled' }} id="buttonExcel" type="submit" class="btn btn-sm btn-success"><i class="bi-filter-square me-1"></i> Export Excel</button>
-                        </div>
-                    </form>
-                
+                <form action="{{ route('admin.summary.attendance.export.dataUser') }}" enctype="multipart/form-data" method="post">
+                    @csrf
+                    <div class="ms-lg-2 ms-0">
+                        <input type="hidden" name="data" value="{{ encrypt(json_encode($ceks)) }}">
+                        <input type="hidden" name="date_array" value="{{ encrypt(json_encode($date_array['day'])) }}">
+                        <input type="hidden" name="dates_convert_array" value="{{ encrypt(json_encode($dates_convert)) }}">
+                        <button {{ request('office') == 19 ? '' : 'disabled' }} id="buttonExcel" type="submit" class="btn btn-sm btn-success"><i class="bi-filter-square me-1"></i> Export Excel</button>
+                    </div>
+                </form>
+
             </div>
             <hr class="my-0">
             @if(Request::query('office') != null && count($work_hours) > 0)
@@ -163,34 +163,53 @@
                                 @endif
                             </thead>
                             <tbody>
-                                    @foreach($dates as $key=>$date)
-                                        <tr>
-                                            <td align="center">{{ ($key+1) }}</td>
-                                            <td>
-                                                <span class="d-none">{{ \Ajifatur\Helpers\DateTimeExt::change($date) }}</span>
-                                                {{ $date }}
-                                            </td>
-                                            @if(count($work_hours) > 0)
-                                                @foreach($work_hours as $work_hour)
-                                                    @php
-                                                        $attendances = \App\Models\Attendance::has('user')->where('workhour_id','=',$work_hour->id)->where('date','=',\Ajifatur\Helpers\DateTimeExt::change($date))->get();
-                                                    @endphp
-                                                    <td>
-                                                        @if(count($attendances) > 0)
-                                                            @foreach($attendances as $key=>$attendance)
-                                                                <a href="{{ route('admin.attendance.edit', ['id' => $attendance->id]) }}" class="{{ count($attendances) > $work_hour->quota ? 'text-danger' : '' }}">{{ $attendance->user->name }}</a>
-                                                                @if($key < count($attendances) - 1)
-                                                                <hr class="my-1">
-                                                                @endif
-                                                            @endforeach
-                                                        @else
-                                                            -
-                                                        @endif
-                                                    </td>
-                                                @endforeach
-                                            @endif
-                                        </tr>
-                                    @endforeach
+                                    @if(request('office') == 1)
+                                        @for($i=0;$i<count($date_user_office);$i++)
+                                            <tr>
+                                                <td align="center">{{ ($i+1) }}</td>
+                                                <td>
+                                                    <span class="d-none">{{ \Ajifatur\Helpers\DateTimeExt::change($dates[$i]) }}</span>
+                                                    {{ $dates[$i] }}
+                                                </td>
+                                                @if($date_user_office[$i] == null)
+
+                                                @else
+                                                    @foreach($date_user_office[$i] as $key=>$value)
+                                                        <td>{{ $value }}</td>
+                                                    @endforeach
+                                                @endif
+                                            </tr>
+                                        @endfor
+                                    @else
+                                        @foreach($dates as $key=>$date)
+                                            <tr>
+                                                <td align="center">{{ ($key+1) }}</td>
+                                                <td>
+                                                    <span class="d-none">{{ \Ajifatur\Helpers\DateTimeExt::change($date) }}</span>
+                                                    {{ $date }}
+                                                </td>
+                                                @if(count($work_hours) > 0)
+                                                    @foreach($work_hours as $work_hour)
+                                                        @php
+                                                            $attendances = \App\Models\Attendance::has('user')->where('workhour_id','=',$work_hour->id)->where('date','=',\Ajifatur\Helpers\DateTimeExt::change($date))->get();
+                                                        @endphp
+                                                        <td>
+                                                            @if(count($attendances) > 0)
+                                                                @foreach($attendances as $key=>$attendance)
+                                                                    <a href="{{ route('admin.attendance.edit', ['id' => $attendance->id]) }}" class="{{ count($attendances) > $work_hour->quota ? 'text-danger' : '' }}">{{ $attendance->user->name }}</a>
+                                                                    @if($key < count($attendances) - 1)
+                                                                    <hr class="my-1">
+                                                                    @endif
+                                                                @endforeach
+                                                            @else
+                                                                -
+                                                            @endif
+                                                        </td>
+                                                    @endforeach
+                                                @endif
+                                            </tr>
+                                        @endforeach
+                                    @endif
                             </tbody>
                         @endif
                     </table>

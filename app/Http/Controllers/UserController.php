@@ -581,24 +581,26 @@ class UserController extends Controller
         {
             $row = $rows[$i];
             if($row[5] != null){
-                $office_id = Office::select('id','name')->where('name','LIKE','%'.$row[1].'%')->first();
-                $position_id = Position::select('id','name')->where('name','LIKE','%'.$row[2].'%')->first();
+                $office_id = Office::select('id','name')->where('group_id',Auth::user()->group_id)->where('name','LIKE','%'.$row[1].'%')->pluck('id')->toArray();
+                $position_id = Position::select('id','name')->where('group_id',Auth::user()->group_id)->where('name','LIKE','%'.$row[2].'%')->pluck('id')->toArray();
                 $password = $row[17] != null ? $row[17] : 123456;
                 //generated username
                 $username = $row[16] != null ? $row[16] : strstr($row[14], '@', true).'0'.rand(0,100);
                 $cek_username = User::select('username')->where('username',$username)->first();
                 $cek_email = User::select('email')->where('email',$row[14])->first();
 
-
                 if($cek_username != null || $cek_email != null){
                     return abort(400,'Username atau Email pada nama "'.$row[4].'" Sudah Terdaftar');
+                }
+                else if($office_id == null || $position_id == null){
+                    return abort(400,'Posisi atau kantor pada nama "'.$row[4].'" Tidak Ditemukan');
                 }
                 else{
                     $user_newData = new User;
                     $user_newData->role_id = 3;
                     $user_newData->group_id = Auth::user()->group_id;
-                    $user_newData->office_id = $office_id->id;
-                    $user_newData->position_id = $position_id->id;
+                    $user_newData->office_id = $office_id[0];
+                    $user_newData->position_id = $position_id[0];
                     $user_newData->name = $row[4];
                     $user_newData->username = $username;
                     $user_newData->email = $row[14];
