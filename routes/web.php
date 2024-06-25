@@ -44,7 +44,7 @@ Route::group(['middleware' => ['admin']], function() {
 
 	Route::get('/admin/summary/attendances/export', 'SummaryAttendanceController@exportSummaryAttendance')->name('admin.summary.attendance.export');
 	Route::get('/admin/summary/monitor-attendance/export', 'SummaryAttendanceController@ExportMonitorAttendance')->name('admin.summary.attendance.monitor.export');
-	Route::get('/admin/summary/monitor-attendance/dataUser', 'SummaryAttendanceController@ExportMonitoredataUser')->name('admin.summary.attendance.export.dataUser');
+	Route::post('/admin/summary/monitor-attendance/dataUser', 'SummaryAttendanceController@ExportMonitoredataUser')->name('admin.summary.attendance.export.dataUser');
 
 	// Summary Salary
 	Route::get('/admin/summary/salary', 'SummarySalaryController@index')->name('admin.summary.salary.index');

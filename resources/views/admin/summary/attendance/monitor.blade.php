@@ -77,7 +77,7 @@
                         {{-- <a type="button" id="exportExcel" class="btn btn-sm btn-success"><i class="bi-filter-square me-1"></i> Export Excel</a> --}}
                     </div>
                 </form>
-                    <form action="{{ route('admin.summary.attendance.export.dataUser') }}" enctype="multipart/form-data" method="get">
+                    <form action="{{ route('admin.summary.attendance.export.dataUser') }}" enctype="multipart/form-data" method="post">
                         @csrf
                         <div class="ms-lg-2 ms-0">
                             <input type="hidden" name="data" value="{{ encrypt(json_encode($ceks)) }}">

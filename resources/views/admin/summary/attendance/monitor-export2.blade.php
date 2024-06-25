@@ -1,15 +1,15 @@
 <table class="table table-sm table-hover table-bordered" id="datatable">
         <thead class="bg-light">
             <tr>
-                <th width="10" align="center" style="border: 1px solid black;background-color:gray">No</th>
-                <th width="40" style="border: 1px solid black;background-color:gray">Nama</th>
+                <th width="10" align="center" style="border: 1px solid black;background-color:gray"><b>No</b></th>
+                <th width="40" style="border: 1px solid black;background-color:gray"><b>Nama</b></th>
                 @foreach ($days as $day)
                     <th align="center" style="border: 1px solid black;background-color:gray">{{ $day }}</th>
                 @endforeach
-                <th style="border: 1px solid black;background-color:gray">Hadir</th>
-                <th style="border: 1px solid black;background-color:gray">Sakit</th>
-                <th style="border: 1px solid black;background-color:gray">Izin</th>
-                <th style="border: 1px solid black;background-color:gray">Alpa</th>
+                <th align="center" style="border: 1px solid black;background-color:gray"><b>Hadir</b></th>
+                <th align="center" style="border: 1px solid black;background-color:gray"><b>Sakit</b></th>
+                <th align="center" style="border: 1px solid black;background-color:gray"><b>Izin</b></th>
+                <th align="center" style="border: 1px solid black;background-color:gray"><b>Alpa</b></th>
             </tr>
         </thead>
         @if($ceks != null)
