@@ -580,74 +580,77 @@ class UserController extends Controller
         for($i=0;$i<count($rows);$i++)
         {
             $row = $rows[$i];
-            $office_id = Office::select('id','name')->where('name','LIKE','%'.$row[1].'%')->first();
-            $position_id = Position::select('id','name')->where('name','LIKE','%'.$row[2].'%')->first();
-            $password = $row[17] != null ? $row[17] : 123456;
-            //generated username
-            $username = $row[16] != null ? $row[16] : strstr($row[14], '@', true);
-            $cek_username = User::select('username')->where('username',$username)->first();
-            $cek_email = User::select('email')->where('email',$row[14])->first();
+            if($row[5] != null){
+                $office_id = Office::select('id','name')->where('name','LIKE','%'.$row[1].'%')->first();
+                $position_id = Position::select('id','name')->where('name','LIKE','%'.$row[2].'%')->first();
+                $password = $row[17] != null ? $row[17] : 123456;
+                //generated username
+                $username = $row[16] != null ? $row[16] : strstr($row[14], '@', true).'0'.rand(0,100);
+                $cek_username = User::select('username')->where('username',$username)->first();
+                $cek_email = User::select('email')->where('email',$row[14])->first();
 
 
-            if($cek_username != null || $cek_email != null){
-                return abort(400,'Username atau Email pada nama "'.$row[4].'" Sudah Terdaftar');
-            }
-            else{
-                $user_newData = new User;
-                $user_newData->role_id = 3;
-                $user_newData->group_id = Auth::user()->group_id;
-                $user_newData->office_id = $office_id->id;
-                $user_newData->position_id = $position_id->id;
-                $user_newData->name = $row[4];
-                $user_newData->username = $username;
-                $user_newData->email = $row[14];
-                $user_newData->password = bcrypt($password);
-                $user_newData->remember_token = null;
-                $user_newData->avatar = null;
-                $user_newData->access_token = null;
-                $user_newData->birthdate = $row[5];
-                $user_newData->gender = $row[6];
-                $user_newData->phone_number = $row[15];
-                $user_newData->address = $row[7];
-                $user_newData->latest_education = $row[8];
-                $user_newData->identity_number = $row[9];
-                $user_newData->start_date = $row[10];
-                $user_newData->end_date=$row[13];
-                $user_newData->status = 1;
-                $user_newData->created_at = date('Y-m-d H:i:s');
-                $user_newData->note =$row[18];
-                $user_newData->save();
-
-
-                //kontrak user baru
-                $new_kontrak = new Kontrak;
-                $d = strval($row[12]);
-                $start_date_kontrak = $row[11] != null ? $row[11] : date('Y-m-d');
-                // $change_start_kontrak = DateTimeExt::change($start_date_kontrak);
-
-                $new_kontrak->user_id =  $user_newData->id;
-                $new_kontrak->start_date_kontrak =  $start_date_kontrak;
-
-                $new_kontrak->masa = $row[12];
-                $new_kontrak->end_date_kontrak = date('Y-m-d', strtotime( $start_date_kontrak.'+'.$d.' month'));
-                $new_kontrak->save();
-
-                //divisi
-                $cek_divisi = Divisi::select('id','name')->where('name','LIKE','%'.$row[3].'%')->first();
-                if($cek_divisi == null){
-                    $divisi_baru = new Divisi;
-                    $divisi_baru->group_id = Auth::user()->group_id;
-                    $divisi_baru->name = $row[3];
-                    $divisi_baru->save();
-
-                    $cek_divisi = $divisi_baru;
+                if($cek_username != null || $cek_email != null){
+                    return abort(400,'Username atau Email pada nama "'.$row[4].'" Sudah Terdaftar');
                 }
+                else{
+                    $user_newData = new User;
+                    $user_newData->role_id = 3;
+                    $user_newData->group_id = Auth::user()->group_id;
+                    $user_newData->office_id = $office_id->id;
+                    $user_newData->position_id = $position_id->id;
+                    $user_newData->name = $row[4];
+                    $user_newData->username = $username;
+                    $user_newData->email = $row[14];
+                    $user_newData->password = bcrypt($password);
+                    $user_newData->remember_token = null;
+                    $user_newData->avatar = null;
+                    $user_newData->access_token = null;
+                    $user_newData->birthdate = $row[5];
+                    $user_newData->gender = $row[6];
+                    $user_newData->phone_number = $row[15];
+                    $user_newData->address = $row[7];
+                    $user_newData->latest_education = $row[8];
+                    $user_newData->identity_number = $row[9];
+                    $user_newData->start_date = $row[10];
+                    $user_newData->end_date=$row[13];
+                    $user_newData->status = 1;
+                    $user_newData->created_at = date('Y-m-d H:i:s');
+                    $user_newData->note =$row[18];
+                    $user_newData->save();
 
-                $divisi_new = new JabatanAttribute;
-                $divisi_new->user_id = $user_newData->id;
-                $divisi_new->division_id = $cek_divisi->id;
-                $divisi_new->save();
+
+                    //kontrak user baru
+                    $new_kontrak = new Kontrak;
+                    $d = strval($row[12]);
+                    $start_date_kontrak = $row[11] != null ? $row[11] : date('Y-m-d');
+                    // $change_start_kontrak = DateTimeExt::change($start_date_kontrak);
+
+                    $new_kontrak->user_id =  $user_newData->id;
+                    $new_kontrak->start_date_kontrak =  $start_date_kontrak;
+
+                    $new_kontrak->masa = $row[12];
+                    $new_kontrak->end_date_kontrak = date('Y-m-d', strtotime( $start_date_kontrak.'+'.$d.' month'));
+                    $new_kontrak->save();
+
+                    // //divisi
+                    // $cek_divisi = Divisi::select('id','name')->where('name','LIKE','%'.$row[3].'%')->first();
+                    // if($cek_divisi == null){
+                    //     $divisi_baru = new Divisi;
+                    //     $divisi_baru->group_id = Auth::user()->group_id;
+                    //     $divisi_baru->name = $row[3];
+                    //     $divisi_baru->save();
+
+                    //     $cek_divisi = $divisi_baru;
+                    // }
+
+                    // $divisi_new = new JabatanAttribute;
+                    // $divisi_new->user_id = $user_newData->id;
+                    // $divisi_new->division_id = $cek_divisi->id;
+                    // $divisi_new->save();
+                }
             }
+
         }
 
         // Redirect

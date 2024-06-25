@@ -23,7 +23,7 @@
 <div class="row">
     <div class="col-12">
         <div class="card">
-            
+
             @if(Request::query('role') == 'member')
             <div class="card-header d-sm-flex justify-content-center align-items-center">
                 <form id="form-filter" class="d-lg-flex" method="get" action="">
@@ -220,17 +220,18 @@
 <div class="modal" id="myModal">
     <div class="modal-dialog">
       <div class="modal-content">
-  
+
         <!-- Modal Header -->
         <div class="modal-header">
           <h4 class="modal-title">Import Data Pegawai</h4>
           {{-- <button type="button" class="btn-close" data-bs-dismiss="modal"></button> --}}
         </div>
-  
+
         <!-- Modal body -->
         <div class="modal-body">
             <p>Silahkan melakukan import data dibawah ini dengan format csv, xlsx.</p>
-            <p>Template untuk melakukan import pegawai bisa didownload disini: 
+            <p>auto generate password: 123456</p>
+            <p>Template untuk melakukan import pegawai bisa didownload disini:
                 <a href="{{ asset('assets/document/users.xlsx') }}">import-file</a>
             </p>
             <form action="{{ route('admin.user.import') }}" method="post" enctype="multipart/form-data">
@@ -239,12 +240,12 @@
                 <button type="submit" class="btn btn-sm btn-primary btnImports" id="btnImports" disabled>Import</button>
             </form>
         </div>
-  
+
         <!-- Modal footer -->
         <div class="modal-footer">
           <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
         </div>
-  
+
       </div>
     </div>
   </div>
@@ -261,7 +262,7 @@
 <script type="text/javascript">
     // DataTable
     Spandiv.DataTable("#datatable");
-    
+
     // Button Delete
     Spandiv.ButtonDelete(".btn-delete", ".form-delete");
 
@@ -315,7 +316,7 @@
                 window.location = "{{ route('admin.user.export') }}?group_id=" + group + "&position_id=" + position_id + "&office_id=" + office_id + "&status=" + status;
             }
         }
-        
+
     })
 
     // Change Group
@@ -353,7 +354,7 @@
 @section('css')
 
 <style type="text/css">
-    .table tbody tr td {vertical-align: top;}    
+    .table tbody tr td {vertical-align: top;}
 </style>
 
 @endsection
