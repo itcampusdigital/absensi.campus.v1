@@ -1,8 +1,9 @@
 <?php
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 use Ajifatur\Helpers\RouteExt;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\APIMagang\APIMagangController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,6 +19,14 @@ use Ajifatur\Helpers\RouteExt;
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
+//magang
+Route::get('/magang/divisi', [APIMagangController::class,'divisi'])->name('api.divisi');
+Route::get('/magang/dailies',[APIMagangController::class,'dailies'])->name('api.dailies');
+Route::get('/magang/jabatan_attr',[APIMagangController::class,'jabatan_attr'])->name('api.jabatan_attr');
+Route::get('/magang/group',[APIMagangController::class,'group'])->name('api.group');
+//---
+
+
 Route::get('/user', 'UserController@index')->name('api.user.index');
 Route::get('/office', 'OfficeController@index')->name('api.office.index');
 Route::get('/divisi', 'DivisiController@index')->name('api.divisi.index');
