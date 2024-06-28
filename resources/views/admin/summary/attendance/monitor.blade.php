@@ -124,13 +124,13 @@
                                                     @if(array_key_exists($j,$ceks[$i]['date']))
                                                         <td align="center" style="color: green"><b>{{ $ceks[$i]['date'][$j] }}</b></td>
                                                     @elseif(array_key_exists($j,$ceks[$i]['izin']))
-                                                        <td align="center" style="color: rgb(255, 0, 170)"><b>{{ $ceks[$i]['izin'][$j] }}</b></td>
+                                                        <td align="center" style="background-color:#5757ff;color: white"><b>{{ $ceks[$i]['izin'][$j] }}</b></td>
                                                     @elseif(array_key_exists($j,$ceks[$i]['sakit']))
-                                                        <td align="center" style="color: blue"><b>{{ $ceks[$i]['sakit'][$j] }}</b></td>
+                                                        <td align="center" style="background-color:#fef5b1 ;color: black"><b>{{ $ceks[$i]['sakit'][$j] }}</b></td>
                                                     @elseif(array_key_exists($j,$ceks[$i]['alpa']))
-                                                        <td align="center"><b>{{ $ceks[$i]['alpa'][$j] }}</b></td>
+                                                        <td align="center" style="background-color: #fcabab;color: white"><b>{{ $ceks[$i]['alpa'][$j] }}</b></td>
                                                     @else
-                                                        <td style="background-color: rgb(247, 78, 78)"></td>
+                                                        <td style="background-color: #c3c3c3"></td>
                                                     @endif
                                                 @endfor
                                                 <td align="center">{{ count($ceks[$i]['date']) }}</td>
@@ -163,7 +163,7 @@
                                 @endif
                             </thead>
                             <tbody>
-                                    @if(request('office') == 1)
+                                    {{-- @if(request('office') == 1)
                                         @for($i=0;$i<count($date_user_office);$i++)
                                             <tr>
                                                 <td align="center">{{ ($i+1) }}</td>
@@ -180,7 +180,7 @@
                                                 @endif
                                             </tr>
                                         @endfor
-                                    @else
+                                    @else --}}
                                         @foreach($dates as $key=>$date)
                                             <tr>
                                                 <td align="center">{{ ($key+1) }}</td>
@@ -196,7 +196,7 @@
                                                         <td>
                                                             @if(count($attendances) > 0)
                                                                 @foreach($attendances as $key=>$attendance)
-                                                                    <a href="{{ route('admin.attendance.edit', ['id' => $attendance->id]) }}" class="{{ count($attendances) > $work_hour->quota ? 'text-danger' : '' }}">{{ $attendance->user->name }}</a>
+                                                                    <a href="{{ route('admin.attendance.edit', ['id' => $attendance->id]) }}" >{{ $attendance->user->name }}</a>
                                                                     @if($key < count($attendances) - 1)
                                                                     <hr class="my-1">
                                                                     @endif
@@ -209,7 +209,7 @@
                                                 @endif
                                             </tr>
                                         @endforeach
-                                    @endif
+                                    {{-- @endif --}}
                             </tbody>
                         @endif
                     </table>
