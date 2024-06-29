@@ -24,6 +24,7 @@ Route::get('/magang/divisi', [APIMagangController::class,'divisi'])->name('api.d
 Route::get('/magang/dailies',[APIMagangController::class,'dailies'])->name('api.dailies');
 Route::get('/magang/jabatan_attr',[APIMagangController::class,'jabatan_attr'])->name('api.jabatan_attr');
 Route::get('/magang/group',[APIMagangController::class,'group'])->name('api.group');
+Route::get('/magang/user',[APIMagangController::class,'getUser'])->name('api.getUser');
 //---
 
 
