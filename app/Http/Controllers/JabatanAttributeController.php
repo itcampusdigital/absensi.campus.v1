@@ -33,7 +33,9 @@ class JabatanAttributeController extends Controller
         
         $groups = Group::orderBy('name','asc')->get();
         $user_divisi = JabatanAttribute::where('division_id',$request->id_divisi)->get();
+        // $user_divisi = JabatanAttribute::whereHas('user')->where('division_id',$request->id_divisi)->get();
         $divisi = Divisi::where('id',$request->id_divisi)->first();
+        // dd($user_divisi);
         return view('admin/divisi/jabatan_attr/index',[
             'groups' => $groups,
             'divisi'=>$divisi,

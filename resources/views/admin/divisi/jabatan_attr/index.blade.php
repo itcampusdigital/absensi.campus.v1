@@ -43,11 +43,12 @@
                         </thead>
                         <tbody>
                             @foreach($user_divisi as $karyawan)
+                            @if($karyawan->user != null)
                                 <tr>
                                     <td align="center">{{ $loop->iteration }}</td>
                                     <td>
                                         <a href="{{ route('admin.user.detail', ['id' => $karyawan->user->id]) }}">
-                                        {{ $karyawan->user->name }}
+                                            {{ $karyawan->user->name }}
                                         </a>
                                         <br>
                                         <small class="text-dark">{{ $karyawan->user->email }}</small>
@@ -60,6 +61,7 @@
                                         <small class="text-muted">{{ $karyawan->user->position->group->name }}</small>
                                     </td>
                                 </tr>
+                                @endif
 
                             @endforeach
                         </tbody>

@@ -224,7 +224,7 @@ class UserController extends Controller
 
             //divisi
             $divisi_new = new JabatanAttribute;
-            $divisi_new->user_id = $request->id;
+            $divisi_new->user_id = $user->id;
             $divisi_new->division_id = $request->divisi;
             $divisi_new->save();
 
@@ -377,7 +377,7 @@ class UserController extends Controller
 
             //divisi
             if(isset($request->divisi)){
-                $divisi = JabatanAttribute::find($request->id);
+                $divisi = JabatanAttribute::where('user_id',$request->id)->first();
                 if($divisi == null){
                     $divisi_new = new JabatanAttribute;
                     $divisi_new->user_id = $request->id;
