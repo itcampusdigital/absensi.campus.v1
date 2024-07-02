@@ -321,7 +321,7 @@ class SummaryAttendanceController extends Controller
 
 
         $ceks = array();
-        if($request['office'] == 19)
+        if($request['office'] == 19 || $request['office'] == 1)
         {
             // Get attendances
             $list_user = User::select('id','name')->whereHas('attendance', function($query) use ($id,$dt1,$dt2){
@@ -365,16 +365,6 @@ class SummaryAttendanceController extends Controller
             }
 
         }
-
-        // $date_user_office = array();
-        // if($request['office'] == 1){
-        //     for($k=0;$k<count($dates_convert);$k++) {
-        //         $dates_array = $dates_convert[$k];
-        //         $date_user_office[$k] = User::select('id','name')->whereHas('attendance', function($query) use ($dates_array,$id){
-        //             return $query->whereIn('workhour_id',$id)->where('date',$dates_array);
-        //         })->pluck('name')->toArray();
-        //     }
-        // }
 
         // View
         return view('admin/summary/attendance/monitor', [

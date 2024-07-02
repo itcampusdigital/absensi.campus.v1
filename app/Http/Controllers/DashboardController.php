@@ -49,7 +49,7 @@ class DashboardController extends Controller
             for($i = 0; $i < $kontrak_count; $i++){
                 $conv_format = date('Y/m/d',strtotime($kontrak[$i]->end_date_kontrak));
                 $selisih = Carbon::parse(date('Y/m/d', time()))->diffInDays(Carbon::parse($conv_format),false);
-                if($selisih <= 7 && $selisih >= 0){
+                if($selisih <= 7){
                     $data_all[$i] = $kontrak[$i];
                 }
             }

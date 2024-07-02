@@ -99,7 +99,7 @@
                 @endif
                 <div class="table-responsive">
                     <table class="table table-sm table-hover table-bordered" id="datatable">
-                        @if(request('office') == 19)
+                        @if(request('office') == 19 || request('office') == 1)
                             <thead class="bg-light">
                                 <tr>
                                     <th width="10">No</th>
